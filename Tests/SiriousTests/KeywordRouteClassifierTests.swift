@@ -37,4 +37,31 @@ struct KeywordRouteClassifierTests {
         #expect(decision.route == .search)
         #expect(decision.readiness == .waitForEndpoint)
     }
+
+    @Test("media commands route locally when audio is active")
+    func mediaCommandRoutesLocallyWhenAudioIsActive() async {
+        let classifier = KeywordRouteClassifier(
+            context: SystemContextSnapshot(
+                audio: AudioPlaybackSnapshot(
+                    state: .playing,
+                    sourceName: "fixture",
+                    title: "Test Track",
+                    artist: nil
+                )
+            )
+        )
+        let event = TranscriptEvent(
+            text: "pause",
+            range: nil,
+            isFinal: false,
+            stability: .stable,
+            source: .fixture
+        )
+
+        let decision = await classifier.classify(event)
+
+        #expect(decision.route == .localFunction)
+        #expect(decision.domain == .mediaControl)
+        #expect(decision.readiness == .likelyRoute)
+    }
 }
