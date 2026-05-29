@@ -1,0 +1,71 @@
+name: Sirious
+options:
+  minimumXcodeGenVersion: 2.39.0
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+      SWIFT_OPTIMIZATION_LEVEL: -Onone
+    Release:
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_OPTIMIZATION_LEVEL: -O
+targets:
+  Sirious:
+    type: application
+    platform: macOS
+    configFiles:
+      Debug: Config/Sirious.xcconfig
+      Release: Config/Sirious.xcconfig
+    sources:
+      - path: Sources/App
+        group: App
+      - path: Sources/Routing
+        group: Routing
+    info:
+      path: Sources/Support/Info.plist
+      properties:
+        CFBundleDisplayName: Sirious
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.galewilliams.Sirious
+    scheme:
+      testTargets:
+        - SiriousTests
+        - SiriousUITests
+  SiriousTests:
+    type: bundle.unit-test
+    platform: macOS
+    configFiles:
+      Debug: Config/Sirious.xcconfig
+      Release: Config/Sirious.xcconfig
+    sources:
+      - path: Tests/SiriousTests
+        group: Tests
+    dependencies:
+      - target: Sirious
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+  SiriousUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    configFiles:
+      Debug: Config/Sirious.xcconfig
+      Release: Config/Sirious.xcconfig
+    sources:
+      - path: Tests/SiriousUITests
+        group: UI Tests
+    dependencies:
+      - target: Sirious
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
