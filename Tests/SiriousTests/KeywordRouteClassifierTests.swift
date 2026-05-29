@@ -42,6 +42,70 @@ struct KeywordRouteClassifierTests {
         #expect(decision.readiness == .actionable)
     }
 
+    @Test("application resolver prefers running workspace apps")
+    func applicationResolverPrefersRunningWorkspaceApps() {
+        let resolver = ApplicationResolver(
+            workspace: WorkspaceSnapshot(
+                runningApplications: [
+                    ApplicationSnapshot(
+                        displayName: "Safari",
+                        bundleIdentifier: "com.apple.Safari",
+                        bundleURL: nil,
+                        processIdentifier: 42,
+                        isActive: true
+                    ),
+                ],
+                frontmostApplication: nil
+            )
+        )
+
+        let target = resolver.target(named: "safari")
+
+        #expect(target == .application(
+            ApplicationSnapshot(
+                displayName: "Safari",
+                bundleIdentifier: "com.apple.Safari",
+                bundleURL: nil,
+                processIdentifier: 42,
+                isActive: true
+            )
+        ))
+    }
+
+    @Test("switch commands route to app control with workspace context")
+    func switchCommandsRouteToAppControlWithWorkspaceContext() async {
+        let classifier = KeywordRouteClassifier(
+            context: SystemContextSnapshot(
+                audio: .unknown,
+                workspace: WorkspaceSnapshot(
+                    runningApplications: [
+                        ApplicationSnapshot(
+                            displayName: "Xcode",
+                            bundleIdentifier: "com.apple.dt.Xcode",
+                            bundleURL: nil,
+                            processIdentifier: 84,
+                            isActive: false
+                        ),
+                    ],
+                    frontmostApplication: nil
+                )
+            )
+        )
+        let event = TranscriptEvent(
+            text: "switch to Xcode",
+            range: nil,
+            isFinal: true,
+            stability: .final,
+            source: .fixture
+        )
+
+        let decision = await classifier.classify(event)
+
+        #expect(decision.route == .localFunction)
+        #expect(decision.domain == .appControl)
+        #expect(decision.confidence == 0.9)
+    }
+
     @Test("partial search commands wait for endpoint")
     func partialSearchWaitsForEndpoint() async {
         let classifier = KeywordRouteClassifier()
@@ -68,7 +132,8 @@ struct KeywordRouteClassifierTests {
                     sourceName: "fixture",
                     title: "Test Track",
                     artist: nil
-                )
+                ),
+                workspace: .empty
             )
         )
         let event = TranscriptEvent(

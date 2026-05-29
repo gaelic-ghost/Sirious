@@ -9,7 +9,7 @@ The first durable building block is a transcript-event protocol. Apple SpeechAna
 1. `TranscriptEventSource` emits time-coded partial and final transcript events.
 2. `TranscriptSpanStabilizer` normalizes finality and stability before routing.
 3. `CommandNormalizer` trims transcript text, preserves the original phrase, and provides lowercase/token views for first-stage matching.
-4. `SystemContextSnapshot` carries current machine state such as audio playback.
+4. `SystemContextSnapshot` carries current machine state such as audio playback, running apps, and the frontmost app.
 5. `PatternCommandRouter` handles obvious local commands with deterministic patterns before any learned classifier runs.
 6. `StreamingRouteClassifier` falls back to broader route decisions such as search, chat, planning, or clarification.
 7. `RiskAndContextGate` separates executable local decisions from actions that need confirmation or more context.
@@ -32,4 +32,5 @@ The first stage should do as little learned classification as possible. Simple c
 - Apple SpeechAnalyzer should be the native macOS integration path, including a custom module or adapter when that gives clean access to analyzer timing and result finality.
 - Voxtral Realtime should remain a parallel transcript backend behind the same protocol so streaming quality and latency can be compared without changing the router.
 - MPNowPlaying should be the first audio context provider, but audio state should stay behind `AudioStateProviding` so later sources can be added without changing routing decisions.
+- NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
 - FunctionGemma should sit after route narrowing as a small function-call formatter for constrained tool schemas, not as the first consumer of raw partial transcription.

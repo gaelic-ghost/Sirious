@@ -1,12 +1,7 @@
 struct PatternCommandRouter: Sendable {
-    private let appPatterns: AppCommandPatterns
     private let mediaPatterns: MediaCommandPatterns
 
-    init(
-        appPatterns: AppCommandPatterns = AppCommandPatterns(),
-        mediaPatterns: MediaCommandPatterns = MediaCommandPatterns()
-    ) {
-        self.appPatterns = appPatterns
+    init(mediaPatterns: MediaCommandPatterns = MediaCommandPatterns()) {
         self.mediaPatterns = mediaPatterns
     }
 
@@ -15,7 +10,7 @@ struct PatternCommandRouter: Sendable {
         event: TranscriptEvent,
         context: SystemContextSnapshot
     ) -> PatternRouteMatch? {
-        appPatterns.match(command, event: event)
+        AppCommandPatterns(workspace: context.workspace).match(command, event: event)
             ?? mediaPatterns.match(command, event: event, context: context)
     }
 }
