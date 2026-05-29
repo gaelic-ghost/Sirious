@@ -31,3 +31,9 @@ Run the main validation path:
 ```sh
 xcodebuild -project Sirious.xcodeproj -scheme Sirious -configuration Debug -destination platform=macOS test
 ```
+
+Install the local SwiftFormat pre-commit hook:
+
+```sh
+sh scripts/repo-maintenance/install-hooks.sh
+```

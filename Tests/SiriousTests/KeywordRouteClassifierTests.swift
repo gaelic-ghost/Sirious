@@ -1,7 +1,6 @@
-import Testing
 @testable import Sirious
+import Testing
 
-@Suite("Keyword route classifier")
 struct KeywordRouteClassifierTests {
     @Test("normalization trims and lowercases spoken commands")
     func normalizationTrimsAndLowercasesSpokenCommands() {
