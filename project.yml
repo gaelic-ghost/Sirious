@@ -28,6 +28,8 @@ targets:
     sources:
       - path: Sources/App
         group: App
+      - path: Sources/Permissions
+        group: Permissions
       - path: Sources/Routing
         group: Routing
     info:

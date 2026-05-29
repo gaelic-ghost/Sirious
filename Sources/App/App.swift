@@ -6,5 +6,9 @@ struct SiriousApp: App {
         WindowGroup {
             CommandCenterView()
         }
+
+        Settings {
+            SettingsView()
+        }
     }
 }
