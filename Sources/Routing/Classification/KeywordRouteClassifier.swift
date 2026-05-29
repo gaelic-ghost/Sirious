@@ -1,5 +1,5 @@
 struct KeywordRouteClassifier: StreamingRouteClassifier {
-    var context: SystemContextSnapshot
+    var contextProvider: any SystemContextProviding
     var normalizer: CommandNormalizer
     var patternRouter: PatternCommandRouter
 
@@ -8,13 +8,26 @@ struct KeywordRouteClassifier: StreamingRouteClassifier {
         normalizer: CommandNormalizer = CommandNormalizer(),
         patternRouter: PatternCommandRouter = PatternCommandRouter()
     ) {
-        self.context = context
+        self.init(
+            contextProvider: StaticSystemContextProvider(context),
+            normalizer: normalizer,
+            patternRouter: patternRouter
+        )
+    }
+
+    init(
+        contextProvider: any SystemContextProviding,
+        normalizer: CommandNormalizer = CommandNormalizer(),
+        patternRouter: PatternCommandRouter = PatternCommandRouter()
+    ) {
+        self.contextProvider = contextProvider
         self.normalizer = normalizer
         self.patternRouter = patternRouter
     }
 
     func classify(_ event: TranscriptEvent) async -> RouteDecision {
         let normalized = normalizer.normalize(event.text)
+        let context = await contextProvider.snapshot()
 
         if let patternMatch = patternRouter.match(normalized, event: event, context: context) {
             return patternMatch.decision

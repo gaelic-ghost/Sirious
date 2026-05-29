@@ -105,6 +105,66 @@ struct KeywordRouteClassifierTests {
         #expect(decision.confidence == 0.9)
     }
 
+    @Test("window commands route to window control")
+    func windowCommandsRouteToWindowControl() async {
+        let classifier = KeywordRouteClassifier()
+        let event = TranscriptEvent(
+            text: "close this window",
+            range: nil,
+            isFinal: true,
+            stability: .final,
+            source: .fixture
+        )
+
+        let decision = await classifier.classify(event)
+
+        #expect(decision.route == .localFunction)
+        #expect(decision.domain == .windowControl)
+        #expect(decision.complexity == .atomic)
+        #expect(decision.readiness == .actionable)
+    }
+
+    @Test("window target resolver maps next window")
+    func windowTargetResolverMapsNextWindow() {
+        let resolver = WindowTargetResolver()
+
+        let target = resolver.target(named: "next window")
+
+        #expect(target == .window(.nextWindow))
+    }
+
+    @Test("live system context provider combines audio and workspace providers")
+    func liveSystemContextProviderCombinesAudioAndWorkspaceProviders() async {
+        let workspace = WorkspaceSnapshot(
+            runningApplications: [
+                ApplicationSnapshot(
+                    displayName: "Safari",
+                    bundleIdentifier: "com.apple.Safari",
+                    bundleURL: nil,
+                    processIdentifier: 12,
+                    isActive: true
+                ),
+            ],
+            frontmostApplication: nil
+        )
+        let provider = await LiveSystemContextProvider(
+            audioProvider: FixtureAudioStateProvider(
+                audioSnapshot: AudioPlaybackSnapshot(
+                    state: .playing,
+                    sourceName: "fixture",
+                    title: "Test Track",
+                    artist: nil
+                )
+            ),
+            workspaceProvider: FixtureWorkspaceStateProvider(workspaceSnapshot: workspace)
+        )
+
+        let snapshot = await provider.snapshot()
+
+        #expect(snapshot.audio.state == .playing)
+        #expect(snapshot.workspace == workspace)
+    }
+
     @Test("partial search commands wait for endpoint")
     func partialSearchWaitsForEndpoint() async {
         let classifier = KeywordRouteClassifier()
@@ -184,5 +244,23 @@ struct KeywordRouteClassifierTests {
 
         #expect(decision.route == .clarify)
         #expect(decision.domain == .unknown)
+    }
+}
+
+private struct FixtureAudioStateProvider: AudioStateProviding {
+    var audioSnapshot: AudioPlaybackSnapshot
+
+    @MainActor
+    func snapshot() -> AudioPlaybackSnapshot {
+        audioSnapshot
+    }
+}
+
+private struct FixtureWorkspaceStateProvider: WorkspaceStateProviding {
+    var workspaceSnapshot: WorkspaceSnapshot
+
+    @MainActor
+    func snapshot() -> WorkspaceSnapshot {
+        workspaceSnapshot
     }
 }

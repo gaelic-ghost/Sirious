@@ -1,8 +1,13 @@
 struct PatternCommandRouter {
     private let mediaPatterns: MediaCommandPatterns
+    private let windowPatterns: WindowCommandPatterns
 
-    init(mediaPatterns: MediaCommandPatterns = MediaCommandPatterns()) {
+    init(
+        mediaPatterns: MediaCommandPatterns = MediaCommandPatterns(),
+        windowPatterns: WindowCommandPatterns = WindowCommandPatterns()
+    ) {
         self.mediaPatterns = mediaPatterns
+        self.windowPatterns = windowPatterns
     }
 
     func match(
@@ -10,7 +15,8 @@ struct PatternCommandRouter {
         event: TranscriptEvent,
         context: SystemContextSnapshot
     ) -> PatternRouteMatch? {
-        AppCommandPatterns(workspace: context.workspace).match(command, event: event)
+        windowPatterns.match(command, event: event)
+            ?? AppCommandPatterns(workspace: context.workspace).match(command, event: event)
             ?? mediaPatterns.match(command, event: event, context: context)
     }
 }
