@@ -1,25 +1,26 @@
 struct KeywordRouteClassifier: StreamingRouteClassifier {
     var context: SystemContextSnapshot
+    var normalizer: CommandNormalizer
+    var patternRouter: PatternCommandRouter
 
-    init(context: SystemContextSnapshot = .empty) {
+    init(
+        context: SystemContextSnapshot = .empty,
+        normalizer: CommandNormalizer = CommandNormalizer(),
+        patternRouter: PatternCommandRouter = PatternCommandRouter()
+    ) {
         self.context = context
+        self.normalizer = normalizer
+        self.patternRouter = patternRouter
     }
 
     func classify(_ event: TranscriptEvent) async -> RouteDecision {
-        let normalized = event.text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let normalized = normalizer.normalize(event.text)
 
-        if normalized.hasPrefix("open ") {
-            return RouteDecision(
-                route: .localFunction,
-                domain: .appControl,
-                complexity: .atomic,
-                risk: .safe,
-                readiness: event.isFinal ? .actionable : .likelyRoute,
-                confidence: 0.82
-            )
+        if let patternMatch = patternRouter.match(normalized, event: event, context: context) {
+            return patternMatch.decision
         }
 
-        if normalized.hasPrefix("search ") || normalized.hasPrefix("look up ") {
+        if normalized.lowercase.hasPrefix("search ") || normalized.lowercase.hasPrefix("look up ") {
             return RouteDecision(
                 route: .search,
                 domain: .search,
@@ -27,17 +28,6 @@ struct KeywordRouteClassifier: StreamingRouteClassifier {
                 risk: .safe,
                 readiness: event.isFinal ? .actionable : .waitForEndpoint,
                 confidence: 0.78
-            )
-        }
-
-        if ["pause", "stop", "resume", "play"].contains(normalized), context.audio.state.isActive || event.isFinal {
-            return RouteDecision(
-                route: .localFunction,
-                domain: .mediaControl,
-                complexity: .atomic,
-                risk: .safe,
-                readiness: event.isFinal ? .actionable : .likelyRoute,
-                confidence: context.audio.state.isActive ? 0.88 : 0.68
             )
         }
 

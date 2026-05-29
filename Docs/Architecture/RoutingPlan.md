@@ -8,12 +8,24 @@ The first durable building block is a transcript-event protocol. Apple SpeechAna
 
 1. `TranscriptEventSource` emits time-coded partial and final transcript events.
 2. `TranscriptSpanStabilizer` normalizes finality and stability before routing.
-3. `SystemContextSnapshot` carries current machine state such as audio playback.
-4. `StreamingRouteClassifier` turns each transcript event into a route hypothesis.
-5. `RiskAndContextGate` separates executable local decisions from actions that need confirmation or more context.
-6. Route-specific executors handle app control, search, retrieval, planning, or clarification.
+3. `CommandNormalizer` trims transcript text, preserves the original phrase, and provides lowercase/token views for first-stage matching.
+4. `SystemContextSnapshot` carries current machine state such as audio playback.
+5. `PatternCommandRouter` handles obvious local commands with deterministic patterns before any learned classifier runs.
+6. `StreamingRouteClassifier` falls back to broader route decisions such as search, chat, planning, or clarification.
+7. `RiskAndContextGate` separates executable local decisions from actions that need confirmation or more context.
+8. Route-specific executors handle app control, search, retrieval, planning, or clarification.
 
 Each stage lives in its own file so the pipeline stays easy to inspect, replace, and test.
+
+## First-Stage Matching Policy
+
+The first stage should do as little learned classification as possible. Simple commands should route through deterministic checks that are easy to test and benchmark.
+
+- Use exact string and token checks for tiny commands such as `pause`, `play`, `stop`, and `resume`.
+- Use `Scanner` for command shapes with a verb and a free-form remainder, such as `open Safari`, `launch Xcode`, and `start Music`.
+- Use cached `NSRegularExpression` values for anchored patterns when scanner parsing becomes awkward or needs grouped captures.
+- Use Swift Regex or RegexBuilder only where readability clearly wins and the path is not hot.
+- Fall back to the learned classifier only when deterministic matching returns no route.
 
 ## Near-Term Backend Choices
 
