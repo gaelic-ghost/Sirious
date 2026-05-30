@@ -26,11 +26,12 @@ Routing mode is backed by focused-control context. Sirious caches the focused Ac
 ## Next Slices
 
 1. Expand routing-mode heuristics beyond AX roles, starting with app-specific code, Swift, and chat contexts.
-2. Add dictation pause cleanup and text post-processing profiles so ordinary voice typing can be corrected during pauses without a large editing-command grammar.
-3. Add real text-editing execution against focused editable targets only where post-processing cannot handle the job naturally.
-4. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.
-5. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
-6. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
+2. Harden pasteboard fallback before relying on it heavily: preserve and restore richer pasteboard contents, report fallback permission/input-monitoring failures clearly, and add manual validation against common native and Electron text fields.
+3. Add dictation pause cleanup and text post-processing profiles so ordinary voice typing can be corrected during pauses without a large editing-command grammar.
+4. Add real text-editing execution against focused editable targets only where post-processing cannot handle the job naturally.
+5. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.
+6. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
+7. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
 
 ## Deferred
 
