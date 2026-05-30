@@ -43,6 +43,35 @@ struct DebugView: View {
                 labeledValue("Queued", "\(runtime.pendingCommands.queuedCommandCount)")
             }
 
+            Section("Recent Issues") {
+                if let latestIssue = runtime.issueStore.latestIssue {
+                    labeledValue("Latest", issueSummary(latestIssue))
+                    if let recoveryHint = latestIssue.recoveryHint {
+                        labeledValue("Hint", recoveryHint)
+                    }
+                } else {
+                    labeledValue("Latest", "None")
+                }
+
+                ForEach(runtime.issueStore.recentIssues.prefix(5)) { issue in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(issueSummary(issue))
+                            .monospaced()
+
+                        if let recoveryHint = issue.recoveryHint {
+                            Text(recoveryHint)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                if runtime.issueStore.recentIssues.isEmpty == false {
+                    Button("Clear Issues") {
+                        runtime.issueStore.clear()
+                    }
+                }
+            }
+
             Section("Latest Route") {
                 if let match = runtime.latestRouteMatch {
                     labeledValue("Route", match.decision.route.rawValue)
@@ -142,6 +171,10 @@ struct DebugView: View {
             case .none:
                 "None"
         }
+    }
+
+    private func issueSummary(_ issue: RuntimeIssue) -> String {
+        "\(issue.severity.displayName) / \(issue.subsystem.displayName): \(issue.message)"
     }
 
     private func targetDescription(_ target: CommandTarget?) -> String {

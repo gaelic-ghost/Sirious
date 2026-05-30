@@ -12,6 +12,7 @@ final class SiriousRuntime {
     let textEntrySession: TextEntrySessionStore
     let executor: any CommandExecutionDispatching
     let homeDirectoryAccess: HomeDirectoryAccessState
+    let issueStore: RuntimeIssueStore
     private(set) var latestRouteMatch: RouteMatch?
     private(set) var executionRecords: [CommandExecutionRecord] = []
 
@@ -39,6 +40,7 @@ final class SiriousRuntime {
         audioProvider: any AudioStateProviding = MPNowPlayingAudioStateProvider(),
         executor: any CommandExecutionDispatching = CommandExecutionDispatcher(),
         homeDirectoryAccess: HomeDirectoryAccessState = HomeDirectoryAccessState(),
+        issueStore: RuntimeIssueStore = RuntimeIssueStore(),
         focusedControlReader: any FocusedControlReading = AXFocusedControlReader(),
         startupFileAccessPromptDisabled: Bool = SiriousRuntime.defaultStartupFileAccessPromptDisabled()
     ) {
@@ -48,6 +50,7 @@ final class SiriousRuntime {
         self.textEntrySession = textEntrySession
         self.workspaceStore = workspaceStore
         self.homeDirectoryAccess = homeDirectoryAccess
+        self.issueStore = issueStore
         self.startupFileAccessPromptDisabled = startupFileAccessPromptDisabled
         focusedControlObserver = AccessibilityFocusedControlObserver(
             store: focusedControl,
@@ -94,6 +97,10 @@ final class SiriousRuntime {
         return match
     }
 
+    func recordIssue(_ issue: RuntimeIssue) {
+        issueStore.record(issue)
+    }
+
     func stop() {
         workspaceStore.stopObserving()
         focusedControlObserver.stop()
@@ -115,7 +122,23 @@ final class SiriousRuntime {
             updateTextEntrySession(for: command.match, event: nil)
             let result = await executor.execute(command.match)
             executionRecords.append(CommandExecutionRecord(command: command, result: result))
+            recordExecutionIssueIfNeeded(result)
         }
+    }
+
+    private func recordExecutionIssueIfNeeded(_ result: CommandExecutionResult) {
+        guard result.outcome == .failed else {
+            return
+        }
+
+        issueStore.record(
+            RuntimeIssue(
+                subsystem: .execution,
+                severity: .error,
+                message: result.message,
+                recoveryHint: "Check the latest route, focused app context, and required macOS permissions."
+            )
+        )
     }
 
     private func updateTextEntrySession(for match: RouteMatch, event: TranscriptEvent?) {

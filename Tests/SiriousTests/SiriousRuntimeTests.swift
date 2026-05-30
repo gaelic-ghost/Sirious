@@ -192,6 +192,39 @@ struct SiriousRuntimeTests {
         runtime.stop()
     }
 
+    @Test("runtime records failed execution results as issues")
+    func runtimeRecordsFailedExecutionResultsAsIssues() async {
+        let sleeper = ControlledSleeper()
+        let pendingCommands = PendingCommandStore(sleeper: { _ in
+            await sleeper.sleep()
+        })
+        let dispatcher = RecordingCommandExecutionDispatcher(
+            result: CommandExecutionResult(
+                outcome: .failed,
+                message: "Recorded execution failure."
+            )
+        )
+        let issueStore = RuntimeIssueStore(logger: RecordingRuntimeIssueLogger())
+        let runtime = SiriousRuntime(
+            pendingCommands: pendingCommands,
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            executor: dispatcher,
+            issueStore: issueStore,
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown)
+        )
+
+        pendingCommands.enqueue(routeMatch(command: .closeWindow))
+        await sleeper.waitForSleep()
+        await sleeper.completeNext()
+        await waitForRuntimeExecution(runtime, dispatcher: dispatcher)
+
+        #expect(issueStore.latestIssue?.subsystem == .execution)
+        #expect(issueStore.latestIssue?.message == "Recorded execution failure.")
+
+        runtime.stop()
+    }
+
     private func waitForRuntimeExecution(
         _ runtime: SiriousRuntime,
         dispatcher: RecordingCommandExecutionDispatcher
@@ -237,10 +270,27 @@ struct SiriousRuntimeTests {
 @MainActor
 private final class RecordingCommandExecutionDispatcher: CommandExecutionDispatching {
     private(set) var matches: [RouteMatch] = []
+    var result: CommandExecutionResult
+
+    init(
+        result: CommandExecutionResult = CommandExecutionResult(
+            outcome: .skipped,
+            message: "Recorded runtime execution request."
+        )
+    ) {
+        self.result = result
+    }
 
     func execute(_ match: RouteMatch) async -> CommandExecutionResult {
         matches.append(match)
-        return CommandExecutionResult(outcome: .skipped, message: "Recorded runtime execution request.")
+        return result
+    }
+}
+
+@MainActor
+private final class RecordingRuntimeIssueLogger: RuntimeIssueLogging {
+    func log(_ issue: RuntimeIssue) {
+        _ = issue
     }
 }
 

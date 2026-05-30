@@ -32,6 +32,10 @@ Text commands currently classify `type <text>` and `dictate <text>` only when fo
 
 Text execution uses the documented Accessibility value path first: Sirious reads the focused editable Accessibility element, replaces its selected text range, and writes the updated `AXValue` back. If that path is unavailable, Sirious uses a pasteboard Command-V fallback and restores the previous string pasteboard content afterward. Secure text targets are skipped.
 
+Runtime issues use one Swift error type for thrown backend failures, OSLog entries, and debug UI state. `RuntimeIssue` conforms to `Error` and `LocalizedError`, and `RuntimeIssueStore` keeps the latest issue plus a short recent list while publishing an `AsyncStream` for future UI or backend observers.
+
+Transcript sources expose transcript events, runtime issues, current state, and start/stop methods. Activation is modeled separately so push-to-talk, double-tap toggle, and wake-word listening can share the same backend contract without making each ASR backend understand hotkey policy details.
+
 The next routing shape adds two context-aware surfaces:
 
 - Custom commands: user- or agent-authored declarative command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata. Definitions should be loaded through a catalog protocol and validated before execution.

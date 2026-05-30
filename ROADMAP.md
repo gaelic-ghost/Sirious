@@ -16,8 +16,10 @@ Routing mode is backed by focused-control context. Sirious caches the focused Ac
 
 - [x] Harden pasteboard fallback before relying on it heavily: preserve and restore richer pasteboard contents and report fallback permission/input-monitoring failures clearly.
 - [x] Add a debug transcript injector so partial and final transcript events can exercise routing without a microphone backend.
-- [ ] Decide the first `TranscriptEventSource` lifecycle shape: start/stop ownership, permission state, error reporting, and where partial transcript stabilization lives.
+- [x] Decide the first `TranscriptEventSource` lifecycle shape: source state, start/stop requests, transcript stream, issue stream, and backend-owned recovery behavior.
 - [ ] Manually validate pasteboard fallback against common native and Electron text fields.
+- [ ] Decide how hotkey ownership feeds `TranscriptionActivationPolicy`, including push-to-talk hold, double-tap toggle, wake word, and wake-word grace timer behavior.
+- [ ] Decide where partial transcript stabilization lives once the first real ASR backend exposes its own partial/final semantics.
 
 ## Current Routing Surface
 
