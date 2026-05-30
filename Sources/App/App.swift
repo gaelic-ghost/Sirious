@@ -33,6 +33,11 @@ struct SiriousApp: App {
         }
         .menuBarExtraStyle(.window)
 
+        WindowGroup("Debug", id: AppWindowID.debug) {
+            DebugView(runtime: runtime)
+        }
+        .defaultSize(width: 460, height: 420)
+
         Settings {
             SettingsView(homeDirectoryAccess: runtime.homeDirectoryAccess)
         }

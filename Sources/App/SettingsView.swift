@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.openWindow) private var openWindow
+
     @State private var accessibilityPermission = AccessibilityPermissionState()
     @State private var loginItem = LoginItemState()
 
@@ -74,6 +76,12 @@ struct SettingsView: View {
                 if let errorMessage = loginItem.errorMessage {
                     Text(errorMessage)
                         .foregroundStyle(.red)
+                }
+            }
+
+            Section("Debug") {
+                Button("Open Debug Window") {
+                    openWindow(id: AppWindowID.debug)
                 }
             }
         }
