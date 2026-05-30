@@ -1,12 +1,3 @@
-struct LoggingApplicationCommandExecutor: ApplicationCommandExecuting {
-    func execute(_ request: ApplicationCommandExecutionRequest) async -> CommandExecutionResult {
-        CommandExecutionResult(
-            outcome: .skipped,
-            message: "Sirious routed \(request.command.rawValue) for \(request.application.displayName), but app execution is not implemented yet."
-        )
-    }
-}
-
 struct LoggingWindowCommandExecutor: WindowCommandExecuting {
     func execute(_ request: WindowCommandExecutionRequest) async -> CommandExecutionResult {
         CommandExecutionResult(

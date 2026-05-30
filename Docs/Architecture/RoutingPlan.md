@@ -76,6 +76,12 @@ The menu bar extra is the cancellation surface. While a risky command is active,
 
 Window-control routes still require Accessibility permission before they can be delayed or executed.
 
+## App Execution Policy
+
+App open, launch, start, and switch commands should use the same user-facing behavior as the Dock. If the target app is already running, Sirious activates it and brings its windows forward. If the app is not running but the app bundle location is known, Sirious asks `NSWorkspace` to open that app and activate it.
+
+The app executor should stay behind an `ApplicationExecutionClient` so tests can verify routing and execution decisions without launching real apps. App execution should return a clear failure when Sirious has a display name but no resolved bundle location for an app that is not running.
+
 ## Near-Term Backend Choices
 
 - Apple SpeechAnalyzer should be the native macOS integration path, including a custom module or adapter when that gives clean access to analyzer timing and result finality.

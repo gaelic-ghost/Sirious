@@ -1,6 +1,6 @@
 # Sirious Roadmap
 
-Sirious is currently focused on fast, local-first voice-command routing. The routing stage classifies intent only; it does not execute app, window, media, or system actions yet.
+Sirious is currently focused on fast, local-first voice-command routing. App open and switch routes can now reach an executor, while window, media, and broader system actions remain classification-only.
 
 Window-control routes are already gated on Accessibility permission before any future executor is allowed to run. Risky routes use a two-second menu bar cancellation window instead of confirmation prompts.
 
@@ -14,7 +14,7 @@ Window-control routes are already gated on Accessibility permission before any f
 
 ## Next Slices
 
-1. Add the first concrete app executor for open, activate, and switch-to behavior.
+1. Resolve installed app bundle locations for app-open commands when the app is not already running.
 2. Add routing-mode context to `SystemContextSnapshot`, starting with command, text, search, and secure-text modes derived from focused-element heuristics.
 3. Add focused-control context for the frontmost app so dictation, text editing, and future app navigation commands can understand the active UI target.
 4. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.
@@ -23,7 +23,7 @@ Window-control routes are already gated on Accessibility permission before any f
 
 ## Deferred
 
-- Real app launching, activation, window manipulation, and media control execution.
+- Real window manipulation and media control execution.
 - Broad natural-language window targeting.
 - Headless or helper-based runtime mode without a visible menu bar extra.
 - Core Data persistence for custom command definitions and multi-step command recipes.

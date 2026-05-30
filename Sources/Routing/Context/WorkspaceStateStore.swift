@@ -61,15 +61,3 @@ final class WorkspaceStateStore: WorkspaceStateProviding {
         frontmostApplication = workspace.frontmostApplication.map(ApplicationSnapshot.init)
     }
 }
-
-private extension ApplicationSnapshot {
-    init(_ application: NSRunningApplication) {
-        self.init(
-            displayName: application.localizedName ?? application.bundleIdentifier ?? "Unknown Application",
-            bundleIdentifier: application.bundleIdentifier,
-            bundleURL: application.bundleURL,
-            processIdentifier: application.processIdentifier,
-            isActive: application.isActive
-        )
-    }
-}

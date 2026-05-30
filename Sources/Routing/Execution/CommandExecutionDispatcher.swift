@@ -12,7 +12,7 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
 
     init(
         resolver: CommandExecutionRequestResolver = CommandExecutionRequestResolver(),
-        applicationExecutor: any ApplicationCommandExecuting = LoggingApplicationCommandExecutor(),
+        applicationExecutor: any ApplicationCommandExecuting = AppCommandExecutor(),
         windowExecutor: any WindowCommandExecuting = LoggingWindowCommandExecutor(),
         mediaExecutor: any MediaCommandExecuting = LoggingMediaCommandExecutor()
     ) {
