@@ -13,7 +13,10 @@ final class SiriousRuntime {
     let executor: any CommandExecutionDispatching
     let homeDirectoryAccess: HomeDirectoryAccessState
     let issueStore: RuntimeIssueStore
+    let transcriptSource: any TranscriptEventSource
     private(set) var latestRouteMatch: RouteMatch?
+    private(set) var latestTranscriptEvent: TranscriptEvent?
+    private(set) var transcriptionState: TranscriptionRuntimeState = .idle
     private(set) var executionRecords: [CommandExecutionRecord] = []
 
     @ObservationIgnored
@@ -31,6 +34,12 @@ final class SiriousRuntime {
     @ObservationIgnored
     private var terminationObserver: NSObjectProtocol?
 
+    @ObservationIgnored
+    private var transcriptEventTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var transcriptIssueTask: Task<Void, Never>?
+
     init(
         pendingCommands: PendingCommandStore = PendingCommandStore(),
         routingMode: RoutingModeState = RoutingModeState(),
@@ -41,6 +50,7 @@ final class SiriousRuntime {
         executor: any CommandExecutionDispatching = CommandExecutionDispatcher(),
         homeDirectoryAccess: HomeDirectoryAccessState = HomeDirectoryAccessState(),
         issueStore: RuntimeIssueStore = RuntimeIssueStore(),
+        transcriptSource: any TranscriptEventSource = AppleSpeechTranscriptSource(),
         focusedControlReader: any FocusedControlReading = AXFocusedControlReader(),
         startupFileAccessPromptDisabled: Bool = SiriousRuntime.defaultStartupFileAccessPromptDisabled()
     ) {
@@ -51,6 +61,7 @@ final class SiriousRuntime {
         self.workspaceStore = workspaceStore
         self.homeDirectoryAccess = homeDirectoryAccess
         self.issueStore = issueStore
+        self.transcriptSource = transcriptSource
         self.startupFileAccessPromptDisabled = startupFileAccessPromptDisabled
         focusedControlObserver = AccessibilityFocusedControlObserver(
             store: focusedControl,
@@ -70,6 +81,7 @@ final class SiriousRuntime {
             self?.executeReleasedCommand(command)
         }
         focusedControlObserver.start()
+        observeTranscriptSource()
         observeApplicationTermination()
     }
 
@@ -101,7 +113,42 @@ final class SiriousRuntime {
         issueStore.record(issue)
     }
 
+    func startTranscription(
+        activationPolicy: TranscriptionActivationPolicy = .pushToTalk(
+            hotKey: HotKeyDescriptor(key: "Space", modifiers: [.control, .option])
+        )
+    ) async {
+        do {
+            try await transcriptSource.start(TranscriptionStartRequest(activationPolicy: activationPolicy))
+            transcriptionState = await transcriptSource.state()
+        } catch let issue as RuntimeIssue {
+            recordIssue(issue)
+            transcriptionState = await transcriptSource.state()
+        } catch {
+            let issue = RuntimeIssue(
+                subsystem: .transcription,
+                severity: .error,
+                message: "Transcript source failed to start: \(error.localizedDescription)",
+                recoveryHint: "Check microphone and speech recognition permissions, then try listening again."
+            )
+            recordIssue(issue)
+            transcriptionState = .failed(issue)
+        }
+    }
+
+    func stopTranscription() async {
+        await transcriptSource.stop()
+        transcriptionState = await transcriptSource.state()
+    }
+
     func stop() {
+        transcriptEventTask?.cancel()
+        transcriptIssueTask?.cancel()
+        transcriptEventTask = nil
+        transcriptIssueTask = nil
+        Task { [transcriptSource] in
+            await transcriptSource.stop()
+        }
         workspaceStore.stopObserving()
         focusedControlObserver.stop()
         homeDirectoryAccess.stopAccessing()
@@ -109,6 +156,31 @@ final class SiriousRuntime {
         if let terminationObserver {
             NotificationCenter.default.removeObserver(terminationObserver)
             self.terminationObserver = nil
+        }
+    }
+
+    private func observeTranscriptSource() {
+        transcriptEventTask = Task { @MainActor [weak self] in
+            guard let self else {
+                return
+            }
+
+            for await event in transcriptSource.events {
+                latestTranscriptEvent = event
+                _ = await classify(event)
+                transcriptionState = await transcriptSource.state()
+            }
+        }
+
+        transcriptIssueTask = Task { @MainActor [weak self] in
+            guard let self else {
+                return
+            }
+
+            for await issue in transcriptSource.issues {
+                recordIssue(issue)
+                transcriptionState = await transcriptSource.state()
+            }
         }
     }
 

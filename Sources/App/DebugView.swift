@@ -20,6 +20,27 @@ struct DebugView: View {
                 .disabled(transcriptText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
 
+            Section("Apple Speech") {
+                labeledValue("State", transcriptionStateDescription(runtime.transcriptionState))
+                labeledValue("Latest", runtime.latestTranscriptEvent?.text ?? "None")
+
+                HStack {
+                    Button("Start Listening") {
+                        Task {
+                            await runtime.startTranscription()
+                        }
+                    }
+                    .keyboardShortcut("l", modifiers: [.command, .option])
+
+                    Button("Stop Listening") {
+                        Task {
+                            await runtime.stopTranscription()
+                        }
+                    }
+                    .keyboardShortcut(".", modifiers: [.command, .option])
+                }
+            }
+
             Section("Mode") {
                 labeledValue("Routing", runtime.routingMode.mode.displayName)
                 labeledValue("Menu Symbol", runtime.routingMode.mode.menuBarSystemImage)
@@ -175,6 +196,32 @@ struct DebugView: View {
 
     private func issueSummary(_ issue: RuntimeIssue) -> String {
         "\(issue.severity.displayName) / \(issue.subsystem.displayName): \(issue.message)"
+    }
+
+    private func transcriptionStateDescription(_ state: TranscriptionRuntimeState) -> String {
+        switch state {
+            case .idle:
+                "Idle"
+            case .waitingForWakeWord:
+                "Waiting for Wake Word"
+            case let .listening(policy):
+                "Listening: \(activationPolicyDescription(policy))"
+            case .stopping:
+                "Stopping"
+            case let .failed(issue):
+                "Failed: \(issue.message)"
+        }
+    }
+
+    private func activationPolicyDescription(_ policy: TranscriptionActivationPolicy) -> String {
+        switch policy {
+            case let .pushToTalk(hotKey):
+                "Push to Talk (\(hotKey.displayName))"
+            case let .toggleHotkey(hotKey):
+                "Toggle Hotkey (\(hotKey.displayName))"
+            case let .wakeWord(configuration):
+                "Wake Word (\(configuration.phrase))"
+        }
     }
 
     private func targetDescription(_ target: CommandTarget?) -> String {

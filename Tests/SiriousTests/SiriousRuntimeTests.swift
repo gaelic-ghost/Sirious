@@ -225,6 +225,79 @@ struct SiriousRuntimeTests {
         runtime.stop()
     }
 
+    @Test("runtime starts and stops transcript source")
+    func runtimeStartsAndStopsTranscriptSource() async {
+        let transcriptSource = ManualTranscriptEventSource()
+        let runtime = SiriousRuntime(
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            transcriptSource: transcriptSource,
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
+            startupFileAccessPromptDisabled: true
+        )
+
+        await runtime.startTranscription()
+
+        #expect(transcriptSource.startRequests.count == 1)
+        #expect(runtime.transcriptionState == .listening(.pushToTalk(hotKey: HotKeyDescriptor(key: "Space", modifiers: [.control, .option]))))
+
+        await runtime.stopTranscription()
+
+        #expect(transcriptSource.stopCallCount == 1)
+        #expect(runtime.transcriptionState == .idle)
+
+        runtime.stop()
+    }
+
+    @Test("runtime classifies transcript source events")
+    func runtimeClassifiesTranscriptSourceEvents() async {
+        let transcriptSource = ManualTranscriptEventSource()
+        let runtime = SiriousRuntime(
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            transcriptSource: transcriptSource,
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
+            startupFileAccessPromptDisabled: true
+        )
+        await Task.yield()
+
+        transcriptSource.emit(transcript("open Safari"))
+        await waitForRuntimeTranscript(runtime)
+
+        #expect(runtime.latestTranscriptEvent?.text == "open Safari")
+        #expect(runtime.latestRouteMatch?.command == .openApplication)
+
+        runtime.stop()
+    }
+
+    @Test("runtime records transcript source issues")
+    func runtimeRecordsTranscriptSourceIssues() async {
+        let transcriptSource = ManualTranscriptEventSource()
+        let issueStore = RuntimeIssueStore(logger: RecordingRuntimeIssueLogger())
+        let runtime = SiriousRuntime(
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            issueStore: issueStore,
+            transcriptSource: transcriptSource,
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
+            startupFileAccessPromptDisabled: true
+        )
+        await Task.yield()
+
+        transcriptSource.emit(
+            RuntimeIssue(
+                subsystem: .transcription,
+                severity: .warning,
+                message: "Recorded transcript issue."
+            )
+        )
+        await waitForRuntimeIssue(issueStore)
+
+        #expect(issueStore.latestIssue?.message == "Recorded transcript issue.")
+
+        runtime.stop()
+    }
+
     private func waitForRuntimeExecution(
         _ runtime: SiriousRuntime,
         dispatcher: RecordingCommandExecutionDispatcher
@@ -232,6 +305,27 @@ struct SiriousRuntimeTests {
         for _ in 0..<20 {
             if dispatcher.matches.isEmpty == false,
                runtime.executionRecords.isEmpty == false {
+                return
+            }
+
+            try? await Task.sleep(nanoseconds: 1_000_000)
+        }
+    }
+
+    private func waitForRuntimeTranscript(_ runtime: SiriousRuntime) async {
+        for _ in 0..<20 {
+            if runtime.latestTranscriptEvent != nil,
+               runtime.latestRouteMatch != nil {
+                return
+            }
+
+            try? await Task.sleep(nanoseconds: 1_000_000)
+        }
+    }
+
+    private func waitForRuntimeIssue(_ issueStore: RuntimeIssueStore) async {
+        for _ in 0..<20 {
+            if issueStore.latestIssue != nil {
                 return
             }
 
@@ -264,6 +358,66 @@ struct SiriousRuntimeTests {
             stability: .final,
             source: .fixture
         )
+    }
+}
+
+@MainActor
+private final class ManualTranscriptEventSource: TranscriptEventSource {
+    private(set) var startRequests: [TranscriptionStartRequest] = []
+    private(set) var stopCallCount = 0
+
+    private var eventContinuations: [UUID: AsyncStream<TranscriptEvent>.Continuation] = [:]
+    private var issueContinuations: [UUID: AsyncStream<RuntimeIssue>.Continuation] = [:]
+    private var runtimeState: TranscriptionRuntimeState = .idle
+
+    var events: AsyncStream<TranscriptEvent> {
+        AsyncStream { continuation in
+            let id = UUID()
+            eventContinuations[id] = continuation
+            continuation.onTermination = { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.eventContinuations[id] = nil
+                }
+            }
+        }
+    }
+
+    var issues: AsyncStream<RuntimeIssue> {
+        AsyncStream { continuation in
+            let id = UUID()
+            issueContinuations[id] = continuation
+            continuation.onTermination = { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.issueContinuations[id] = nil
+                }
+            }
+        }
+    }
+
+    func state() async -> TranscriptionRuntimeState {
+        runtimeState
+    }
+
+    func start(_ request: TranscriptionStartRequest) async throws {
+        startRequests.append(request)
+        runtimeState = .listening(request.activationPolicy)
+    }
+
+    func stop() async {
+        stopCallCount += 1
+        runtimeState = .idle
+    }
+
+    func emit(_ event: TranscriptEvent) {
+        for continuation in eventContinuations.values {
+            continuation.yield(event)
+        }
+    }
+
+    func emit(_ issue: RuntimeIssue) {
+        for continuation in issueContinuations.values {
+            continuation.yield(issue)
+        }
     }
 }
 

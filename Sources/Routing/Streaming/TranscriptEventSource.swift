@@ -1,4 +1,5 @@
-protocol TranscriptEventSource: Sendable {
+@MainActor
+protocol TranscriptEventSource: AnyObject {
     var events: AsyncStream<TranscriptEvent> { get }
     var issues: AsyncStream<RuntimeIssue> { get }
 

@@ -2,7 +2,7 @@
 
 Sirious is a macOS SwiftUI app for experimenting with fast local voice-command routing.
 
-The current scaffold keeps transcript ingestion, span stabilization, system context, deterministic command routing, fallback route classification, and risk gating as separate Swift files so Apple SpeechAnalyzer and Voxtral Realtime can feed the same routing pipeline through a small transcript-event protocol.
+The current scaffold keeps transcript ingestion, span stabilization, system context, deterministic command routing, fallback route classification, and risk gating as separate Swift files so Apple Speech and later local/realtime ASR backends can feed the same routing pipeline through a small transcript-event protocol.
 
 ## Routing Shape
 
@@ -35,6 +35,8 @@ Text execution uses the documented Accessibility value path first: Sirious reads
 Runtime issues use one Swift error type for thrown backend failures, OSLog entries, and debug UI state. `RuntimeIssue` conforms to `Error` and `LocalizedError`, and `RuntimeIssueStore` keeps the latest issue plus a short recent list while publishing an `AsyncStream` for future UI or backend observers.
 
 Transcript sources expose transcript events, runtime issues, current state, and start/stop methods. Activation is modeled separately so push-to-talk, double-tap toggle, and wake-word listening can share the same backend contract without making each ASR backend understand hotkey policy details.
+
+Apple Speech is the first microphone-backed transcript source. The debug window can start and stop the Apple Speech source with a local push-to-talk-style activation policy, then feeds partial and final transcripts back through the same routing path as the manual transcript injector. This is intentionally a behavior probe before adding global hotkeys or wake-word listening.
 
 The next routing shape adds two context-aware surfaces:
 
