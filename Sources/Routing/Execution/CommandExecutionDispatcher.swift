@@ -9,17 +9,20 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
     var applicationExecutor: any ApplicationCommandExecuting
     var windowExecutor: any WindowCommandExecuting
     var mediaExecutor: any MediaCommandExecuting
+    var textExecutor: any TextCommandExecuting
 
     init(
         resolver: CommandExecutionRequestResolver = CommandExecutionRequestResolver(),
         applicationExecutor: any ApplicationCommandExecuting = AppCommandExecutor(),
         windowExecutor: any WindowCommandExecuting = LoggingWindowCommandExecutor(),
-        mediaExecutor: any MediaCommandExecuting = LoggingMediaCommandExecutor()
+        mediaExecutor: any MediaCommandExecuting = LoggingMediaCommandExecutor(),
+        textExecutor: any TextCommandExecuting = LoggingTextCommandExecutor()
     ) {
         self.resolver = resolver
         self.applicationExecutor = applicationExecutor
         self.windowExecutor = windowExecutor
         self.mediaExecutor = mediaExecutor
+        self.textExecutor = textExecutor
     }
 
     func execute(_ match: RouteMatch) async -> CommandExecutionResult {
@@ -37,6 +40,8 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
                 return await windowExecutor.execute(request)
             case let .media(request):
                 return await mediaExecutor.execute(request)
+            case let .text(request):
+                return await textExecutor.execute(request)
         }
     }
 }

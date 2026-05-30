@@ -11,7 +11,11 @@ final class SiriousRuntime {
     let focusedControl: FocusedControlStore
     let executor: any CommandExecutionDispatching
     let homeDirectoryAccess: HomeDirectoryAccessState
+    private(set) var latestRouteMatch: RouteMatch?
     private(set) var executionRecords: [CommandExecutionRecord] = []
+
+    @ObservationIgnored
+    private let routeClassifier: FirstStageRouteClassifier
 
     @ObservationIgnored
     private let workspaceStore: WorkspaceStateStore
@@ -53,6 +57,7 @@ final class SiriousRuntime {
             audioProvider: audioProvider,
             workspaceProvider: workspaceStore
         )
+        routeClassifier = FirstStageRouteClassifier(contextProvider: contextProvider)
         self.executor = executor
         pendingCommands.setReleaseHandler { [weak self] command in
             self?.executeReleasedCommand(command)
@@ -78,6 +83,12 @@ final class SiriousRuntime {
         homeDirectoryAccess.requestAccessIfNeeded()
     }
 
+    func classify(_ event: TranscriptEvent) async -> RouteMatch {
+        let match = await routeClassifier.classify(event)
+        latestRouteMatch = match
+        return match
+    }
+
     func stop() {
         workspaceStore.stopObserving()
         focusedControlObserver.stop()
@@ -95,6 +106,7 @@ final class SiriousRuntime {
                 return
             }
 
+            latestRouteMatch = command.match
             let result = await executor.execute(command.match)
             executionRecords.append(CommandExecutionRecord(command: command, result: result))
         }

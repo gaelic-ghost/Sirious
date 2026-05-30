@@ -19,12 +19,14 @@ struct SiriousRuntimeTests {
             focusedControlReader: StubFocusedControlReader(focusedControl: .unknown)
         )
 
-        pendingCommands.enqueue(routeMatch(command: .closeWindow))
+        let match = routeMatch(command: .closeWindow)
+        pendingCommands.enqueue(match)
         await sleeper.waitForSleep()
         await sleeper.completeNext()
         await waitForRuntimeExecution(runtime, dispatcher: dispatcher)
 
         #expect(dispatcher.matches.count == 1)
+        #expect(runtime.latestRouteMatch == match)
         #expect(runtime.executionRecords.count == 1)
         #expect(runtime.executionRecords.first?.result.outcome == .skipped)
 
@@ -108,6 +110,33 @@ struct SiriousRuntimeTests {
 
         #expect(snapshot.focusedControl == focusedControl)
         #expect(snapshot.routingMode == .search)
+
+        runtime.stop()
+    }
+
+    @Test("runtime classify records latest route match")
+    func runtimeClassifyRecordsLatestRouteMatch() async {
+        let routingMode = RoutingModeState(mode: .text)
+        let runtime = SiriousRuntime(
+            routingMode: routingMode,
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
+            startupFileAccessPromptDisabled: true
+        )
+        routingMode.setMode(.text)
+        let event = TranscriptEvent(
+            text: "type hello",
+            range: nil,
+            isFinal: true,
+            stability: .final,
+            source: .fixture
+        )
+
+        let match = await runtime.classify(event)
+
+        #expect(runtime.latestRouteMatch == match)
+        #expect(match.command == .typeText)
 
         runtime.stop()
     }

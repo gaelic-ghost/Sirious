@@ -18,7 +18,7 @@ TranscriptEvent
 → RiskAndContextGate
 ```
 
-The first-stage router keeps string checks, `Scanner` parsing, and regex-style matching in separate modules. App, window, and media command patterns stay deterministic so obvious local commands do not need learned classification.
+The first-stage router keeps string checks, `Scanner` parsing, and regex-style matching in separate modules. App, window, media, and command-triggered text patterns stay deterministic so obvious local commands do not need learned classification.
 
 `RouteMatch` preserves the deterministic command, resolved target, source, and reason alongside the route decision. Risky routes use a two-second cancellable delay instead of confirmation prompts. During that window, the menu bar extra switches to a stop-sign symbol; opening its window cancels the active pending command and lets the FIFO queue promote the next risky command.
 
@@ -28,10 +28,12 @@ Focused-control context is cached and refreshed from Accessibility focus notific
 
 App command targets resolve running apps first through workspace state, then installed-app candidates from `/Applications`, `~/Applications`, and `/System/Applications`. The installed-app scan is intentionally a launch-target heuristic, not a comprehensive software inventory. The sandboxed test host can read the standard `/Applications` scan, so Sirious does not currently ask for a separate Applications folder bookmark.
 
+Text commands currently classify `type <text>` and `dictate <text>` only when focused context is text-friendly. Those routes resolve to a logging text executor that skips execution until text insertion is implemented.
+
 The next routing shape adds two context-aware surfaces:
 
 - Custom commands: user- or agent-authored declarative command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata. Definitions should be loaded through a catalog protocol and validated before execution.
-- Text and dictation routing: focused-element context should eventually mark the current mode as command, text, search, or secure text. Dictation inserts text only into appropriate editable targets, while text-editing commands stay distinct from app, window, media, and search routes.
+- Explicit dictation mode: a later mode where ordinary speech becomes text until canceled. Dictation inserts text only into appropriate editable targets, while text-editing commands stay distinct from app, window, media, and search routes.
 
 Sirious is intended to run primarily as a menu bar app. The runtime owner keeps long-lived context providers and command execution state alive, while Settings exposes an `Open at Login` toggle backed by Service Management.
 

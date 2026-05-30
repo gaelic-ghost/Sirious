@@ -52,6 +52,22 @@ struct CommandExecutionRequestResolver {
                         command: .mediaControl
                     )
                 )
+            case let (.typeText?, .text(target), .textAction):
+                return CommandExecutionRequest.text(
+                    TextCommandExecutionRequest(
+                        match: match,
+                        command: .typeText,
+                        target: target
+                    )
+                )
+            case let (.dictateText?, .text(target), .textAction):
+                return CommandExecutionRequest.text(
+                    TextCommandExecutionRequest(
+                        match: match,
+                        command: .dictateText,
+                        target: target
+                    )
+                )
             default:
                 return nil
         }

@@ -1,4 +1,4 @@
-enum RoutingMode: String, Equatable {
+enum RoutingMode: String, Equatable, Hashable {
     case command
     case text
     case secureText

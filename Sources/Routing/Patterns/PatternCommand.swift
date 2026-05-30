@@ -5,4 +5,6 @@ enum PatternCommand: String, Equatable {
     case minimizeWindow
     case focusWindow
     case mediaControl
+    case typeText
+    case dictateText
 }

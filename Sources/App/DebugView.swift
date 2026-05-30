@@ -25,6 +25,20 @@ struct DebugView: View {
                 labeledValue("Active", runtime.pendingCommands.hasActiveCommand ? "Yes" : "No")
                 labeledValue("Queued", "\(runtime.pendingCommands.queuedCommandCount)")
             }
+
+            Section("Latest Route") {
+                if let match = runtime.latestRouteMatch {
+                    labeledValue("Route", match.decision.route.rawValue)
+                    labeledValue("Domain", match.decision.domain.rawValue)
+                    labeledValue("Command", match.command?.rawValue ?? "None")
+                    labeledValue("Target", targetDescription(match.target))
+                    labeledValue("Readiness", match.decision.readiness.rawValue)
+                    labeledValue("Confidence", match.decision.confidence.formatted(.number.precision(.fractionLength(2))))
+                    labeledValue("Reason", match.reason)
+                } else {
+                    labeledValue("Route", "None")
+                }
+            }
         }
         .formStyle(.grouped)
         .padding(20)
@@ -93,6 +107,34 @@ struct DebugView: View {
                 rawSubrole
             case .none:
                 "None"
+        }
+    }
+
+    private func targetDescription(_ target: CommandTarget?) -> String {
+        switch target {
+            case let .application(application):
+                application.displayName
+            case let .window(windowTarget):
+                windowTargetDescription(windowTarget)
+            case .media:
+                "Media"
+            case let .text(textTarget):
+                "\(textTarget.mode.displayName): \(textTarget.text)"
+            case .none:
+                "None"
+        }
+    }
+
+    private func windowTargetDescription(_ target: WindowTarget) -> String {
+        switch target {
+            case .focusedWindow:
+                "Focused Window"
+            case .indicatedWindow:
+                "Indicated Window"
+            case .nextWindow:
+                "Next Window"
+            case .previousWindow:
+                "Previous Window"
         }
     }
 }

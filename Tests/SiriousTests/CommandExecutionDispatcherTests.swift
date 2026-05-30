@@ -52,7 +52,8 @@ struct CommandExecutionDispatcherTests {
         let dispatcher = CommandExecutionDispatcher(
             applicationExecutor: RecordingApplicationExecutor(),
             windowExecutor: RecordingWindowExecutor(),
-            mediaExecutor: mediaExecutor
+            mediaExecutor: mediaExecutor,
+            textExecutor: RecordingTextExecutor()
         )
 
         let result = await dispatcher.execute(
@@ -61,6 +62,43 @@ struct CommandExecutionDispatcherTests {
 
         #expect(result.outcome == .completed)
         #expect(mediaExecutor.requests.count == 1)
+    }
+
+    @Test("dispatcher sends text execution requests to text executor")
+    func dispatcherSendsTextExecutionRequestsToTextExecutor() async {
+        let textExecutor = RecordingTextExecutor()
+        let target = TextCommandTarget(text: "hello", mode: .text)
+        let dispatcher = CommandExecutionDispatcher(
+            applicationExecutor: RecordingApplicationExecutor(),
+            windowExecutor: RecordingWindowExecutor(),
+            mediaExecutor: RecordingMediaExecutor(),
+            textExecutor: textExecutor
+        )
+
+        let result = await dispatcher.execute(
+            routeMatch(command: .typeText, target: .text(target), domain: .textAction)
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(textExecutor.requests.count == 1)
+        #expect(textExecutor.requests.first?.target == target)
+    }
+
+    @Test("default text executor skips text execution")
+    func defaultTextExecutorSkipsTextExecution() async {
+        let executor = LoggingTextCommandExecutor()
+        let target = TextCommandTarget(text: "hello", mode: .text)
+        let match = routeMatch(command: .typeText, target: .text(target), domain: .textAction)
+
+        let result = await executor.execute(
+            TextCommandExecutionRequest(
+                match: match,
+                command: .typeText,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .skipped)
     }
 
     @Test("dispatcher skips unsupported route matches")
@@ -135,5 +173,15 @@ private final class RecordingMediaExecutor: MediaCommandExecuting {
     func execute(_ request: MediaCommandExecutionRequest) async -> CommandExecutionResult {
         requests.append(request)
         return CommandExecutionResult(outcome: .completed, message: "Recorded media execution request.")
+    }
+}
+
+@MainActor
+private final class RecordingTextExecutor: TextCommandExecuting {
+    private(set) var requests: [TextCommandExecutionRequest] = []
+
+    func execute(_ request: TextCommandExecutionRequest) async -> CommandExecutionResult {
+        requests.append(request)
+        return CommandExecutionResult(outcome: .completed, message: "Recorded text execution request.")
     }
 }

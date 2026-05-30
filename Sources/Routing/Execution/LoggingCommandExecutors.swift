@@ -16,6 +16,15 @@ struct LoggingMediaCommandExecutor: MediaCommandExecuting {
     }
 }
 
+struct LoggingTextCommandExecutor: TextCommandExecuting {
+    func execute(_ request: TextCommandExecutionRequest) async -> CommandExecutionResult {
+        CommandExecutionResult(
+            outcome: .skipped,
+            message: "Sirious routed \(request.command.rawValue) for \(request.target.mode.displayName) mode text, but text execution is not implemented yet."
+        )
+    }
+}
+
 private extension WindowTarget {
     var description: String {
         switch self {

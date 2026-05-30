@@ -56,6 +56,23 @@ struct CommandExecutionRequestResolverTests {
         ))
     }
 
+    @Test("text route match resolves to text execution request")
+    func textRouteMatchResolvesToTextExecutionRequest() {
+        let resolver = CommandExecutionRequestResolver()
+        let target = TextCommandTarget(text: "hello", mode: .text)
+        let match = routeMatch(command: .typeText, target: .text(target), domain: .textAction)
+
+        let request = resolver.request(for: match)
+
+        #expect(request == .text(
+            TextCommandExecutionRequest(
+                match: match,
+                command: .typeText,
+                target: target
+            )
+        ))
+    }
+
     @Test("non-local route match has no execution request")
     func nonLocalRouteMatchHasNoExecutionRequest() {
         let resolver = CommandExecutionRequestResolver()
