@@ -8,7 +8,7 @@ struct RiskAndContextGateTests {
             accessibilityPermission: FixtureAccessibilityPermissionProvider(permissionStatus: .notTrusted)
         )
 
-        let gated = await gate.approve(windowDecision())
+        let gated = await gate.approve(routeMatch(decision: windowDecision()))
 
         #expect(gated.status == .requiresPermission)
         #expect(gated.reason == "Window control requires Accessibility permission before execution.")
@@ -20,14 +20,14 @@ struct RiskAndContextGateTests {
             accessibilityPermission: FixtureAccessibilityPermissionProvider(permissionStatus: .trusted)
         )
 
-        let gated = await gate.approve(windowDecision())
+        let gated = await gate.approve(routeMatch(decision: windowDecision()))
 
         #expect(gated.status == .approved)
         #expect(gated.reason == nil)
     }
 
-    @Test("risky routes require confirmation")
-    func riskyRoutesRequireConfirmation() async {
+    @Test("risky routes are delayed")
+    func riskyRoutesAreDelayed() async {
         let gate = RiskAndContextGate(
             accessibilityPermission: FixtureAccessibilityPermissionProvider(permissionStatus: .trusted)
         )
@@ -40,10 +40,30 @@ struct RiskAndContextGateTests {
             confidence: 0.86
         )
 
-        let gated = await gate.approve(decision)
+        let gated = await gate.approve(routeMatch(decision: decision))
 
-        #expect(gated.status == .requiresConfirmation)
-        #expect(gated.reason == "Route risk requires confirmation before execution.")
+        #expect(gated.status == .delayed)
+        #expect(gated.reason == "Route risk starts a two-second cancellation window before execution.")
+    }
+
+    @Test("trusted close window route is delayed")
+    func trustedCloseWindowRouteIsDelayed() async {
+        let gate = RiskAndContextGate(
+            accessibilityPermission: FixtureAccessibilityPermissionProvider(permissionStatus: .trusted)
+        )
+        let decision = RouteDecision(
+            route: .localFunction,
+            domain: .windowControl,
+            complexity: .atomic,
+            risk: .confirm,
+            readiness: .actionable,
+            confidence: 0.82
+        )
+
+        let gated = await gate.approve(routeMatch(decision: decision, command: .closeWindow, target: .window(.focusedWindow)))
+
+        #expect(gated.status == .delayed)
+        #expect(gated.match.command == .closeWindow)
     }
 
     private func windowDecision() -> RouteDecision {
@@ -54,6 +74,20 @@ struct RiskAndContextGateTests {
             risk: .safe,
             readiness: .actionable,
             confidence: 0.82
+        )
+    }
+
+    private func routeMatch(
+        decision: RouteDecision,
+        command: PatternCommand? = nil,
+        target: CommandTarget? = nil
+    ) -> RouteMatch {
+        RouteMatch(
+            decision: decision,
+            source: .deterministicPattern,
+            command: command,
+            target: target,
+            reason: "fixture route match"
         )
     }
 }

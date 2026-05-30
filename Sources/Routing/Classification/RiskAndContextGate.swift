@@ -6,11 +6,13 @@ struct RiskAndContextGate {
     }
 
     @MainActor
-    func approve(_ decision: RouteDecision) -> GatedRouteDecision {
+    func approve(_ match: RouteMatch) -> GatedRouteMatch {
+        let decision = match.decision
+
         if decision.domain == .windowControl,
            accessibilityPermission.status() != .trusted {
-            return GatedRouteDecision(
-                decision: decision,
+            return GatedRouteMatch(
+                match: match,
                 status: .requiresPermission,
                 reason: "Window control requires Accessibility permission before execution."
             )
@@ -18,12 +20,12 @@ struct RiskAndContextGate {
 
         switch decision.risk {
             case .safe:
-                return GatedRouteDecision(decision: decision, status: .approved, reason: nil)
+                return GatedRouteMatch(match: match, status: .approved, reason: nil)
             case .confirm, .authRequired, .dangerous:
-                return GatedRouteDecision(
-                    decision: decision,
-                    status: .requiresConfirmation,
-                    reason: "Route risk requires confirmation before execution."
+                return GatedRouteMatch(
+                    match: match,
+                    status: .delayed,
+                    reason: "Route risk starts a two-second cancellation window before execution."
                 )
         }
     }

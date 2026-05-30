@@ -12,8 +12,8 @@ The first durable building block is a transcript-event protocol. Apple SpeechAna
 4. `SystemContextSnapshot` carries current machine state such as audio playback, running apps, and the frontmost app.
 5. `SystemContextProviding` supplies either a static test snapshot or a live snapshot from audio and workspace providers.
 6. `PatternCommandRouter` handles obvious local commands with deterministic patterns before any learned classifier runs.
-7. `StreamingRouteClassifier` falls back to broader route decisions such as search, chat, planning, or clarification.
-8. `RiskAndContextGate` separates executable local decisions from actions that need confirmation, permissions, or more context.
+7. `StreamingRouteClassifier` returns a `RouteMatch`, preserving the route decision, deterministic command, resolved target, source, and reason.
+8. `RiskAndContextGate` separates executable local decisions from actions that need permissions or a cancellable delay.
 9. Route-specific executors handle app control, window control, media control, search, retrieval, planning, or clarification.
 
 Each stage lives in its own file so the pipeline stays easy to inspect, replace, and test.
@@ -27,6 +27,15 @@ The first stage should do as little learned classification as possible. Simple c
 - Use cached `NSRegularExpression` values for anchored patterns when scanner parsing becomes awkward or needs grouped captures.
 - Use Swift Regex or RegexBuilder only where readability clearly wins and the path is not hot.
 - Fall back to the learned classifier only when deterministic matching returns no route.
+- Preserve deterministic command payloads through `RouteMatch` so later executors can act on the resolved command and target without reparsing transcript text.
+
+## Risk Delay Policy
+
+Sirious does not use confirmation prompts for high-risk routes. When a route has `.confirm`, `.authRequired`, or `.dangerous` risk, the gate marks it as delayed. The app-owned pending-command store starts a two-second cancellation window before any future executor can run that route.
+
+The menu bar extra is the cancellation surface. While a risky command is active, its symbol changes to a stop sign. Opening the menu bar window during the delay cancels the active command and promotes the next queued risky command in FIFO order.
+
+Window-control routes still require Accessibility permission before they can be delayed or executed.
 
 ## Near-Term Backend Choices
 
@@ -36,4 +45,5 @@ The first stage should do as little learned classification as possible. Simple c
 - NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
 - Window routing should stay classification-only until accessibility, AppKit, or window-server execution adapters can be designed and permission-gated explicitly.
 - Window control requires Accessibility permission before execution; classification can still identify the route before that permission is granted.
+- Bare `close` and `minimize` commands target the focused window.
 - FunctionGemma should sit after route narrowing as a small function-call formatter for constrained tool schemas, not as the first consumer of raw partial transcription.

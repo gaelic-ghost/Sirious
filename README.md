@@ -14,10 +14,13 @@ TranscriptEvent
 → SystemContextSnapshot
 → SystemContextProviding
 → PatternCommandRouter
-→ ML fallback through StreamingRouteClassifier
+→ RouteMatch through StreamingRouteClassifier
+→ RiskAndContextGate
 ```
 
 The first-stage router keeps string checks, `Scanner` parsing, and regex-style matching in separate modules. App, window, and media command patterns stay deterministic so obvious local commands do not need learned classification.
+
+`RouteMatch` preserves the deterministic command, resolved target, source, and reason alongside the route decision. Risky routes use a two-second cancellable delay instead of confirmation prompts. During that window, the menu bar extra switches to a stop-sign symbol; opening its window cancels the active pending command and lets the FIFO queue promote the next risky command.
 
 ## Development
 

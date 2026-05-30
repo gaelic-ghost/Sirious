@@ -13,6 +13,7 @@ struct WindowCommandPatterns {
                 event: event,
                 command: .closeWindow,
                 target: resolver.target(named: targetPhrase),
+                risk: .confirm,
                 confidence: 0.82,
                 reason: "scanner matched window-close command"
             )
@@ -23,6 +24,7 @@ struct WindowCommandPatterns {
                 event: event,
                 command: .minimizeWindow,
                 target: resolver.target(named: targetPhrase),
+                risk: .safe,
                 confidence: 0.82,
                 reason: "scanner matched window-minimize command"
             )
@@ -37,6 +39,7 @@ struct WindowCommandPatterns {
                 event: event,
                 command: .focusWindow,
                 target: resolver.target(named: targetPhrase),
+                risk: .safe,
                 confidence: 0.78,
                 reason: "scanner matched window-focus command"
             )
@@ -49,6 +52,7 @@ struct WindowCommandPatterns {
         event: TranscriptEvent,
         command: PatternCommand,
         target: CommandTarget,
+        risk: RouteRisk,
         confidence: Double,
         reason: String
     ) -> PatternRouteMatch {
@@ -57,7 +61,7 @@ struct WindowCommandPatterns {
                 route: .localFunction,
                 domain: .windowControl,
                 complexity: .atomic,
-                risk: .safe,
+                risk: risk,
                 readiness: event.isFinal ? .actionable : .likelyRoute,
                 confidence: confidence
             ),
@@ -92,10 +96,14 @@ struct WindowCommandPatterns {
 
     private func scanAnyVerb(in scanner: Scanner, verbs: [String]) -> String? {
         for verb in verbs.sorted(by: { $0.count > $1.count }) {
+            let startIndex = scanner.currentIndex
+
             if let match = scanner.scanString(verb),
-               scanner.scanCharacters(from: .whitespacesAndNewlines) != nil {
+               scanner.scanCharacters(from: .whitespacesAndNewlines) != nil || scanner.isAtEnd {
                 return match
             }
+
+            scanner.currentIndex = startIndex
         }
 
         return nil
