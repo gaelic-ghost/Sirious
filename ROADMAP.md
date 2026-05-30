@@ -6,6 +6,8 @@ Window-control routes are already gated on Accessibility permission before any f
 
 Sirious is now configured for the macOS app sandbox. Startup and Settings share a home folder permission state that restores a saved security-scoped bookmark or asks the user to choose their home folder when sandboxed. This is a temporary direct prompt until onboarding is designed.
 
+The standard `/Applications` app scan is covered by a sandboxed test-host check, so the current build does not add a separate Applications folder permission prompt. If packaged App Store-style signing later blocks that scan, add an Applications folder bookmark to onboarding rather than broadening the resolver silently.
+
 ## Current Routing Surface
 
 - App commands: open, launch, start, switch to, show, and bring up an app.

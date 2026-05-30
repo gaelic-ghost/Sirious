@@ -163,6 +163,13 @@ struct InstalledApplicationResolverTests {
         ])
     }
 
+    @Test("default directory provider can read standard applications folders")
+    func defaultDirectoryProviderCanReadStandardApplicationsFolders() {
+        let applications = DirectoryInstalledApplicationProvider().applications()
+
+        #expect(applications.contains { $0.source == .applicationsDirectory })
+    }
+
     @Test("pattern router preserves installed app bundle target")
     func patternRouterPreservesInstalledAppBundleTarget() async {
         let appURL = URL(filePath: "/Applications/Example.app")
