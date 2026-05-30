@@ -26,6 +26,10 @@ struct FocusedControlSnapshot: Equatable {
             return .search
         }
 
+        if let applicationMode = owner.applicationRoutingMode {
+            return applicationMode
+        }
+
         if isEditable || role == .textField || role == .textArea {
             return .text
         }
@@ -38,6 +42,21 @@ enum FocusedControlOwner: Equatable {
     case application(ApplicationSnapshot)
     case system
     case unknown
+
+    fileprivate var applicationRoutingMode: RoutingMode? {
+        guard case let .application(application) = self else {
+            return nil
+        }
+
+        switch application.normalizedIdentity {
+            case "zed", "dev.zed.zed":
+                return .code
+            case "discord", "com.hnc.discord", "chatgpt", "com.openai.chat":
+                return .chat
+            default:
+                return nil
+        }
+    }
 }
 
 enum FocusedControlRole: Equatable {

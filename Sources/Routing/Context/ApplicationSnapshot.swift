@@ -10,6 +10,13 @@ struct ApplicationSnapshot: Equatable {
 }
 
 extension ApplicationSnapshot {
+    var normalizedIdentity: String {
+        (bundleIdentifier ?? displayName)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .removingAppSuffix()
+    }
+
     init(_ application: NSRunningApplication) {
         self.init(
             displayName: application.localizedName ?? application.bundleIdentifier ?? "Unknown Application",
@@ -18,5 +25,15 @@ extension ApplicationSnapshot {
             processIdentifier: application.processIdentifier,
             isActive: application.isActive
         )
+    }
+}
+
+private extension String {
+    func removingAppSuffix() -> String {
+        guard hasSuffix(".app") else {
+            return self
+        }
+
+        return String(dropLast(4))
     }
 }

@@ -19,7 +19,7 @@ Routing mode is backed by focused-control context. Sirious caches the focused Ac
 - Media commands: pause, stop, play, and resume.
 - Search fallback: search, look up, lookup, and look-up phrases still route to search when deterministic patterns do not match.
 - Unknown fallback: unrecognized phrases route to clarification.
-- Context mode: command, text, secure text, search, Swift, chat, and code modes are represented, with the menu bar symbol following the active mode unless a risky command is pending.
+- Context mode: command, text, secure text, search, Swift, chat, and code modes are represented, with the menu bar symbol following the active mode unless a risky command is pending. Zed currently maps to code mode, while Discord and ChatGPT map to chat mode.
 
 ## Next Slices
 
