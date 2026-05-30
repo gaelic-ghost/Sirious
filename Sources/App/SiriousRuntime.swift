@@ -8,6 +8,7 @@ final class SiriousRuntime {
     let pendingCommands: PendingCommandStore
     let contextProvider: LiveSystemContextProvider
     let executor: any CommandExecutionDispatching
+    private(set) var executionRecords: [CommandExecutionRecord] = []
 
     @ObservationIgnored
     private let workspaceStore: WorkspaceStateStore
@@ -28,6 +29,9 @@ final class SiriousRuntime {
             workspaceProvider: workspaceStore
         )
         self.executor = executor
+        pendingCommands.setReleaseHandler { [weak self] command in
+            self?.executeReleasedCommand(command)
+        }
         observeApplicationTermination()
     }
 
@@ -37,6 +41,17 @@ final class SiriousRuntime {
         if let terminationObserver {
             NotificationCenter.default.removeObserver(terminationObserver)
             self.terminationObserver = nil
+        }
+    }
+
+    private func executeReleasedCommand(_ command: PendingCommand) {
+        Task { @MainActor [weak self] in
+            guard let self else {
+                return
+            }
+
+            let result = await executor.execute(command.match)
+            executionRecords.append(CommandExecutionRecord(command: command, result: result))
         }
     }
 

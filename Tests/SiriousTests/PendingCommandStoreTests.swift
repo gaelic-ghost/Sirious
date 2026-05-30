@@ -2,8 +2,8 @@
 import Testing
 
 struct PendingCommandStoreTests {
-    @Test("pending command completes after delay")
-    func pendingCommandCompletesAfterDelay() async {
+    @Test("pending command releases after delay")
+    func pendingCommandReleasesAfterDelay() async {
         let sleeper = ControlledSleeper()
         let store = await PendingCommandStore(sleeper: { _ in
             await sleeper.sleep()
@@ -14,11 +14,35 @@ struct PendingCommandStoreTests {
         await sleeper.completeNext()
         await Task.yield()
 
-        let completedCount = await store.completedCommands.count
+        let releasedCount = await store.releasedCommands.count
         let hasActiveCommand = await store.hasActiveCommand
 
-        #expect(completedCount == 1)
+        #expect(releasedCount == 1)
         #expect(hasActiveCommand == false)
+    }
+
+    @Test("pending command calls release handler after delay")
+    func pendingCommandCallsReleaseHandlerAfterDelay() async {
+        let sleeper = ControlledSleeper()
+        let recorder = ReleasedCommandRecorder()
+        let store = await PendingCommandStore(
+            sleeper: { _ in
+                await sleeper.sleep()
+            },
+            onCommandReleased: { command in
+                recorder.record(command)
+            }
+        )
+
+        await store.enqueue(routeMatch(command: .closeWindow))
+        await sleeper.waitForSleep()
+        await sleeper.completeNext()
+        await Task.yield()
+
+        let releasedCommands = await recorder.commands
+
+        #expect(releasedCommands.count == 1)
+        #expect(releasedCommands.first?.match.command == .closeWindow)
     }
 
     @Test("cancel active command promotes queued command")
@@ -125,5 +149,14 @@ private actor ControlledSleeper {
         for waiter in waiters {
             waiter.resume()
         }
+    }
+}
+
+@MainActor
+private final class ReleasedCommandRecorder {
+    private(set) var commands: [PendingCommand] = []
+
+    func record(_ command: PendingCommand) {
+        commands.append(command)
     }
 }

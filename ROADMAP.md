@@ -14,7 +14,7 @@ Window-control routes are already gated on Accessibility permission before any f
 
 ## Next Slices
 
-1. Connect future executors to delayed `RouteMatch` release events from the pending-command store.
+1. Add the first concrete app executor for open, activate, and switch-to behavior.
 2. Add routing-mode context to `SystemContextSnapshot`, starting with command, text, search, and secure-text modes derived from focused-element heuristics.
 3. Add focused-control context for the frontmost app so dictation, text editing, and future app navigation commands can understand the active UI target.
 4. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.

@@ -28,7 +28,7 @@ struct SettingsView: View {
                 Toggle(
                     isOn: Binding(
                         get: {
-                            loginItem.isEnabled
+                            loginItem.isOpenAtLoginRequested
                         },
                         set: { isEnabled in
                             loginItem.setEnabled(isEnabled)

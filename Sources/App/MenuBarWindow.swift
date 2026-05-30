@@ -11,7 +11,7 @@ struct MenuBarWindow: View {
             if let canceled = pendingCommands.canceledCommands.last {
                 Text("Canceled \(description(for: canceled)).")
                     .foregroundStyle(.red)
-            } else if pendingCommands.completedCommands.isEmpty == false {
+            } else if pendingCommands.releasedCommands.isEmpty == false {
                 Text("No commands are pending.")
                     .foregroundStyle(.secondary)
             } else {

@@ -6,7 +6,7 @@ import Observation
 final class PendingCommandStore {
     private(set) var activeCommand: PendingCommand?
     private(set) var queuedCommands: [PendingCommand] = []
-    private(set) var completedCommands: [PendingCommand] = []
+    private(set) var releasedCommands: [PendingCommand] = []
     private(set) var canceledCommands: [PendingCommand] = []
 
     @ObservationIgnored
@@ -17,6 +17,9 @@ final class PendingCommandStore {
 
     @ObservationIgnored
     private var activeTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var onCommandReleased: @MainActor (PendingCommand) -> Void
 
     var hasActiveCommand: Bool {
         activeCommand != nil
@@ -30,10 +33,16 @@ final class PendingCommandStore {
         delayNanoseconds: UInt64 = 2_000_000_000,
         sleeper: @escaping @Sendable (UInt64) async -> Void = { nanoseconds in
             try? await Task.sleep(nanoseconds: nanoseconds)
-        }
+        },
+        onCommandReleased: @escaping @MainActor (PendingCommand) -> Void = { _ in }
     ) {
         self.delayNanoseconds = delayNanoseconds
         self.sleeper = sleeper
+        self.onCommandReleased = onCommandReleased
+    }
+
+    func setReleaseHandler(_ handler: @escaping @MainActor (PendingCommand) -> Void) {
+        onCommandReleased = handler
     }
 
     func enqueue(_ match: RouteMatch) {
@@ -74,11 +83,11 @@ final class PendingCommandStore {
                 return
             }
 
-            completeActiveCommand(withID: command.id)
+            releaseActiveCommand(withID: command.id)
         }
     }
 
-    private func completeActiveCommand(withID id: UUID) {
+    private func releaseActiveCommand(withID id: UUID) {
         guard let command = activeCommand,
               command.id == id
         else {
@@ -87,7 +96,8 @@ final class PendingCommandStore {
 
         activeTask = nil
         activeCommand = nil
-        completedCommands.append(command)
+        releasedCommands.append(command)
+        onCommandReleased(command)
         promoteNextCommand()
     }
 

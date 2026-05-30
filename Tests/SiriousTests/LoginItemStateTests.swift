@@ -11,7 +11,7 @@ struct LoginItemStateTests {
         state.setEnabled(true)
 
         #expect(state.status == .enabled)
-        #expect(state.isEnabled == true)
+        #expect(state.isOpenAtLoginRequested == true)
         #expect(service.registerCallCount == 1)
     }
 
@@ -23,8 +23,16 @@ struct LoginItemStateTests {
         state.setEnabled(false)
 
         #expect(state.status == .notRegistered)
-        #expect(state.isEnabled == false)
+        #expect(state.isOpenAtLoginRequested == false)
         #expect(service.unregisterCallCount == 1)
+    }
+
+    @Test("login item state treats approval pending as requested")
+    func loginItemStateTreatsApprovalPendingAsRequested() {
+        let service = FakeLoginItemService(status: .requiresApproval)
+        let state = LoginItemState(service: service)
+
+        #expect(state.isOpenAtLoginRequested == true)
     }
 
     @Test("login item state reports update errors")

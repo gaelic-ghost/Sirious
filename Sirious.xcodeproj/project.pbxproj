@@ -61,6 +61,7 @@
 		C9B6138F64ECDBF4A3BB0245 /* WindowCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946A3334258A628FE8C767EF /* WindowCommandPatterns.swift */; };
 		CA0E871BC79B92B10294CA0E /* AudioStateProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD82DDD5D3CDB656996BA9A /* AudioStateProviding.swift */; };
 		CDC9F991C89AC1913C3BB606 /* CommandExecution.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86D8C436A675858E635E570 /* CommandExecution.swift */; };
+		CEF210D1AF46499AB42B3F7E /* SiriousRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F1634F0993DB7160D620AA /* SiriousRuntimeTests.swift */; };
 		D7B5FB7366544A970C168091 /* LiveSystemContextProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C646C3FE97B248BE42458E1E /* LiveSystemContextProvider.swift */; };
 		D9FD2AFA025DFA37E59BB4EC /* LoginItemStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0729A3D254A1394BD8E3B2C7 /* LoginItemStateTests.swift */; };
 		DB1747EB7A1F7896761C404C /* RouteModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7910EC6772BABC35F0EE68 /* RouteModels.swift */; };
@@ -95,6 +96,7 @@
 		0792FA46662CDC961D841C66 /* PendingCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCommand.swift; sourceTree = "<group>"; };
 		0AFDC88F1FE4D3CC5C16FBA1 /* Sirious.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Sirious.xcconfig; sourceTree = "<group>"; };
 		0EECB5309F1BD26568BD1989 /* SiriousTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SiriousTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		13F1634F0993DB7160D620AA /* SiriousRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriousRuntimeTests.swift; sourceTree = "<group>"; };
 		14215BF76E17A6633AC975DF /* CommandExecutionDispatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutionDispatcherTests.swift; sourceTree = "<group>"; };
 		19F29D22576FD82326A5026A /* Sirious.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sirious.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DA0360B18CA6166310C8A3F /* TranscriptSpanStabilizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptSpanStabilizer.swift; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 				0729A3D254A1394BD8E3B2C7 /* LoginItemStateTests.swift */,
 				E05E138F193219DA51029322 /* PendingCommandStoreTests.swift */,
 				876A188D0D863DBF4B79B06C /* RiskAndContextGateTests.swift */,
+				13F1634F0993DB7160D620AA /* SiriousRuntimeTests.swift */,
 			);
 			name = SiriousTests;
 			path = SiriousTests;
@@ -569,6 +572,7 @@
 				D9FD2AFA025DFA37E59BB4EC /* LoginItemStateTests.swift in Sources */,
 				A33F5A97251A2149BFC7FF0F /* PendingCommandStoreTests.swift in Sources */,
 				8CA5C4EDD9302B89D26A57CD /* RiskAndContextGateTests.swift in Sources */,
+				CEF210D1AF46499AB42B3F7E /* SiriousRuntimeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

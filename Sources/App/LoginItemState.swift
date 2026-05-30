@@ -59,8 +59,8 @@ final class LoginItemState {
     @ObservationIgnored
     private let service: any LoginItemServiceProviding
 
-    var isEnabled: Bool {
-        status == .enabled
+    var isOpenAtLoginRequested: Bool {
+        status == .enabled || status == .requiresApproval
     }
 
     var statusDescription: String {

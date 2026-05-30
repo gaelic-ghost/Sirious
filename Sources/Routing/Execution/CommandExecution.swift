@@ -3,6 +3,11 @@ struct CommandExecutionResult: Equatable {
     var message: String
 }
 
+struct CommandExecutionRecord: Equatable {
+    var command: PendingCommand
+    var result: CommandExecutionResult
+}
+
 enum CommandExecutionOutcome: String, Equatable {
     case completed
     case skipped

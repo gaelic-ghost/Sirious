@@ -70,7 +70,7 @@ Custom multi-step commands should compose known Sirious capabilities instead of 
 
 ## Risk Delay Policy
 
-Sirious does not use confirmation prompts for high-risk routes. When a route has `.confirm`, `.authRequired`, or `.dangerous` risk, the gate marks it as delayed. The app-owned pending-command store starts a two-second cancellation window before any future executor can run that route.
+Sirious does not use confirmation prompts for high-risk routes. When a route has `.confirm`, `.authRequired`, or `.dangerous` risk, the gate marks it as delayed. The app-owned pending-command store starts a two-second cancellation window, then releases the route to the runtime executor if the user does not cancel it.
 
 The menu bar extra is the cancellation surface. While a risky command is active, its symbol changes to a stop sign. Opening the menu bar window during the delay cancels the active command and promotes the next queued risky command in FIFO order.
 
