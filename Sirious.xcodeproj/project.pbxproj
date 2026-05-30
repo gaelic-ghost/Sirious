@@ -87,6 +87,7 @@
 		CDC9F991C89AC1913C3BB606 /* CommandExecution.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86D8C436A675858E635E570 /* CommandExecution.swift */; };
 		CEF210D1AF46499AB42B3F7E /* SiriousRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F1634F0993DB7160D620AA /* SiriousRuntimeTests.swift */; };
 		D10AE22E8E44D0202D92A187 /* TextCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1002FF2227CD2B83D1C57EC /* TextCommandPatterns.swift */; };
+		D44E8582DD3E02AC472D4F17 /* PasteboardSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074A953F40F3FF4973ABA035 /* PasteboardSnapshotTests.swift */; };
 		D7B5FB7366544A970C168091 /* LiveSystemContextProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C646C3FE97B248BE42458E1E /* LiveSystemContextProvider.swift */; };
 		D97737942977DA4211A8CBA4 /* TextEntrySessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE43149B39A9B532E8147A2E /* TextEntrySessionStore.swift */; };
 		D9FD2AFA025DFA37E59BB4EC /* LoginItemStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0729A3D254A1394BD8E3B2C7 /* LoginItemStateTests.swift */; };
@@ -123,6 +124,7 @@
 
 /* Begin PBXFileReference section */
 		0729A3D254A1394BD8E3B2C7 /* LoginItemStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemStateTests.swift; sourceTree = "<group>"; };
+		074A953F40F3FF4973ABA035 /* PasteboardSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteboardSnapshotTests.swift; sourceTree = "<group>"; };
 		076D6E1313CFACB95E4771C6 /* AppWindowID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppWindowID.swift; sourceTree = "<group>"; };
 		0792FA46662CDC961D841C66 /* PendingCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCommand.swift; sourceTree = "<group>"; };
 		0AFDC88F1FE4D3CC5C16FBA1 /* Sirious.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Sirious.xcconfig; sourceTree = "<group>"; };
@@ -239,6 +241,7 @@
 				C4C3F4C28FBAE9F3A38B521B /* HomeDirectoryAccessStateTests.swift */,
 				AA288069DE0BBA3CCFF577B6 /* InstalledApplicationResolverTests.swift */,
 				0729A3D254A1394BD8E3B2C7 /* LoginItemStateTests.swift */,
+				074A953F40F3FF4973ABA035 /* PasteboardSnapshotTests.swift */,
 				E05E138F193219DA51029322 /* PendingCommandStoreTests.swift */,
 				876A188D0D863DBF4B79B06C /* RiskAndContextGateTests.swift */,
 				C864F5CDBCF47104400EFAE8 /* RoutingModeContextTests.swift */,
@@ -696,6 +699,7 @@
 				4ABB56139DD6C016C8399376 /* HomeDirectoryAccessStateTests.swift in Sources */,
 				65042A5AA4D0C75E3B4B6CFA /* InstalledApplicationResolverTests.swift in Sources */,
 				D9FD2AFA025DFA37E59BB4EC /* LoginItemStateTests.swift in Sources */,
+				D44E8582DD3E02AC472D4F17 /* PasteboardSnapshotTests.swift in Sources */,
 				A33F5A97251A2149BFC7FF0F /* PendingCommandStoreTests.swift in Sources */,
 				8CA5C4EDD9302B89D26A57CD /* RiskAndContextGateTests.swift in Sources */,
 				E67750A7E95BF1758335D916 /* RoutingModeContextTests.swift in Sources */,

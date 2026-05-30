@@ -1,10 +1,25 @@
 import SwiftUI
 
 struct DebugView: View {
+    @State private var transcriptText = ""
+    @State private var transcriptIsFinal = true
+
     var runtime: SiriousRuntime
 
     var body: some View {
         Form {
+            Section("Transcript") {
+                TextField("Transcript", text: $transcriptText)
+                    .textFieldStyle(.roundedBorder)
+
+                Toggle("Final Transcript", isOn: $transcriptIsFinal)
+
+                Button("Classify Transcript") {
+                    classifyTranscript()
+                }
+                .disabled(transcriptText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+
             Section("Mode") {
                 labeledValue("Routing", runtime.routingMode.mode.displayName)
                 labeledValue("Menu Symbol", runtime.routingMode.mode.menuBarSystemImage)
@@ -58,6 +73,23 @@ struct DebugView: View {
 
             Text(value)
                 .monospaced()
+        }
+    }
+
+    private func classifyTranscript() {
+        let text = transcriptText
+        let isFinal = transcriptIsFinal
+
+        Task {
+            _ = await runtime.classify(
+                TranscriptEvent(
+                    text: text,
+                    range: nil,
+                    isFinal: isFinal,
+                    stability: isFinal ? .final : .volatile,
+                    source: .fixture
+                )
+            )
         }
     }
 

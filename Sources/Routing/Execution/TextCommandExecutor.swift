@@ -223,9 +223,14 @@ protocol TextPasteboardPasting {
 }
 
 struct SystemTextPasteboardPaster: TextPasteboardPasting {
+    var pasteboard: NSPasteboard
+
+    init(pasteboard: NSPasteboard = .general) {
+        self.pasteboard = pasteboard
+    }
+
     func paste(_ text: String) async -> TextInsertionAttemptResult {
-        let pasteboard = NSPasteboard.general
-        let previousString = pasteboard.string(forType: .string)
+        let snapshot = PasteboardSnapshot.capture(from: pasteboard)
 
         pasteboard.clearContents()
         guard pasteboard.setString(text, forType: .string) else {
@@ -235,20 +240,26 @@ struct SystemTextPasteboardPaster: TextPasteboardPasting {
             )
         }
         guard postCommandV() else {
-            restorePasteboardString(previousString)
+            _ = snapshot.restore(to: pasteboard)
             return TextInsertionAttemptResult(
                 outcome: .failed,
-                message: "Sirious could not create the Command-V keyboard event for the pasteboard fallback."
+                message: "Sirious could not post Command-V for the pasteboard fallback. macOS may need Input Monitoring or Accessibility permission for synthetic keyboard events."
             )
         }
 
         try? await Task.sleep(nanoseconds: 100_000_000)
-        restorePasteboardString(previousString)
+        let restoreResult = snapshot.restore(to: pasteboard)
+        let restoreMessage = restoreResult
+            ? "Pasteboard fallback completed and restored previous pasteboard contents."
+            : "Pasteboard fallback completed, but Sirious could not fully restore the previous pasteboard contents."
 
-        return TextInsertionAttemptResult(outcome: .completed, message: "Pasteboard fallback completed.")
+        return TextInsertionAttemptResult(outcome: .completed, message: restoreMessage)
     }
 
     private func postCommandV() -> Bool {
+        guard CGPreflightPostEventAccess() else {
+            return false
+        }
         guard let source = CGEventSource(stateID: .hidSystemState),
               let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true),
               let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: false)
@@ -262,15 +273,58 @@ struct SystemTextPasteboardPaster: TextPasteboardPasting {
         keyUp.post(tap: .cghidEventTap)
         return true
     }
+}
 
-    private func restorePasteboardString(_ string: String?) {
-        let pasteboard = NSPasteboard.general
+struct PasteboardSnapshot: Equatable {
+    var items: [PasteboardSnapshotItem]
+
+    static func capture(from pasteboard: NSPasteboard) -> PasteboardSnapshot {
+        let items = (pasteboard.pasteboardItems ?? []).map { item in
+            let values = item.types.compactMap { type -> PasteboardSnapshotValue? in
+                guard let data = item.data(forType: type) else {
+                    return nil
+                }
+
+                return PasteboardSnapshotValue(type: type.rawValue, data: data)
+            }
+
+            return PasteboardSnapshotItem(values: values)
+        }
+
+        return PasteboardSnapshot(items: items)
+    }
+
+    func restore(to pasteboard: NSPasteboard) -> Bool {
         pasteboard.clearContents()
 
-        if let string {
-            pasteboard.setString(string, forType: .string)
+        let restoredItems = items.map { item in
+            let pasteboardItem = NSPasteboardItem()
+
+            for value in item.values {
+                pasteboardItem.setData(
+                    value.data,
+                    forType: NSPasteboard.PasteboardType(value.type)
+                )
+            }
+
+            return pasteboardItem
         }
+
+        guard restoredItems.isEmpty == false else {
+            return true
+        }
+
+        return pasteboard.writeObjects(restoredItems)
     }
+}
+
+struct PasteboardSnapshotItem: Equatable {
+    var values: [PasteboardSnapshotValue]
+}
+
+struct PasteboardSnapshotValue: Equatable {
+    var type: String
+    var data: Data
 }
 
 private extension String {
