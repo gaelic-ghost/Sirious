@@ -1,3 +1,4 @@
+import ApplicationServices
 @testable import Sirious
 import Testing
 
@@ -101,6 +102,90 @@ struct CommandExecutionDispatcherTests {
         #expect(result.outcome == .skipped)
     }
 
+    @Test("text executor inserts through accessibility first")
+    func textExecutorInsertsThroughAccessibilityFirst() async {
+        let accessibilityInserter = RecordingAccessibilityTextInserter(
+            result: TextInsertionAttemptResult(outcome: .completed, message: "AX inserted.")
+        )
+        let fallbackPaster = RecordingTextPasteboardPaster(
+            result: TextInsertionAttemptResult(outcome: .failed, message: "Fallback should not run.")
+        )
+        let target = TextCommandTarget(text: "hello", mode: .text)
+        let executor = TextCommandExecutor(
+            targetReader: StaticFocusedTextTargetReader(target: focusedTextTarget()),
+            accessibilityInserter: accessibilityInserter,
+            fallbackPaster: fallbackPaster
+        )
+
+        let result = await executor.execute(
+            TextCommandExecutionRequest(
+                match: routeMatch(command: .typeText, target: .text(target), domain: .textAction),
+                command: .typeText,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(accessibilityInserter.insertedText == ["hello"])
+        #expect(fallbackPaster.pastedText.isEmpty)
+    }
+
+    @Test("text executor uses pasteboard fallback when accessibility insertion is unavailable")
+    func textExecutorUsesPasteboardFallbackWhenAccessibilityInsertionIsUnavailable() async {
+        let accessibilityInserter = RecordingAccessibilityTextInserter(
+            result: TextInsertionAttemptResult(outcome: .skipped, message: "No selected range.")
+        )
+        let fallbackPaster = RecordingTextPasteboardPaster(
+            result: TextInsertionAttemptResult(outcome: .completed, message: "Pasted.")
+        )
+        let target = TextCommandTarget(text: "hello", mode: .text)
+        let executor = TextCommandExecutor(
+            targetReader: StaticFocusedTextTargetReader(target: focusedTextTarget()),
+            accessibilityInserter: accessibilityInserter,
+            fallbackPaster: fallbackPaster
+        )
+
+        let result = await executor.execute(
+            TextCommandExecutionRequest(
+                match: routeMatch(command: .dictateText, target: .text(target), domain: .textAction),
+                command: .dictateText,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(accessibilityInserter.insertedText == ["hello"])
+        #expect(fallbackPaster.pastedText == ["hello"])
+    }
+
+    @Test("text executor refuses secure focused text targets")
+    func textExecutorRefusesSecureFocusedTextTargets() async {
+        let accessibilityInserter = RecordingAccessibilityTextInserter(
+            result: TextInsertionAttemptResult(outcome: .completed, message: "Should not run.")
+        )
+        let fallbackPaster = RecordingTextPasteboardPaster(
+            result: TextInsertionAttemptResult(outcome: .completed, message: "Should not run.")
+        )
+        let target = TextCommandTarget(text: "secret", mode: .text)
+        let executor = TextCommandExecutor(
+            targetReader: StaticFocusedTextTargetReader(target: focusedTextTarget(isSecure: true)),
+            accessibilityInserter: accessibilityInserter,
+            fallbackPaster: fallbackPaster
+        )
+
+        let result = await executor.execute(
+            TextCommandExecutionRequest(
+                match: routeMatch(command: .typeText, target: .text(target), domain: .textAction),
+                command: .typeText,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .skipped)
+        #expect(accessibilityInserter.insertedText.isEmpty)
+        #expect(fallbackPaster.pastedText.isEmpty)
+    }
+
     @Test("dispatcher skips unsupported route matches")
     func dispatcherSkipsUnsupportedRouteMatches() async {
         let dispatcher = CommandExecutionDispatcher()
@@ -144,6 +229,21 @@ struct CommandExecutionDispatcherTests {
             reason: "fixture route match"
         )
     }
+
+    private func focusedTextTarget(isSecure: Bool = false) -> FocusedTextTarget {
+        FocusedTextTarget(
+            element: AXUIElementCreateSystemWide(),
+            snapshot: FocusedControlSnapshot(
+                owner: .system,
+                role: .textField,
+                subrole: isSecure ? .secureTextField : nil,
+                title: nil,
+                roleDescription: nil,
+                isEditable: true,
+                isSecure: isSecure
+            )
+        )
+    }
 }
 
 @MainActor
@@ -183,5 +283,44 @@ private final class RecordingTextExecutor: TextCommandExecuting {
     func execute(_ request: TextCommandExecutionRequest) async -> CommandExecutionResult {
         requests.append(request)
         return CommandExecutionResult(outcome: .completed, message: "Recorded text execution request.")
+    }
+}
+
+@MainActor
+private struct StaticFocusedTextTargetReader: FocusedTextTargetReading {
+    var target: FocusedTextTarget?
+
+    func focusedTextTarget() -> FocusedTextTarget? {
+        target
+    }
+}
+
+@MainActor
+private final class RecordingAccessibilityTextInserter: AccessibilityTextInserting {
+    private(set) var insertedText: [String] = []
+    var result: TextInsertionAttemptResult
+
+    init(result: TextInsertionAttemptResult) {
+        self.result = result
+    }
+
+    func insert(_ text: String, into target: FocusedTextTarget) -> TextInsertionAttemptResult {
+        insertedText.append(text)
+        return result
+    }
+}
+
+@MainActor
+private final class RecordingTextPasteboardPaster: TextPasteboardPasting {
+    private(set) var pastedText: [String] = []
+    var result: TextInsertionAttemptResult
+
+    init(result: TextInsertionAttemptResult) {
+        self.result = result
+    }
+
+    func paste(_ text: String) async -> TextInsertionAttemptResult {
+        pastedText.append(text)
+        return result
     }
 }

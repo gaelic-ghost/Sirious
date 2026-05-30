@@ -22,18 +22,20 @@ The first-stage router keeps string checks, `Scanner` parsing, and regex-style m
 
 `RouteMatch` preserves the deterministic command, resolved target, source, and reason alongside the route decision. Risky routes use a two-second cancellable delay instead of confirmation prompts. During that window, the menu bar extra switches to a stop-sign symbol; opening its window cancels the active pending command and lets the FIFO queue promote the next risky command.
 
-`SystemContextSnapshot` carries a routing mode and focused-control snapshot for context-sensitive behavior. The current modes are command, text, secure text, search, Swift, chat, and code. The menu bar symbol follows that mode unless a risky command is pending, in which case the cancel symbol takes priority.
+`SystemContextSnapshot` carries a routing mode, focused-control snapshot, and text-entry session state for context-sensitive behavior. Routing mode describes the focused context: command, text, secure text, search, Swift, chat, or code. Text-entry session state describes whether speech should currently be captured as text. The menu bar symbol follows the routing mode unless a risky command is pending, in which case the cancel symbol takes priority.
 
 Focused-control context is cached and refreshed from Accessibility focus notifications where supported. Sirious observes the active application with `AXObserver`, refreshes the focused control on focused-element/window changes, and falls back to unknown focus when Accessibility is unavailable or an app does not support the relevant notifications.
 
 App command targets resolve running apps first through workspace state, then installed-app candidates from `/Applications`, `~/Applications`, and `/System/Applications`. The installed-app scan is intentionally a launch-target heuristic, not a comprehensive software inventory. The sandboxed test host can read the standard `/Applications` scan, so Sirious does not currently ask for a separate Applications folder bookmark.
 
-Text commands currently classify `type <text>` and `dictate <text>` only when focused context is text-friendly. Those routes resolve to a logging text executor that skips execution until text insertion is implemented.
+Text commands currently classify `type <text>` and `dictate <text>` only when focused context is text-friendly. Final trigger commands start a temporary text-entry session, so following speech is treated as text until the configured pause timeout expires. `dictation mode` and `typing mode` start a sticky text-entry session, while `command mode`, `default mode`, `exit dictation mode`, `end dictation mode`, and `stop dictation mode` exit it.
+
+Text execution uses the documented Accessibility value path first: Sirious reads the focused editable Accessibility element, replaces its selected text range, and writes the updated `AXValue` back. If that path is unavailable, Sirious uses a pasteboard Command-V fallback and restores the previous string pasteboard content afterward. Secure text targets are skipped.
 
 The next routing shape adds two context-aware surfaces:
 
 - Custom commands: user- or agent-authored declarative command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata. Definitions should be loaded through a catalog protocol and validated before execution.
-- Explicit dictation mode: a later mode where ordinary speech becomes text until canceled. Dictation inserts text only into appropriate editable targets, while text-editing commands stay distinct from app, window, media, and search routes.
+- Dictation cleanup: text-entry sessions should eventually support configurable pause-time post-processing so ordinary dictation can be cleaned up without relying on a large set of spoken editing commands.
 
 Sirious is intended to run primarily as a menu bar app. The runtime owner keeps long-lived context providers and command execution state alive, while Settings exposes an `Open at Login` toggle backed by Service Management.
 

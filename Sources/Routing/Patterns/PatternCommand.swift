@@ -7,4 +7,6 @@ enum PatternCommand: String, Equatable {
     case mediaControl
     case typeText
     case dictateText
+    case enterDictationMode
+    case exitDictationMode
 }

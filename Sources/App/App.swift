@@ -39,7 +39,10 @@ struct SiriousApp: App {
         .defaultSize(width: 460, height: 420)
 
         Settings {
-            SettingsView(homeDirectoryAccess: runtime.homeDirectoryAccess)
+            SettingsView(
+                homeDirectoryAccess: runtime.homeDirectoryAccess,
+                textEntrySession: runtime.textEntrySession
+            )
         }
     }
 }

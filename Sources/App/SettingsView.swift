@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var loginItem = LoginItemState()
 
     var homeDirectoryAccess: HomeDirectoryAccessState
+    var textEntrySession: TextEntrySessionStore
 
     var body: some View {
         Form {
@@ -76,6 +77,25 @@ struct SettingsView: View {
                 if let errorMessage = loginItem.errorMessage {
                     Text(errorMessage)
                         .foregroundStyle(.red)
+                }
+            }
+
+            Section("Dictation") {
+                Picker(
+                    "Pause Before Exit",
+                    selection: Binding(
+                        get: {
+                            textEntrySession.pauseBeforeExit
+                        },
+                        set: { pauseBeforeExit in
+                            textEntrySession.setPauseBeforeExit(pauseBeforeExit)
+                        }
+                    )
+                ) {
+                    ForEach(PauseBeforeExitDictation.allCases) { pauseBeforeExit in
+                        Text("\(pauseBeforeExit.displayName) (\(pauseBeforeExit.durationDescription))")
+                            .tag(pauseBeforeExit)
+                    }
                 }
             }
 

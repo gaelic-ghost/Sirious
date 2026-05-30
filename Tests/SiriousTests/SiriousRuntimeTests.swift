@@ -137,6 +137,57 @@ struct SiriousRuntimeTests {
 
         #expect(runtime.latestRouteMatch == match)
         #expect(match.command == .typeText)
+        #expect(runtime.textEntrySession.isCapturingText)
+
+        runtime.stop()
+    }
+
+    @Test("runtime classify enters and exits sticky text entry")
+    func runtimeClassifyEntersAndExitsStickyTextEntry() async {
+        let routingMode = RoutingModeState(mode: .text)
+        let runtime = SiriousRuntime(
+            routingMode: routingMode,
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
+            startupFileAccessPromptDisabled: true
+        )
+        routingMode.setMode(.text)
+
+        let enterMatch = await runtime.classify(transcript("dictation mode"))
+
+        #expect(enterMatch.command == .enterDictationMode)
+        #expect(runtime.textEntrySession.state == .sticky(trigger: .dictationModeCommand))
+
+        let capturedMatch = await runtime.classify(transcript("open Safari"))
+
+        #expect(capturedMatch.command == .dictateText)
+        #expect(capturedMatch.target == .text(TextCommandTarget(text: "open Safari", mode: .text)))
+
+        let exitMatch = await runtime.classify(transcript("command mode"))
+
+        #expect(exitMatch.command == .exitDictationMode)
+        #expect(runtime.textEntrySession.state == .inactive)
+
+        runtime.stop()
+    }
+
+    @Test("runtime context reflects text entry session state")
+    func runtimeContextReflectsTextEntrySessionState() {
+        let textEntrySession = TextEntrySessionStore(
+            state: .sticky(trigger: .dictationModeCommand)
+        )
+        let runtime = SiriousRuntime(
+            textEntrySession: textEntrySession,
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
+            startupFileAccessPromptDisabled: true
+        )
+
+        let snapshot = runtime.contextProvider.snapshot()
+
+        #expect(snapshot.textEntrySession == .sticky(trigger: .dictationModeCommand))
 
         runtime.stop()
     }
@@ -169,6 +220,16 @@ struct SiriousRuntimeTests {
             command: command,
             target: .window(.focusedWindow),
             reason: "fixture risky route"
+        )
+    }
+
+    private func transcript(_ text: String) -> TranscriptEvent {
+        TranscriptEvent(
+            text: text,
+            range: nil,
+            isFinal: true,
+            stability: .final,
+            source: .fixture
         )
     }
 }

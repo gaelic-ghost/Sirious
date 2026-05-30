@@ -8,6 +8,8 @@ struct DebugView: View {
             Section("Mode") {
                 labeledValue("Routing", runtime.routingMode.mode.displayName)
                 labeledValue("Menu Symbol", runtime.routingMode.mode.menuBarSystemImage)
+                labeledValue("Text Entry", runtime.textEntrySession.state.displayName)
+                labeledValue("Pause Before Exit", runtime.textEntrySession.pauseBeforeExit.displayName)
             }
 
             Section("Focused Control") {
@@ -120,8 +122,19 @@ struct DebugView: View {
                 "Media"
             case let .text(textTarget):
                 "\(textTarget.mode.displayName): \(textTarget.text)"
+            case let .textEntrySession(target):
+                textEntrySessionTargetDescription(target)
             case .none:
                 "None"
+        }
+    }
+
+    private func textEntrySessionTargetDescription(_ target: TextEntrySessionCommandTarget) -> String {
+        switch target {
+            case let .enterSticky(mode):
+                "Enter Dictation Mode in \(mode.displayName)"
+            case .exit:
+                "Exit Dictation Mode"
         }
     }
 

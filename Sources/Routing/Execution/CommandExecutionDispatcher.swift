@@ -16,7 +16,7 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
         applicationExecutor: any ApplicationCommandExecuting = AppCommandExecutor(),
         windowExecutor: any WindowCommandExecuting = LoggingWindowCommandExecutor(),
         mediaExecutor: any MediaCommandExecuting = LoggingMediaCommandExecutor(),
-        textExecutor: any TextCommandExecuting = LoggingTextCommandExecutor()
+        textExecutor: any TextCommandExecuting = TextCommandExecutor()
     ) {
         self.resolver = resolver
         self.applicationExecutor = applicationExecutor

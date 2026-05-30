@@ -12,7 +12,7 @@ struct PendingCommandStoreTests {
         await store.enqueue(routeMatch(command: .closeWindow))
         await sleeper.waitForSleep()
         await sleeper.completeNext()
-        await Task.yield()
+        await waitForReleasedCommandCount(1, in: store)
 
         let releasedCount = await store.releasedCommands.count
         let hasActiveCommand = await store.hasActiveCommand
@@ -37,7 +37,7 @@ struct PendingCommandStoreTests {
         await store.enqueue(routeMatch(command: .closeWindow))
         await sleeper.waitForSleep()
         await sleeper.completeNext()
-        await Task.yield()
+        await waitForRecordedCommandCount(1, in: recorder)
 
         let releasedCommands = await recorder.commands
 
@@ -78,7 +78,7 @@ struct PendingCommandStoreTests {
 
         await sleeper.waitForSleep()
         await sleeper.completeNext()
-        await Task.yield()
+        await waitForReleasedCommandCount(1, in: store)
 
         let activeAfterFirstCompletion = await store.activeCommand
         let queuedCount = await store.queuedCommandCount
@@ -88,7 +88,7 @@ struct PendingCommandStoreTests {
 
         await sleeper.waitForSleep()
         await sleeper.completeNext()
-        await Task.yield()
+        await waitForReleasedCommandCount(2, in: store)
 
         let activeAfterSecondCompletion = await store.activeCommand
 
@@ -110,6 +110,34 @@ struct PendingCommandStoreTests {
             target: .window(.focusedWindow),
             reason: "fixture risky route"
         )
+    }
+
+    private func waitForReleasedCommandCount(
+        _ expectedCount: Int,
+        in store: PendingCommandStore
+    ) async {
+        for _ in 0..<20 {
+            let releasedCount = await store.releasedCommands.count
+            if releasedCount >= expectedCount {
+                return
+            }
+
+            try? await Task.sleep(nanoseconds: 1_000_000)
+        }
+    }
+
+    private func waitForRecordedCommandCount(
+        _ expectedCount: Int,
+        in recorder: ReleasedCommandRecorder
+    ) async {
+        for _ in 0..<20 {
+            let recordedCount = await recorder.commands.count
+            if recordedCount >= expectedCount {
+                return
+            }
+
+            try? await Task.sleep(nanoseconds: 1_000_000)
+        }
     }
 }
 

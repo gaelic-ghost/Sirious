@@ -9,6 +9,7 @@ final class SiriousRuntime {
     let contextProvider: LiveSystemContextProvider
     let routingMode: RoutingModeState
     let focusedControl: FocusedControlStore
+    let textEntrySession: TextEntrySessionStore
     let executor: any CommandExecutionDispatching
     let homeDirectoryAccess: HomeDirectoryAccessState
     private(set) var latestRouteMatch: RouteMatch?
@@ -33,6 +34,7 @@ final class SiriousRuntime {
         pendingCommands: PendingCommandStore = PendingCommandStore(),
         routingMode: RoutingModeState = RoutingModeState(),
         focusedControl: FocusedControlStore = FocusedControlStore(),
+        textEntrySession: TextEntrySessionStore = TextEntrySessionStore(),
         workspaceStore: WorkspaceStateStore = WorkspaceStateStore(),
         audioProvider: any AudioStateProviding = MPNowPlayingAudioStateProvider(),
         executor: any CommandExecutionDispatching = CommandExecutionDispatcher(),
@@ -43,6 +45,7 @@ final class SiriousRuntime {
         self.pendingCommands = pendingCommands
         self.routingMode = routingMode
         self.focusedControl = focusedControl
+        self.textEntrySession = textEntrySession
         self.workspaceStore = workspaceStore
         self.homeDirectoryAccess = homeDirectoryAccess
         self.startupFileAccessPromptDisabled = startupFileAccessPromptDisabled
@@ -54,6 +57,7 @@ final class SiriousRuntime {
         contextProvider = LiveSystemContextProvider(
             routingModeProvider: routingMode,
             focusedControlProvider: focusedControl,
+            textEntrySessionProvider: textEntrySession,
             audioProvider: audioProvider,
             workspaceProvider: workspaceStore
         )
@@ -86,6 +90,7 @@ final class SiriousRuntime {
     func classify(_ event: TranscriptEvent) async -> RouteMatch {
         let match = await routeClassifier.classify(event)
         latestRouteMatch = match
+        updateTextEntrySession(for: match, event: event)
         return match
     }
 
@@ -107,8 +112,32 @@ final class SiriousRuntime {
             }
 
             latestRouteMatch = command.match
+            updateTextEntrySession(for: command.match, event: nil)
             let result = await executor.execute(command.match)
             executionRecords.append(CommandExecutionRecord(command: command, result: result))
+        }
+    }
+
+    private func updateTextEntrySession(for match: RouteMatch, event: TranscriptEvent?) {
+        if let event, event.isFinal == false {
+            return
+        }
+
+        switch match.command {
+            case .typeText:
+                textEntrySession.startActive(trigger: .typeCommand)
+            case .dictateText:
+                if textEntrySession.isCapturingText {
+                    textEntrySession.refreshActiveSession()
+                } else {
+                    textEntrySession.startActive(trigger: .dictateCommand)
+                }
+            case .enterDictationMode:
+                textEntrySession.enterSticky()
+            case .exitDictationMode:
+                textEntrySession.exit()
+            default:
+                break
         }
     }
 
