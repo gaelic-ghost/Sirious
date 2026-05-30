@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct SiriousApp: App {
-    @State private var pendingCommands = PendingCommandStore()
+    @State private var runtime = SiriousRuntime()
 
     var body: some Scene {
         WindowGroup {
@@ -10,11 +10,11 @@ struct SiriousApp: App {
         }
 
         MenuBarExtra {
-            MenuBarWindow(pendingCommands: pendingCommands)
+            MenuBarWindow(pendingCommands: runtime.pendingCommands)
         } label: {
-            Label("Sirious", systemImage: pendingCommands.hasActiveCommand ? "octagon.fill" : "waveform")
+            Label("Sirious", systemImage: runtime.pendingCommands.hasActiveCommand ? "octagon.fill" : "waveform")
                 .symbolRenderingMode(.palette)
-                .foregroundStyle(pendingCommands.hasActiveCommand ? .red : .primary)
+                .foregroundStyle(runtime.pendingCommands.hasActiveCommand ? .red : .primary)
         }
         .menuBarExtraStyle(.window)
 

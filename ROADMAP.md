@@ -15,17 +15,17 @@ Window-control routes are already gated on Accessibility permission before any f
 ## Next Slices
 
 1. Connect future executors to delayed `RouteMatch` release events from the pending-command store.
-2. Add no-op or logging app, window, and media executors before binding them to concrete macOS APIs.
-3. Add routing-mode context to `SystemContextSnapshot`, starting with command, text, search, and secure-text modes derived from focused-element heuristics.
+2. Add routing-mode context to `SystemContextSnapshot`, starting with command, text, search, and secure-text modes derived from focused-element heuristics.
+3. Add focused-control context for the frontmost app so dictation, text editing, and future app navigation commands can understand the active UI target.
 4. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.
-5. Add a small runtime owner for `LiveSystemContextProvider` so long-lived stores can be stopped cleanly during app teardown.
-6. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
-7. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
+5. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
+6. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
 
 ## Deferred
 
 - Real app launching, activation, window manipulation, and media control execution.
 - Broad natural-language window targeting.
+- Headless or helper-based runtime mode without a visible menu bar extra.
 - Core Data persistence for custom command definitions and multi-step command recipes.
 - Dictation insertion and text-editing execution against focused editable targets.
 - Trained classifier or model integration.

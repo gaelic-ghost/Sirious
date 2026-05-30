@@ -9,7 +9,7 @@ The first durable building block is a transcript-event protocol. Apple SpeechAna
 1. `TranscriptEventSource` emits time-coded partial and final transcript events.
 2. `TranscriptSpanStabilizer` normalizes finality and stability before routing.
 3. `CommandNormalizer` trims transcript text, preserves the original phrase, and provides lowercase/token views for first-stage matching.
-4. `SystemContextSnapshot` carries current machine state such as audio playback, running apps, and the frontmost app.
+4. `SystemContextSnapshot` carries current machine state such as audio playback, running apps, the frontmost app, and later focused-control metadata.
 5. `SystemContextProviding` supplies either a static test snapshot or a live snapshot from audio and workspace providers.
 6. `PatternCommandRouter` handles obvious local commands with deterministic patterns before any learned classifier runs.
 7. A future custom-command catalog checks user- or agent-authored trigger phrases against the normalized command and current context.
@@ -42,6 +42,8 @@ Initial modes should stay small:
 - `.secureText`: the focused element appears to be a password or secure text field, where Sirious should avoid dictating, reading, logging, or learning from contents.
 
 The first implementation should treat this as a heuristic context signal, not a source of truth. Accessibility focus and roles can indicate that an element is focused, editable, or search-like, but app support can be incomplete or inconsistent. Routing should keep a confidence score and prefer safe fallback when the focused element cannot be understood.
+
+Focused control metadata should be modeled as context that hangs off the active application snapshot, with the workspace snapshot carrying that enriched frontmost app. A future `FocusedControlSnapshot` should describe the focused UI node or control with stable facts Sirious can use for routing: role, subrole, title or placeholder when safe, editable state, secure-text state, selected text availability, and whether the control appears search-like. This will support dictation and text commands first, and later app-navigation commands such as `click the sidebar`, `focus the search field`, or `go back in this app`.
 
 Dictation and text editing should be distinct route domains:
 
@@ -80,8 +82,17 @@ Window-control routes still require Accessibility permission before they can be 
 - Voxtral Realtime should remain a parallel transcript backend behind the same protocol so streaming quality and latency can be compared without changing the router.
 - MPNowPlaying should be the first audio context provider, but audio state should stay behind `AudioStateProviding` so later sources can be added without changing routing decisions.
 - NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
+- Focused UI control detection should be layered onto workspace context after the runtime owner exists, likely through Accessibility APIs that read the focused element for the frontmost app.
 - Window routing should stay classification-only until accessibility, AppKit, or window-server execution adapters can be designed and permission-gated explicitly.
 - Window control requires Accessibility permission before execution; classification can still identify the route before that permission is granted.
 - Bare `close` and `minimize` commands target the focused window.
 - FunctionGemma should sit after route narrowing as a small function-call formatter for constrained tool schemas, not as the first consumer of raw partial transcription.
 - Focus and editable-target detection should be modeled as context, not hidden inside the classifier. Accessibility-derived focused-element metadata can feed mode heuristics for command, text, search, and secure-text routing.
+
+## App Lifecycle
+
+Sirious should behave primarily as a menu bar app. The menu bar extra is the everyday control surface for cancellation, status, and quick settings, while the main command-center window remains useful for development and diagnostics.
+
+The app should have one runtime owner for long-lived services such as workspace observation, audio context, transcript ingestion, pending-command delay state, custom-command catalogs, and future executors. That owner should start these services once and stop explicit observer-backed services during app termination. Long-lived stores should expose explicit cleanup methods when Swift concurrency makes `deinit` the wrong place to remove Objective-C observers.
+
+Login behavior should use Service Management rather than manually installing launchd files. The near-term Settings UI should expose `SMAppService.mainApp` as an `Open at Login` toggle for users who want Sirious to start as a normal menu bar app. A later helper or LaunchAgent path can support a headless mode where Sirious runs without a visible menu bar extra, but that should be designed as a separate runtime mode with clear status, recovery, and permissions behavior.

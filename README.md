@@ -27,6 +27,8 @@ The next routing shape adds two context-aware surfaces:
 - Custom commands: user- or agent-authored declarative command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata. Definitions should be loaded through a catalog protocol and validated before execution.
 - Text and dictation routing: focused-element context should eventually mark the current mode as command, text, search, or secure text. Dictation inserts text only into appropriate editable targets, while text-editing commands stay distinct from app, window, media, and search routes.
 
+Sirious is intended to run primarily as a menu bar app. The runtime owner keeps long-lived context providers and command execution state alive, while Settings exposes an `Open at Login` toggle backed by Service Management.
+
 ## Development
 
 Generate the Xcode project after changing `project.yml`:

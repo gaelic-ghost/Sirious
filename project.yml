@@ -36,8 +36,11 @@ targets:
       path: Sources/Support/Info.plist
       properties:
         CFBundleDisplayName: Sirious
+        LSApplicationCategoryType: public.app-category.utilities
     settings:
       base:
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.0.1
         PRODUCT_BUNDLE_IDENTIFIER: com.galewilliams.Sirious
     scheme:
       testTargets:
