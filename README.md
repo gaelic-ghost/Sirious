@@ -22,6 +22,11 @@ The first-stage router keeps string checks, `Scanner` parsing, and regex-style m
 
 `RouteMatch` preserves the deterministic command, resolved target, source, and reason alongside the route decision. Risky routes use a two-second cancellable delay instead of confirmation prompts. During that window, the menu bar extra switches to a stop-sign symbol; opening its window cancels the active pending command and lets the FIFO queue promote the next risky command.
 
+The next routing shape adds two context-aware surfaces:
+
+- Custom commands: user- or agent-authored declarative command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata. Definitions should be loaded through a catalog protocol and validated before execution.
+- Text and dictation routing: focused-element context should eventually mark the current mode as command, text, search, or secure text. Dictation inserts text only into appropriate editable targets, while text-editing commands stay distinct from app, window, media, and search routes.
+
 ## Development
 
 Generate the Xcode project after changing `project.yml`:

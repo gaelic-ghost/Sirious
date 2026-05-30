@@ -12,9 +12,10 @@ The first durable building block is a transcript-event protocol. Apple SpeechAna
 4. `SystemContextSnapshot` carries current machine state such as audio playback, running apps, and the frontmost app.
 5. `SystemContextProviding` supplies either a static test snapshot or a live snapshot from audio and workspace providers.
 6. `PatternCommandRouter` handles obvious local commands with deterministic patterns before any learned classifier runs.
-7. `StreamingRouteClassifier` returns a `RouteMatch`, preserving the route decision, deterministic command, resolved target, source, and reason.
-8. `RiskAndContextGate` separates executable local decisions from actions that need permissions or a cancellable delay.
-9. Route-specific executors handle app control, window control, media control, search, retrieval, planning, or clarification.
+7. A future custom-command catalog checks user- or agent-authored trigger phrases against the normalized command and current context.
+8. `StreamingRouteClassifier` returns a `RouteMatch`, preserving the route decision, deterministic command, resolved target, source, and reason.
+9. `RiskAndContextGate` separates executable local decisions from actions that need permissions or a cancellable delay.
+10. Route-specific executors handle app control, window control, media control, text editing, search, retrieval, planning, or clarification.
 
 Each stage lives in its own file so the pipeline stays easy to inspect, replace, and test.
 
@@ -28,6 +29,42 @@ The first stage should do as little learned classification as possible. Simple c
 - Use Swift Regex or RegexBuilder only where readability clearly wins and the path is not hot.
 - Fall back to the learned classifier only when deterministic matching returns no route.
 - Preserve deterministic command payloads through `RouteMatch` so later executors can act on the resolved command and target without reparsing transcript text.
+
+## Context Mode Policy
+
+`SystemContextSnapshot` should eventually carry a lightweight routing mode derived from the focused interaction surface. This mode should help decide whether a transcript is more likely to be a command, dictated text, a search query, or a text-editing instruction.
+
+Initial modes should stay small:
+
+- `.command`: the default when no stronger focus signal is available.
+- `.text`: the focused element appears to accept text editing or insertion.
+- `.search`: the focused element appears to be an omnibox, search field, or search-like prompt.
+- `.secureText`: the focused element appears to be a password or secure text field, where Sirious should avoid dictating, reading, logging, or learning from contents.
+
+The first implementation should treat this as a heuristic context signal, not a source of truth. Accessibility focus and roles can indicate that an element is focused, editable, or search-like, but app support can be incomplete or inconsistent. Routing should keep a confidence score and prefer safe fallback when the focused element cannot be understood.
+
+Dictation and text editing should be distinct route domains:
+
+- Dictation inserts spoken text into the focused editable target when context mode is `.text` and the phrase is not an explicit command.
+- Text-editing commands transform or navigate existing text, such as `select that`, `delete the last sentence`, `capitalize this line`, or `replace cats with dogs`.
+- Search routing should win when context mode is `.search` and the transcript looks like query text instead of an explicit local command.
+- Explicit local commands such as `pause`, `open Safari`, or `close window` should still be allowed to override text/search mode when their deterministic match is strong enough.
+
+## Custom Commands
+
+Custom commands should be stored as declarative definitions and executed only after validation. The persistent store should keep recipes, not arbitrary executable code.
+
+The first durable shape should separate saved definitions from runtime execution:
+
+- `CustomCommandDefinition` stores user- or agent-authored command data, including trigger phrases, aliases, priority, required context, risk, and ordered steps.
+- `CustomCommandCatalog` loads and searches definitions without exposing the backing store to routing code.
+- `CustomCommandRouteResolver` matches normalized transcripts and context snapshots to candidate custom commands.
+- `CustomCommandPlanValidator` turns a matched definition into an allowed execution plan with permission and risk checks applied.
+- `CustomCommandExecuting` runs only validated custom-command plans.
+
+Core Data is a good fit for the eventual persistent catalog because custom commands will need editing, relationships between commands and steps, migrations, search, sync, and audit-friendly metadata. The first implementation should still start with pure Swift structs and an in-memory catalog so matching, priority, and validation can be tested before the storage model hardens.
+
+Custom multi-step commands should compose known Sirious capabilities instead of embedding scripts. Early steps should reference app, window, media, text, search, and later automation capabilities that Sirious already knows how to permission-check, delay, cancel, and log.
 
 ## Risk Delay Policy
 
@@ -47,3 +84,4 @@ Window-control routes still require Accessibility permission before they can be 
 - Window control requires Accessibility permission before execution; classification can still identify the route before that permission is granted.
 - Bare `close` and `minimize` commands target the focused window.
 - FunctionGemma should sit after route narrowing as a small function-call formatter for constrained tool schemas, not as the first consumer of raw partial transcription.
+- Focus and editable-target detection should be modeled as context, not hidden inside the classifier. Accessibility-derived focused-element metadata can feed mode heuristics for command, text, search, and secure-text routing.
