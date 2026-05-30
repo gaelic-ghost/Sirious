@@ -13,7 +13,7 @@ The first durable building block is a transcript-event protocol. Apple SpeechAna
 5. `SystemContextProviding` supplies either a static test snapshot or a live snapshot from audio and workspace providers.
 6. `PatternCommandRouter` handles obvious local commands with deterministic patterns before any learned classifier runs.
 7. `StreamingRouteClassifier` falls back to broader route decisions such as search, chat, planning, or clarification.
-8. `RiskAndContextGate` separates executable local decisions from actions that need confirmation or more context.
+8. `RiskAndContextGate` separates executable local decisions from actions that need confirmation, permissions, or more context.
 9. Route-specific executors handle app control, window control, media control, search, retrieval, planning, or clarification.
 
 Each stage lives in its own file so the pipeline stays easy to inspect, replace, and test.
@@ -35,4 +35,5 @@ The first stage should do as little learned classification as possible. Simple c
 - MPNowPlaying should be the first audio context provider, but audio state should stay behind `AudioStateProviding` so later sources can be added without changing routing decisions.
 - NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
 - Window routing should stay classification-only until accessibility, AppKit, or window-server execution adapters can be designed and permission-gated explicitly.
+- Window control requires Accessibility permission before execution; classification can still identify the route before that permission is granted.
 - FunctionGemma should sit after route narrowing as a small function-call formatter for constrained tool schemas, not as the first consumer of raw partial transcription.

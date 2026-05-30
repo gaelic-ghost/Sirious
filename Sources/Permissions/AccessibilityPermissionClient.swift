@@ -1,7 +1,7 @@
 import ApplicationServices
 
 @MainActor
-struct AccessibilityPermissionClient {
+struct AccessibilityPermissionClient: AccessibilityPermissionProviding {
     private static let promptOptionKey = "AXTrustedCheckOptionPrompt"
 
     func status() -> AccessibilityPermissionStatus {
