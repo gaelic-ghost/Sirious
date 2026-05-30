@@ -20,6 +20,7 @@ Routing mode is backed by focused-control context. Sirious caches the focused Ac
 - [ ] Manually validate pasteboard fallback against common native and Electron text fields.
 - [ ] Decide how hotkey ownership feeds `TranscriptionActivationPolicy`, including push-to-talk hold, double-tap toggle, wake word, and wake-word grace timer behavior.
 - [ ] Decide where partial transcript stabilization lives once the first real ASR backend exposes its own partial/final semantics.
+- [ ] Compare initial ASR backends behind `TranscriptEventSource`: Apple Speech framework first for sandbox/App Store fit, MLX-backed Parakeet or Qwen3 ASR for local model quality experiments, and Voxtral-style realtime streaming if the local/server split becomes worth it.
 
 ## Current Routing Surface
 

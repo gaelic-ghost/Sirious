@@ -22,5 +22,9 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Sirious uses microphone audio to transcribe spoken commands and dictation.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Sirious uses speech recognition to turn spoken commands and dictation into text.</string>
 </dict>
 </plist>
