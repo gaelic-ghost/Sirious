@@ -2,13 +2,21 @@ import Foundation
 
 struct AppCommandPatterns {
     private let workspace: WorkspaceSnapshot
+    private let installedApplications: [InstalledApplicationCandidate]
 
-    init(workspace: WorkspaceSnapshot = .empty) {
+    init(
+        workspace: WorkspaceSnapshot = .empty,
+        installedApplications: [InstalledApplicationCandidate] = []
+    ) {
         self.workspace = workspace
+        self.installedApplications = installedApplications
     }
 
     func match(_ command: NormalizedCommand, event: TranscriptEvent) -> PatternRouteMatch? {
-        let resolver = ApplicationResolver(workspace: workspace)
+        let resolver = ApplicationResolver(
+            workspace: workspace,
+            installedApplications: installedApplications
+        )
 
         if let appName = parseApplicationName(command.original, verbs: ["open", "launch", "start"]),
            let target = resolver.target(named: appName) {
