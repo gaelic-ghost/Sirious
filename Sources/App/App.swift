@@ -7,6 +7,9 @@ struct SiriousApp: App {
     var body: some Scene {
         WindowGroup {
             CommandCenterView()
+                .onAppear {
+                    runtime.prepareSandboxFileAccessIfNeeded()
+                }
         }
 
         MenuBarExtra {
@@ -19,7 +22,7 @@ struct SiriousApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView()
+            SettingsView(homeDirectoryAccess: runtime.homeDirectoryAccess)
         }
     }
 }

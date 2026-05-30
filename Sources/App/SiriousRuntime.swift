@@ -8,10 +8,14 @@ final class SiriousRuntime {
     let pendingCommands: PendingCommandStore
     let contextProvider: LiveSystemContextProvider
     let executor: any CommandExecutionDispatching
+    let homeDirectoryAccess: HomeDirectoryAccessState
     private(set) var executionRecords: [CommandExecutionRecord] = []
 
     @ObservationIgnored
     private let workspaceStore: WorkspaceStateStore
+
+    @ObservationIgnored
+    private let startupFileAccessPromptDisabled: Bool
 
     @ObservationIgnored
     private var terminationObserver: NSObjectProtocol?
@@ -20,10 +24,14 @@ final class SiriousRuntime {
         pendingCommands: PendingCommandStore = PendingCommandStore(),
         workspaceStore: WorkspaceStateStore = WorkspaceStateStore(),
         audioProvider: any AudioStateProviding = MPNowPlayingAudioStateProvider(),
-        executor: any CommandExecutionDispatching = CommandExecutionDispatcher()
+        executor: any CommandExecutionDispatching = CommandExecutionDispatcher(),
+        homeDirectoryAccess: HomeDirectoryAccessState = HomeDirectoryAccessState(),
+        startupFileAccessPromptDisabled: Bool = SiriousRuntime.defaultStartupFileAccessPromptDisabled()
     ) {
         self.pendingCommands = pendingCommands
         self.workspaceStore = workspaceStore
+        self.homeDirectoryAccess = homeDirectoryAccess
+        self.startupFileAccessPromptDisabled = startupFileAccessPromptDisabled
         contextProvider = LiveSystemContextProvider(
             audioProvider: audioProvider,
             workspaceProvider: workspaceStore
@@ -35,8 +43,26 @@ final class SiriousRuntime {
         observeApplicationTermination()
     }
 
+    private static func defaultStartupFileAccessPromptDisabled() -> Bool {
+        let environment = ProcessInfo.processInfo.environment
+
+        return environment["SIRIOUS_SKIP_STARTUP_FILE_ACCESS_PROMPT"] == "1"
+            || environment["XCTestConfigurationFilePath"] != nil
+            || environment["XCTestBundlePath"] != nil
+    }
+
+    func prepareSandboxFileAccessIfNeeded() {
+        guard startupFileAccessPromptDisabled == false else {
+            homeDirectoryAccess.refresh()
+            return
+        }
+
+        homeDirectoryAccess.requestAccessIfNeeded()
+    }
+
     func stop() {
         workspaceStore.stopObserving()
+        homeDirectoryAccess.stopAccessing()
 
         if let terminationObserver {
             NotificationCenter.default.removeObserver(terminationObserver)

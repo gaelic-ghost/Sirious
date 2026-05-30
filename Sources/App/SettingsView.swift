@@ -4,6 +4,8 @@ struct SettingsView: View {
     @State private var accessibilityPermission = AccessibilityPermissionState()
     @State private var loginItem = LoginItemState()
 
+    var homeDirectoryAccess: HomeDirectoryAccessState
+
     var body: some View {
         Form {
             Section("Permissions") {
@@ -21,6 +23,25 @@ struct SettingsView: View {
                     Button(accessibilityPermission.buttonTitle) {
                         accessibilityPermission.requestOrRefresh()
                     }
+                }
+            }
+
+            Section("Files") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Home Folder")
+                            .font(.headline)
+
+                        Text(homeDirectoryAccess.status.description)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Button(homeDirectoryAccess.buttonTitle) {
+                        homeDirectoryAccess.requestAccess()
+                    }
+                    .disabled(homeDirectoryAccess.canRequestAccess == false)
                 }
             }
 
@@ -61,6 +82,7 @@ struct SettingsView: View {
         .frame(width: 460)
         .onAppear {
             accessibilityPermission.refresh()
+            homeDirectoryAccess.refresh()
             loginItem.refresh()
         }
     }

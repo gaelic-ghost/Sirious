@@ -41,6 +41,7 @@ targets:
         LSApplicationCategoryType: public.app-category.utilities
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: Sources/Support/Sirious.entitlements
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.0.1
         PRODUCT_BUNDLE_IDENTIFIER: com.galewilliams.Sirious

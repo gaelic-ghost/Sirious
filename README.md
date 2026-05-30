@@ -29,6 +29,12 @@ The next routing shape adds two context-aware surfaces:
 
 Sirious is intended to run primarily as a menu bar app. The runtime owner keeps long-lived context providers and command execution state alive, while Settings exposes an `Open at Login` toggle backed by Service Management.
 
+## Sandbox And File Access
+
+Sirious is configured as a sandboxed macOS app. On startup, the runtime checks for the app sandbox environment, restores a saved security-scoped bookmark for the user's home folder when one exists, and otherwise asks the user to choose their home folder through the system folder picker. The current prompt is intentionally temporary and will move into a fuller onboarding flow later.
+
+Settings exposes the same home folder permission state, alongside Accessibility and Login Item controls. The sandbox entitlements allow user-selected read/write access and app-scoped bookmarks; they do not grant broad filesystem access until the user chooses the folder.
+
 ## Development
 
 Generate the Xcode project after changing `project.yml`:

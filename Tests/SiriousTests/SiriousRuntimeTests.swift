@@ -1,3 +1,4 @@
+import Foundation
 @testable import Sirious
 import Testing
 
@@ -25,6 +26,40 @@ struct SiriousRuntimeTests {
         #expect(dispatcher.matches.count == 1)
         #expect(runtime.executionRecords.count == 1)
         #expect(runtime.executionRecords.first?.result.outcome == .skipped)
+
+        runtime.stop()
+    }
+
+    @Test("runtime requests sandbox file access on startup when prompt is enabled")
+    func runtimeRequestsSandboxFileAccessOnStartupWhenPromptIsEnabled() {
+        let homeService = RuntimeHomeDirectoryAccessService(isSandboxed: true)
+        let runtime = SiriousRuntime(
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            homeDirectoryAccess: HomeDirectoryAccessState(service: homeService),
+            startupFileAccessPromptDisabled: false
+        )
+
+        runtime.prepareSandboxFileAccessIfNeeded()
+
+        #expect(homeService.requestCallCount == 1)
+
+        runtime.stop()
+    }
+
+    @Test("runtime skips sandbox file access prompt when disabled")
+    func runtimeSkipsSandboxFileAccessPromptWhenDisabled() {
+        let homeService = RuntimeHomeDirectoryAccessService(isSandboxed: true)
+        let runtime = SiriousRuntime(
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            homeDirectoryAccess: HomeDirectoryAccessState(service: homeService),
+            startupFileAccessPromptDisabled: true
+        )
+
+        runtime.prepareSandboxFileAccessIfNeeded()
+
+        #expect(homeService.requestCallCount == 0)
 
         runtime.stop()
     }
@@ -75,6 +110,27 @@ private struct StubAudioStateProvider: AudioStateProviding {
     func snapshot() -> AudioPlaybackSnapshot {
         .unknown
     }
+}
+
+@MainActor
+private final class RuntimeHomeDirectoryAccessService: HomeDirectoryAccessProviding {
+    var isSandboxed: Bool
+    private(set) var requestCallCount = 0
+
+    init(isSandboxed: Bool) {
+        self.isSandboxed = isSandboxed
+    }
+
+    func startStoredAccess() throws -> URL? {
+        nil
+    }
+
+    func requestHomeDirectoryAccess() throws -> URL {
+        requestCallCount += 1
+        return URL(filePath: "/Users/gale")
+    }
+
+    func stopAccessing() {}
 }
 
 private actor ControlledSleeper {
