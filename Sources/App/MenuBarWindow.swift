@@ -2,10 +2,11 @@ import SwiftUI
 
 struct MenuBarWindow: View {
     var pendingCommands: PendingCommandStore
+    var routingMode: RoutingMode
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label("Sirious", systemImage: "waveform")
+            Label("Sirious", systemImage: routingMode.menuBarSystemImage)
                 .font(.headline)
 
             if let canceled = pendingCommands.canceledCommands.last {
@@ -23,6 +24,9 @@ struct MenuBarWindow: View {
                 Text("\(pendingCommands.queuedCommandCount) risky command(s) queued.")
                     .foregroundStyle(.secondary)
             }
+
+            Text("\(routingMode.displayName) mode")
+                .foregroundStyle(.secondary)
         }
         .padding(18)
         .frame(width: 280, alignment: .leading)

@@ -6,6 +6,8 @@ Window-control routes are already gated on Accessibility permission before any f
 
 Sirious is now configured for the macOS app sandbox. Startup and Settings share a home folder permission state that restores a saved security-scoped bookmark or asks the user to choose their home folder when sandboxed. This is a temporary direct prompt until onboarding is designed.
 
+Onboarding is deferred until the TestFlight beta timeline is clearer.
+
 The standard `/Applications` app scan is covered by a sandboxed test-host check, so the current build does not add a separate Applications folder permission prompt. If packaged App Store-style signing later blocks that scan, add an Applications folder bookmark to onboarding rather than broadening the resolver silently.
 
 ## Current Routing Surface
@@ -18,12 +20,11 @@ The standard `/Applications` app scan is covered by a sandboxed test-host check,
 
 ## Next Slices
 
-1. Design the onboarding flow for Accessibility, home folder access, Login Item setup, and future speech/transcription permissions.
-2. Add routing-mode context to `SystemContextSnapshot`, starting with command, text, search, and secure-text modes derived from focused-element heuristics.
-3. Add focused-control context for the frontmost app so dictation, text editing, and future app navigation commands can understand the active UI target.
-4. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.
-5. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
-6. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
+1. Add focused-control context for the frontmost app so dictation, text editing, and future app navigation commands can understand the active UI target.
+2. Add routing-mode heuristics, starting with focused editable fields, search fields, secure text fields, and app-specific code/chat contexts.
+3. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.
+4. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
+5. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
 
 ## Deferred
 
@@ -32,5 +33,6 @@ The standard `/Applications` app scan is covered by a sandboxed test-host check,
 - Headless or helper-based runtime mode without a visible menu bar extra.
 - Core Data persistence for custom command definitions and multi-step command recipes.
 - Dictation insertion and text-editing execution against focused editable targets.
+- Onboarding for Accessibility, home folder access, Login Item setup, and future speech/transcription permissions.
 - Trained classifier or model integration.
 - Full benchmark suite for string checks, `Scanner`, `NSRegularExpression`, and Swift Regex.

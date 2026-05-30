@@ -13,11 +13,23 @@ struct SiriousApp: App {
         }
 
         MenuBarExtra {
-            MenuBarWindow(pendingCommands: runtime.pendingCommands)
+            MenuBarWindow(
+                pendingCommands: runtime.pendingCommands,
+                routingMode: runtime.routingMode.mode
+            )
         } label: {
-            Label("Sirious", systemImage: runtime.pendingCommands.hasActiveCommand ? "octagon.fill" : "waveform")
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(runtime.pendingCommands.hasActiveCommand ? .red : .primary)
+            Label(
+                "Sirious",
+                systemImage: runtime.pendingCommands.hasActiveCommand
+                    ? "octagon.fill"
+                    : runtime.routingMode.mode.menuBarSystemImage
+            )
+            .symbolRenderingMode(.palette)
+            .foregroundStyle(
+                runtime.pendingCommands.hasActiveCommand
+                    ? AnyShapeStyle(.red)
+                    : runtime.routingMode.mode.menuBarForegroundStyle
+            )
         }
         .menuBarExtraStyle(.window)
 

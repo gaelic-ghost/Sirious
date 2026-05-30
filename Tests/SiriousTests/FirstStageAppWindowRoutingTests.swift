@@ -37,6 +37,7 @@ struct FirstStageAppWindowRoutingTests {
     func switchCommandsRouteToAppControlWithWorkspaceContext() async {
         let classifier = FirstStageRouteClassifier(
             context: SystemContextSnapshot(
+                routingMode: .command,
                 audio: .unknown,
                 workspace: WorkspaceSnapshot(
                     runningApplications: [

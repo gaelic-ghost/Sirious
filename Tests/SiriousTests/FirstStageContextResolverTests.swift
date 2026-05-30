@@ -56,6 +56,7 @@ struct FirstStageContextResolverTests {
             frontmostApplication: nil
         )
         let provider = await LiveSystemContextProvider(
+            routingModeProvider: StaticRoutingModeProvider(mode: .text),
             audioProvider: FixtureAudioStateProvider(
                 audioSnapshot: AudioPlaybackSnapshot(
                     state: .playing,
@@ -69,6 +70,7 @@ struct FirstStageContextResolverTests {
 
         let snapshot = await provider.snapshot()
 
+        #expect(snapshot.routingMode == .text)
         #expect(snapshot.audio.state == .playing)
         #expect(snapshot.workspace == workspace)
     }

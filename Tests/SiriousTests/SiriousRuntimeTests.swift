@@ -64,6 +64,24 @@ struct SiriousRuntimeTests {
         runtime.stop()
     }
 
+    @Test("runtime context reflects routing mode state")
+    func runtimeContextReflectsRoutingModeState() {
+        let routingMode = RoutingModeState(mode: .text)
+        let runtime = SiriousRuntime(
+            routingMode: routingMode,
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            startupFileAccessPromptDisabled: true
+        )
+
+        routingMode.setMode(.search)
+        let snapshot = runtime.contextProvider.snapshot()
+
+        #expect(snapshot.routingMode == .search)
+
+        runtime.stop()
+    }
+
     private func waitForRuntimeExecution(
         _ runtime: SiriousRuntime,
         dispatcher: RecordingCommandExecutionDispatcher

@@ -7,6 +7,7 @@ import Observation
 final class SiriousRuntime {
     let pendingCommands: PendingCommandStore
     let contextProvider: LiveSystemContextProvider
+    let routingMode: RoutingModeState
     let executor: any CommandExecutionDispatching
     let homeDirectoryAccess: HomeDirectoryAccessState
     private(set) var executionRecords: [CommandExecutionRecord] = []
@@ -22,6 +23,7 @@ final class SiriousRuntime {
 
     init(
         pendingCommands: PendingCommandStore = PendingCommandStore(),
+        routingMode: RoutingModeState = RoutingModeState(),
         workspaceStore: WorkspaceStateStore = WorkspaceStateStore(),
         audioProvider: any AudioStateProviding = MPNowPlayingAudioStateProvider(),
         executor: any CommandExecutionDispatching = CommandExecutionDispatcher(),
@@ -29,10 +31,12 @@ final class SiriousRuntime {
         startupFileAccessPromptDisabled: Bool = SiriousRuntime.defaultStartupFileAccessPromptDisabled()
     ) {
         self.pendingCommands = pendingCommands
+        self.routingMode = routingMode
         self.workspaceStore = workspaceStore
         self.homeDirectoryAccess = homeDirectoryAccess
         self.startupFileAccessPromptDisabled = startupFileAccessPromptDisabled
         contextProvider = LiveSystemContextProvider(
+            routingModeProvider: routingMode,
             audioProvider: audioProvider,
             workspaceProvider: workspaceStore
         )

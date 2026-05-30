@@ -6,6 +6,7 @@ struct FirstStageMediaRoutingTests {
     func mediaCommandRoutesLocallyWhenAudioIsActive() async {
         let classifier = FirstStageRouteClassifier(
             context: SystemContextSnapshot(
+                routingMode: .command,
                 audio: AudioPlaybackSnapshot(
                     state: .playing,
                     sourceName: "fixture",

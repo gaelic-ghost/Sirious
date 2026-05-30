@@ -52,6 +52,7 @@ struct FirstStageNormalizationAndFallbackTests {
         let normalizer = CommandNormalizer()
         let classifier = FirstStageRouteClassifier(
             context: SystemContextSnapshot(
+                routingMode: .command,
                 audio: AudioPlaybackSnapshot(
                     state: .playing,
                     sourceName: "fixture",
