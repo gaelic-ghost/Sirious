@@ -22,7 +22,9 @@ The first-stage router keeps string checks, `Scanner` parsing, and regex-style m
 
 `RouteMatch` preserves the deterministic command, resolved target, source, and reason alongside the route decision. Risky routes use a two-second cancellable delay instead of confirmation prompts. During that window, the menu bar extra switches to a stop-sign symbol; opening its window cancels the active pending command and lets the FIFO queue promote the next risky command.
 
-`SystemContextSnapshot` carries a routing mode for context-sensitive behavior. The current modes are command, text, secure text, search, Swift, chat, and code. The menu bar symbol follows that mode unless a risky command is pending, in which case the cancel symbol takes priority.
+`SystemContextSnapshot` carries a routing mode and focused-control snapshot for context-sensitive behavior. The current modes are command, text, secure text, search, Swift, chat, and code. The menu bar symbol follows that mode unless a risky command is pending, in which case the cancel symbol takes priority.
+
+Focused-control context is cached and refreshed from Accessibility focus notifications where supported. Sirious observes the active application with `AXObserver`, refreshes the focused control on focused-element/window changes, and falls back to unknown focus when Accessibility is unavailable or an app does not support the relevant notifications.
 
 App command targets resolve running apps first through workspace state, then installed-app candidates from `/Applications`, `~/Applications`, and `/System/Applications`. The installed-app scan is intentionally a launch-target heuristic, not a comprehensive software inventory. The sandboxed test host can read the standard `/Applications` scan, so Sirious does not currently ask for a separate Applications folder bookmark.
 

@@ -55,8 +55,18 @@ struct FirstStageContextResolverTests {
             ],
             frontmostApplication: nil
         )
+        let focusedControl = FocusedControlSnapshot(
+            owner: .application(workspace.runningApplications[0]),
+            role: .textField,
+            subrole: nil,
+            title: "Fixture Field",
+            roleDescription: "text field",
+            isEditable: true,
+            isSecure: false
+        )
         let provider = await LiveSystemContextProvider(
             routingModeProvider: StaticRoutingModeProvider(mode: .text),
+            focusedControlProvider: StaticFocusedControlProvider(focusedControl: focusedControl),
             audioProvider: FixtureAudioStateProvider(
                 audioSnapshot: AudioPlaybackSnapshot(
                     state: .playing,
@@ -71,6 +81,7 @@ struct FirstStageContextResolverTests {
         let snapshot = await provider.snapshot()
 
         #expect(snapshot.routingMode == .text)
+        #expect(snapshot.focusedControl == focusedControl)
         #expect(snapshot.audio.state == .playing)
         #expect(snapshot.workspace == workspace)
     }

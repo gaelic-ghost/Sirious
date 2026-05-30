@@ -10,6 +10,8 @@ Onboarding is deferred until the TestFlight beta timeline is clearer.
 
 The standard `/Applications` app scan is covered by a sandboxed test-host check, so the current build does not add a separate Applications folder permission prompt. If packaged App Store-style signing later blocks that scan, add an Applications folder bookmark to onboarding rather than broadening the resolver silently.
 
+Routing mode is backed by focused-control context. Sirious caches the focused Accessibility element, refreshes it from active-application and focused-element/window notifications where apps support those notifications, and falls back to command mode when Accessibility is unavailable or the active app does not expose enough focused-control metadata.
+
 ## Current Routing Surface
 
 - App commands: open, launch, start, switch to, show, and bring up an app.
@@ -17,11 +19,12 @@ The standard `/Applications` app scan is covered by a sandboxed test-host check,
 - Media commands: pause, stop, play, and resume.
 - Search fallback: search, look up, lookup, and look-up phrases still route to search when deterministic patterns do not match.
 - Unknown fallback: unrecognized phrases route to clarification.
+- Context mode: command, text, secure text, search, Swift, chat, and code modes are represented, with the menu bar symbol following the active mode unless a risky command is pending.
 
 ## Next Slices
 
-1. Add focused-control context for the frontmost app so dictation, text editing, and future app navigation commands can understand the active UI target.
-2. Add routing-mode heuristics, starting with focused editable fields, search fields, secure text fields, and app-specific code/chat contexts.
+1. Expand routing-mode heuristics beyond AX roles, starting with app-specific code, Swift, and chat contexts.
+2. Add a text route domain for dictation and text-editing commands against focused editable targets.
 3. Add a custom-command definition model, in-memory catalog protocol, and route resolver before adding Core Data persistence.
 4. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
 5. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.

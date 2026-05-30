@@ -15,7 +15,8 @@ struct SiriousRuntimeTests {
             pendingCommands: pendingCommands,
             workspaceStore: WorkspaceStateStore(),
             audioProvider: StubAudioStateProvider(),
-            executor: dispatcher
+            executor: dispatcher,
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown)
         )
 
         pendingCommands.enqueue(routeMatch(command: .closeWindow))
@@ -37,6 +38,7 @@ struct SiriousRuntimeTests {
             workspaceStore: WorkspaceStateStore(),
             audioProvider: StubAudioStateProvider(),
             homeDirectoryAccess: HomeDirectoryAccessState(service: homeService),
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
             startupFileAccessPromptDisabled: false
         )
 
@@ -54,6 +56,7 @@ struct SiriousRuntimeTests {
             workspaceStore: WorkspaceStateStore(),
             audioProvider: StubAudioStateProvider(),
             homeDirectoryAccess: HomeDirectoryAccessState(service: homeService),
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
             startupFileAccessPromptDisabled: true
         )
 
@@ -71,12 +74,39 @@ struct SiriousRuntimeTests {
             routingMode: routingMode,
             workspaceStore: WorkspaceStateStore(),
             audioProvider: StubAudioStateProvider(),
+            focusedControlReader: StubFocusedControlReader(focusedControl: .unknown),
             startupFileAccessPromptDisabled: true
         )
 
         routingMode.setMode(.search)
         let snapshot = runtime.contextProvider.snapshot()
 
+        #expect(snapshot.routingMode == .search)
+
+        runtime.stop()
+    }
+
+    @Test("runtime context reflects focused control state")
+    func runtimeContextReflectsFocusedControlState() {
+        let focusedControl = FocusedControlSnapshot(
+            owner: .system,
+            role: .textField,
+            subrole: .searchField,
+            title: "Search",
+            roleDescription: "search field",
+            isEditable: true,
+            isSecure: false
+        )
+        let runtime = SiriousRuntime(
+            workspaceStore: WorkspaceStateStore(),
+            audioProvider: StubAudioStateProvider(),
+            focusedControlReader: StubFocusedControlReader(focusedControl: focusedControl),
+            startupFileAccessPromptDisabled: true
+        )
+
+        let snapshot = runtime.contextProvider.snapshot()
+
+        #expect(snapshot.focusedControl == focusedControl)
         #expect(snapshot.routingMode == .search)
 
         runtime.stop()
@@ -127,6 +157,14 @@ private final class RecordingCommandExecutionDispatcher: CommandExecutionDispatc
 private struct StubAudioStateProvider: AudioStateProviding {
     func snapshot() -> AudioPlaybackSnapshot {
         .unknown
+    }
+}
+
+private struct StubFocusedControlReader: FocusedControlReading {
+    var focusedControl: FocusedControlSnapshot
+
+    func snapshot() -> FocusedControlSnapshot {
+        focusedControl
     }
 }
 

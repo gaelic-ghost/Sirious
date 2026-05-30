@@ -38,6 +38,7 @@ struct FirstStageAppWindowRoutingTests {
         let classifier = FirstStageRouteClassifier(
             context: SystemContextSnapshot(
                 routingMode: .command,
+                focusedControl: .unknown,
                 audio: .unknown,
                 workspace: WorkspaceSnapshot(
                     runningApplications: [

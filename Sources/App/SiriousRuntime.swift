@@ -8,12 +8,16 @@ final class SiriousRuntime {
     let pendingCommands: PendingCommandStore
     let contextProvider: LiveSystemContextProvider
     let routingMode: RoutingModeState
+    let focusedControl: FocusedControlStore
     let executor: any CommandExecutionDispatching
     let homeDirectoryAccess: HomeDirectoryAccessState
     private(set) var executionRecords: [CommandExecutionRecord] = []
 
     @ObservationIgnored
     private let workspaceStore: WorkspaceStateStore
+
+    @ObservationIgnored
+    private let focusedControlObserver: AccessibilityFocusedControlObserver
 
     @ObservationIgnored
     private let startupFileAccessPromptDisabled: Bool
@@ -24,19 +28,28 @@ final class SiriousRuntime {
     init(
         pendingCommands: PendingCommandStore = PendingCommandStore(),
         routingMode: RoutingModeState = RoutingModeState(),
+        focusedControl: FocusedControlStore = FocusedControlStore(),
         workspaceStore: WorkspaceStateStore = WorkspaceStateStore(),
         audioProvider: any AudioStateProviding = MPNowPlayingAudioStateProvider(),
         executor: any CommandExecutionDispatching = CommandExecutionDispatcher(),
         homeDirectoryAccess: HomeDirectoryAccessState = HomeDirectoryAccessState(),
+        focusedControlReader: any FocusedControlReading = AXFocusedControlReader(),
         startupFileAccessPromptDisabled: Bool = SiriousRuntime.defaultStartupFileAccessPromptDisabled()
     ) {
         self.pendingCommands = pendingCommands
         self.routingMode = routingMode
+        self.focusedControl = focusedControl
         self.workspaceStore = workspaceStore
         self.homeDirectoryAccess = homeDirectoryAccess
         self.startupFileAccessPromptDisabled = startupFileAccessPromptDisabled
+        focusedControlObserver = AccessibilityFocusedControlObserver(
+            store: focusedControl,
+            routingMode: routingMode,
+            reader: focusedControlReader
+        )
         contextProvider = LiveSystemContextProvider(
             routingModeProvider: routingMode,
+            focusedControlProvider: focusedControl,
             audioProvider: audioProvider,
             workspaceProvider: workspaceStore
         )
@@ -44,6 +57,7 @@ final class SiriousRuntime {
         pendingCommands.setReleaseHandler { [weak self] command in
             self?.executeReleasedCommand(command)
         }
+        focusedControlObserver.start()
         observeApplicationTermination()
     }
 
@@ -66,6 +80,7 @@ final class SiriousRuntime {
 
     func stop() {
         workspaceStore.stopObserving()
+        focusedControlObserver.stop()
         homeDirectoryAccess.stopAccessing()
 
         if let terminationObserver {
