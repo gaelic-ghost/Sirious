@@ -14,8 +14,8 @@ Window-control routes are already gated on Accessibility permission before any f
 
 ## Next Slices
 
-1. Add route-specific execution protocols for app, window, and media commands without binding them to concrete macOS APIs yet.
-2. Connect future executors to delayed `RouteMatch` release events from the pending-command store.
+1. Connect future executors to delayed `RouteMatch` release events from the pending-command store.
+2. Add no-op or logging app, window, and media executors before binding them to concrete macOS APIs.
 3. Add a small runtime owner for `LiveSystemContextProvider` so long-lived stores can be stopped cleanly during app teardown.
 4. Add streaming transcript backends behind `TranscriptEventSource`, starting with Apple SpeechAnalyzer and then Voxtral Realtime for comparison.
 5. Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
