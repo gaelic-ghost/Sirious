@@ -30,3 +30,15 @@ struct RiskAndContextGate {
         }
     }
 }
+
+enum GateStatus: String, Equatable {
+    case approved
+    case requiresPermission = "requires_permission"
+    case delayed
+}
+
+struct GatedRouteMatch: Equatable {
+    var match: RouteMatch
+    var status: GateStatus
+    var reason: String?
+}

@@ -31,3 +31,23 @@ struct PatternCommandRouter {
             ?? mediaPatterns.match(command, event: event, context: context)
     }
 }
+
+enum PatternCommand: String, Equatable {
+    case openApplication
+    case switchApplication
+    case closeWindow
+    case minimizeWindow
+    case focusWindow
+    case mediaControl
+    case typeText
+    case dictateText
+    case enterDictationMode
+    case exitDictationMode
+}
+
+struct PatternRouteMatch: Equatable {
+    var decision: RouteDecision
+    var command: PatternCommand
+    var target: CommandTarget?
+    var reason: String
+}
