@@ -1,8 +1,6 @@
 # Sirious
 
-Sirious is a macOS SwiftUI app for experimenting with fast local voice-command routing.
-
-The current scaffold keeps transcript ingestion, span stabilization, system context, deterministic command routing, fallback route classification, and risk gating as separate Swift files so Apple Speech and later local/realtime ASR backends can feed the same routing pipeline through a small transcript-event protocol.
+*Tagline TBD*
 
 ## Table of Contents
 
