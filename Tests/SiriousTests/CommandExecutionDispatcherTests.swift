@@ -247,6 +247,27 @@ struct CommandExecutionDispatcherTests {
         #expect(controller.commands == [.closeWindow])
     }
 
+    @Test("window executor skips classification-only window targets")
+    func windowExecutorSkipsClassificationOnlyWindowTargets() async {
+        let controller = RecordingWindowController()
+        let executor = WindowCommandExecutor(
+            targetReader: StaticWindowTargetReader(targets: [(.nextWindow, windowExecutionTarget())]),
+            controller: controller
+        )
+
+        let result = await executor.execute(
+            WindowCommandExecutionRequest(
+                match: routeMatch(command: .closeWindow, target: .window(.nextWindow), domain: .windowControl),
+                command: .closeWindow,
+                target: .nextWindow
+            )
+        )
+
+        #expect(result.outcome == .skipped)
+        #expect(result.message.contains("classification-only") == true)
+        #expect(controller.commands.isEmpty)
+    }
+
     @Test("focused window executor fails when no focused window is available")
     func focusedWindowExecutorFailsWhenNoFocusedWindowIsAvailable() async {
         let controller = RecordingWindowController()

@@ -15,6 +15,12 @@ struct WindowCommandExecutor: WindowCommandExecuting {
     }
 
     func execute(_ request: WindowCommandExecutionRequest) async -> CommandExecutionResult {
+        guard request.target.isExecutionSupported else {
+            return CommandExecutionResult(
+                outcome: .skipped,
+                message: "Sirious routed \(request.command.rawValue) for \(request.target.description), but that window target is classification-only until selection and cycling behavior is implemented."
+            )
+        }
         guard let target = targetReader.windowTarget(for: request.target) else {
             return CommandExecutionResult(
                 outcome: .failed,
@@ -213,6 +219,15 @@ struct AXWindowController: WindowControlling {
 }
 
 extension WindowTarget {
+    var isExecutionSupported: Bool {
+        switch self {
+            case .focusedWindow, .applicationMainWindow:
+                true
+            case .indicatedWindow, .nextWindow, .previousWindow:
+                false
+        }
+    }
+
     var description: String {
         switch self {
             case .focusedWindow:
