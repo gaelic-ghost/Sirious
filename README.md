@@ -4,6 +4,109 @@ Sirious is a macOS SwiftUI app for experimenting with fast local voice-command r
 
 The current scaffold keeps transcript ingestion, span stabilization, system context, deterministic command routing, fallback route classification, and risk gating as separate Swift files so Apple Speech and later local/realtime ASR backends can feed the same routing pipeline through a small transcript-event protocol.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Development](#development)
+- [Repo Structure](#repo-structure)
+- [Release Notes](#release-notes)
+- [License](#license)
+- [Routing Shape](#routing-shape)
+- [Sandbox And File Access](#sandbox-and-file-access)
+
+## Overview
+
+### Status
+
+TBD
+
+### What This Project Is
+
+TBD
+
+### Motivation
+
+TBD
+
+## Quick Start
+
+Sirious is still an early local-development app. The fastest way to try it is to generate the Xcode project, open it in Xcode, and run the `Sirious` macOS scheme.
+
+```sh
+xcodegen generate --spec project.yml
+open Sirious.xcodeproj
+```
+
+The current app surface is a menu bar app with Settings and Debug windows. The Debug window is the main place to inspect routing mode, context, transcript events, latest route decisions, runtime issues, and experimental Apple Speech activation inputs while the app is still taking shape.
+
+## Usage
+
+Sirious currently classifies and routes local voice-command transcripts. The implemented behavior is focused on command understanding, context tracking, and safe execution surfaces rather than a polished end-user onboarding flow.
+
+The current local command families include:
+
+- App commands such as `open Safari`, routed toward app activation.
+- Window commands such as `close` and `minimize`, routed toward the focused window when Accessibility is trusted.
+- Media commands such as `pause`, `play`, and `resume`, routed from playback context.
+- Text commands such as `type hello` and `dictate hello`, routed only when focused context is text-friendly.
+- Search fallback phrases such as `lookup cats` and `look-up cats`.
+
+Apple Speech can be exercised from the Debug window for live microphone behavior. Audio-file recognition tests can also be enabled by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`, then running the normal test command. Without that manifest, the audio-file integration test exits without touching Apple Speech.
+
+## Development
+
+Generate the Xcode project after changing `project.yml`:
+
+```sh
+xcodegen generate --spec project.yml
+```
+
+Run the main validation path:
+
+```sh
+xcodebuild -project Sirious.xcodeproj -scheme Sirious -configuration Debug -destination platform=macOS test
+```
+
+Run local Apple Speech audio-fixture recognition by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`, then running the normal test command. Without that manifest, the integration test exits without touching Apple Speech.
+
+Install the local SwiftFormat pre-commit hook:
+
+```sh
+sh scripts/repo-maintenance/install-hooks.sh
+```
+
+Project planning lives in [ROADMAP.md](./ROADMAP.md). Architecture notes live under [Docs/Architecture](./Docs/Architecture).
+
+## Repo Structure
+
+```text
+.
+├── Config/                 # Shared Xcode build settings
+├── Docs/Architecture/      # Routing and architecture notes
+├── Sources/
+│   ├── App/                # SwiftUI app, settings, debug, and menu bar views
+│   ├── Permissions/        # Sandbox, Accessibility, and file-access helpers
+│   └── Routing/            # Transcripts, context, routing, execution, and runtime state
+├── Tests/
+│   ├── SiriousTests/       # Swift Testing coverage
+│   └── SiriousUITests/     # Minimal XCUITest coverage
+├── scripts/repo-maintenance/
+│   └── validations/        # Local validation entry points
+├── project.yml             # XcodeGen project specification
+├── LICENSE.md
+└── NOTICE.md
+```
+
+## Release Notes
+
+Sirious does not have tagged public releases yet. Until a release process is established, notable shipped work is tracked through Git history and project planning notes in [ROADMAP.md](./ROADMAP.md).
+
+## License
+
+See [LICENSE.md](./LICENSE.md) and [NOTICE.md](./NOTICE.md). This repository is source-available under strict all-rights-reserved terms; no license is granted without explicit written permission.
+
 ## Routing Shape
 
 Sirious routes obvious voice commands before invoking any learned classifier:
@@ -56,25 +159,3 @@ Sirious is configured as a sandboxed macOS app. On startup, the runtime checks f
 Settings exposes the same home folder permission state, alongside Accessibility and Login Item controls. The sandbox entitlements allow user-selected read/write access and app-scoped bookmarks; they do not grant broad filesystem access until the user chooses the folder.
 
 Onboarding is deferred until the beta-release shape is clearer. Until then, Settings and the startup home-folder prompt remain the direct permission surfaces.
-
-## Development
-
-Generate the Xcode project after changing `project.yml`:
-
-```sh
-xcodegen generate --spec project.yml
-```
-
-Run the main validation path:
-
-```sh
-xcodebuild -project Sirious.xcodeproj -scheme Sirious -configuration Debug -destination platform=macOS test
-```
-
-Run local Apple Speech audio-fixture recognition by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`, then running the normal test command. Without that manifest, the integration test exits without touching Apple Speech.
-
-Install the local SwiftFormat pre-commit hook:
-
-```sh
-sh scripts/repo-maintenance/install-hooks.sh
-```
