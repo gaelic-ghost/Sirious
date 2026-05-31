@@ -11,13 +11,16 @@ struct DebugView: View {
             Section("Transcript") {
                 TextField("Transcript", text: $transcriptText)
                     .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("debug.transcriptField")
 
                 Toggle("Final Transcript", isOn: $transcriptIsFinal)
+                    .accessibilityIdentifier("debug.finalTranscriptToggle")
 
                 Button("Classify Transcript") {
                     classifyTranscript()
                 }
                 .disabled(transcriptText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityIdentifier("debug.classifyTranscript")
             }
 
             Section("Apple Speech") {
@@ -83,6 +86,7 @@ struct DebugView: View {
                     }
                 }
                 .disabled(runtime.systemCommandCatalog.isRefreshing)
+                .accessibilityIdentifier("debug.refreshSystemCommands")
 
                 if runtime.systemCommandCatalog.issues.isEmpty == false {
                     VStack(alignment: .leading, spacing: 6) {
@@ -200,6 +204,7 @@ struct DebugView: View {
         .frame(width: 460)
         .frame(minHeight: 420)
         .background(AlwaysOnTopWindowModifier())
+        .accessibilityIdentifier("debug.form")
     }
 
     private func labeledValue(_ label: String, _ value: String) -> some View {

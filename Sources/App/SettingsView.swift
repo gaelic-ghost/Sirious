@@ -103,11 +103,13 @@ struct SettingsView: View {
                 Button("Open Debug Window") {
                     openWindow(id: AppWindowID.debug)
                 }
+                .accessibilityIdentifier("settings.openDebugWindow")
             }
         }
         .formStyle(.grouped)
         .padding(24)
         .frame(width: 460)
+        .accessibilityIdentifier("settings.form")
         .onAppear {
             accessibilityPermission.refresh()
             homeDirectoryAccess.refresh()

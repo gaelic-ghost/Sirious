@@ -22,6 +22,7 @@ struct RouteDecisionView: View {
                 .fontWeight(.medium)
             Text(value)
                 .foregroundStyle(.secondary)
+                .accessibilityIdentifier("routeDecision.\(label)")
         }
     }
 }

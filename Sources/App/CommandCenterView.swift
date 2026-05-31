@@ -15,13 +15,17 @@ struct CommandCenterView: View {
             Text("Sirious")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
+                .accessibilityIdentifier("commandCenter.title")
 
             Text("Local voice command routing lab")
                 .foregroundStyle(.secondary)
+                .accessibilityIdentifier("commandCenter.subtitle")
 
             RouteDecisionView(decision: previewRoute)
+                .accessibilityIdentifier("commandCenter.previewRoute")
         }
         .padding(24)
         .frame(minWidth: 560, minHeight: 360, alignment: .topLeading)
+        .accessibilityIdentifier("commandCenter.root")
     }
 }
