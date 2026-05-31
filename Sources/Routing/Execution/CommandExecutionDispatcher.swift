@@ -15,7 +15,7 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
     init(
         resolver: CommandExecutionRequestResolver = CommandExecutionRequestResolver(),
         applicationExecutor: any ApplicationCommandExecuting = AppCommandExecutor(),
-        windowExecutor: any WindowCommandExecuting = LoggingWindowCommandExecutor(),
+        windowExecutor: any WindowCommandExecuting = WindowCommandExecutor(),
         mediaExecutor: any MediaCommandExecuting = LoggingMediaCommandExecutor(),
         textExecutor: any TextCommandExecuting = TextCommandExecutor(),
         dictionaryExecutor: any DictionaryCommandExecuting = DictionaryCommandExecutor()

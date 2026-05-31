@@ -46,7 +46,7 @@ Sirious currently classifies and routes local voice-command transcripts. The imp
 The current local command families include:
 
 - App commands such as `open Safari`, routed toward app activation.
-- Window commands such as `close` and `minimize`, routed toward the focused window when Accessibility is trusted.
+- Focused-window commands such as `close` and `minimize`, executed through Accessibility when trusted.
 - Media commands such as `pause`, `play`, and `resume`, routed from playback context.
 - Text commands such as `type hello` and `dictate hello`, routed only when focused context is text-friendly.
 - Dictionary commands such as `define apple`, routed through macOS Dictionary Services.

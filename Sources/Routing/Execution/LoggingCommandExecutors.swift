@@ -24,18 +24,3 @@ struct LoggingTextCommandExecutor: TextCommandExecuting {
         )
     }
 }
-
-private extension WindowTarget {
-    var description: String {
-        switch self {
-            case .focusedWindow:
-                "the focused window"
-            case .indicatedWindow:
-                "the indicated window"
-            case .nextWindow:
-                "the next window"
-            case .previousWindow:
-                "the previous window"
-        }
-    }
-}

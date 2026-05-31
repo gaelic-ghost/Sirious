@@ -89,7 +89,8 @@ The app executor should stay behind an `ApplicationExecutionClient` so tests can
 - MPNowPlaying should be the first audio context provider, but audio state should stay behind `AudioStateProviding` so later sources can be added without changing routing decisions.
 - NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
 - Focused UI control detection should be layered onto workspace context after the runtime owner exists, likely through Accessibility APIs that read the focused element for the frontmost app.
-- Window routing should stay classification-only until accessibility, AppKit, or window-server execution adapters can be designed and permission-gated explicitly.
+- Focused-window `close`, `minimize`, and `focus` commands execute through Accessibility after permission gating.
+- Non-focused window targets should stay classification-only until selection, cycling, or app-specific window targeting is designed explicitly.
 - Window control requires Accessibility permission before execution; classification can still identify the route before that permission is granted.
 - Bare `close` and `minimize` commands target the focused window.
 - FunctionGemma should sit after route narrowing as a small function-call formatter for constrained tool schemas, not as the first consumer of raw partial transcription.

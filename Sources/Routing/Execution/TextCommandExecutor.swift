@@ -343,7 +343,7 @@ private extension String {
     }
 }
 
-private extension AXError {
+extension AXError {
     var description: String {
         switch self {
             case .success:

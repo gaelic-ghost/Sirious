@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		000C37209510B3952BAFAF8A /* WindowCommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A885F28380DE16550CD5B98 /* WindowCommandExecutor.swift */; };
 		03824DDEFAC510D57682E0A7 /* SecurityScopedHomeDirectoryAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 983BBF4792F0DA5509965723 /* SecurityScopedHomeDirectoryAccessService.swift */; };
 		056413958A690A5FDFD11562 /* ApplicationExecutionClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECC7318FCFCBFE73A48DDD6 /* ApplicationExecutionClient.swift */; };
 		0803967027EB68DD017F1445 /* ApplicationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6213A265A710D4193A9EB1C /* ApplicationSnapshot.swift */; };
@@ -153,6 +154,7 @@
 		162110AD8307759C8420ADCA /* AppleSpeechAudioFileTranscriptSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechAudioFileTranscriptSourceTests.swift; sourceTree = "<group>"; };
 		17E2C4728C5F48A7751164F4 /* FocusedControlProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedControlProviding.swift; sourceTree = "<group>"; };
 		19F29D22576FD82326A5026A /* Sirious.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sirious.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A885F28380DE16550CD5B98 /* WindowCommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowCommandExecutor.swift; sourceTree = "<group>"; };
 		1BDE7311B1C7FF3759B8546A /* RoutingModeProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingModeProviding.swift; sourceTree = "<group>"; };
 		1DA0360B18CA6166310C8A3F /* TranscriptSpanStabilizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptSpanStabilizer.swift; sourceTree = "<group>"; };
 		1E32B7AF7E35616EB4565C29 /* CommandTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandTarget.swift; sourceTree = "<group>"; };
@@ -563,6 +565,7 @@
 				0792FA46662CDC961D841C66 /* PendingCommand.swift */,
 				C8C284E9C7D544EB077C57B8 /* PendingCommandStore.swift */,
 				FB4F9D0CEB18279D1874CB15 /* TextCommandExecutor.swift */,
+				1A885F28380DE16550CD5B98 /* WindowCommandExecutor.swift */,
 			);
 			path = Execution;
 			sourceTree = "<group>";
@@ -777,6 +780,7 @@
 				43B363D195DD04BF7EA59A56 /* TranscriptionActivationPolicy.swift in Sources */,
 				2DBAA6932EE67378245DB2C4 /* TranscriptionRuntimeState.swift in Sources */,
 				0DC6E9A118A79C9EE13CACF5 /* WakePhraseRecognizer.swift in Sources */,
+				000C37209510B3952BAFAF8A /* WindowCommandExecutor.swift in Sources */,
 				C9B6138F64ECDBF4A3BB0245 /* WindowCommandPatterns.swift in Sources */,
 				81647A83B3CE3859E8C8745F /* WindowTargetResolver.swift in Sources */,
 				E7EB1A9CF54BE5838C2B4ACD /* WorkspaceSnapshot.swift in Sources */,
