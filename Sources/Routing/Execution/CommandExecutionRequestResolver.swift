@@ -68,6 +68,14 @@ struct CommandExecutionRequestResolver {
                         target: target
                     )
                 )
+            case let (.defineTerm?, .dictionary(target), .knowledge):
+                return CommandExecutionRequest.dictionary(
+                    DictionaryCommandExecutionRequest(
+                        match: match,
+                        command: .defineTerm,
+                        target: target
+                    )
+                )
             default:
                 return nil
         }

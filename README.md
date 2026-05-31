@@ -49,6 +49,7 @@ The current local command families include:
 - Window commands such as `close` and `minimize`, routed toward the focused window when Accessibility is trusted.
 - Media commands such as `pause`, `play`, and `resume`, routed from playback context.
 - Text commands such as `type hello` and `dictate hello`, routed only when focused context is text-friendly.
+- Dictionary commands such as `define apple`, routed through macOS Dictionary Services.
 - Search fallback phrases such as `lookup cats` and `look-up cats`.
 
 Apple Speech can be exercised from the Debug window for live microphone behavior. Audio-file recognition tests can also be enabled by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`, then running the normal test command. Without that manifest, the audio-file integration test exits without touching Apple Speech.
@@ -119,7 +120,7 @@ TranscriptEvent
 → RiskAndContextGate
 ```
 
-The first-stage router keeps string checks, `Scanner` parsing, and regex-style matching in separate modules. App, window, media, and command-triggered text patterns stay deterministic so obvious local commands do not need learned classification.
+The first-stage router keeps string checks, `Scanner` parsing, and regex-style matching in separate modules. App, window, media, dictionary, and command-triggered text patterns stay deterministic so obvious local commands do not need learned classification.
 
 `RouteMatch` preserves the deterministic command, resolved target, source, and reason alongside the route decision. Risky routes use a two-second cancellable delay instead of confirmation prompts. During that window, the menu bar extra switches to a stop-sign symbol; opening its window cancels the active pending command and lets the FIFO queue promote the next risky command.
 
@@ -132,6 +133,8 @@ App command targets resolve running apps first through workspace state, then ins
 Text commands currently classify `type <text>` and `dictate <text>` only when focused context is text-friendly. Final trigger commands start a temporary text-entry session, so following speech is treated as text until the configured pause timeout expires. `dictation mode` and `typing mode` start a sticky text-entry session, while `command mode`, `default mode`, `exit dictation mode`, `end dictation mode`, and `stop dictation mode` exit it.
 
 Text execution uses the documented Accessibility value path first: Sirious reads the focused editable Accessibility element, replaces its selected text range, and writes the updated `AXValue` back. If that path is unavailable, Sirious uses a pasteboard Command-V fallback and restores the previous string pasteboard content afterward. Secure text targets are skipped.
+
+Dictionary commands classify `define <word-or-phrase>` into a local knowledge route and use CoreServices Dictionary Services to query the active macOS dictionaries. Missing definitions return a clear skipped execution result instead of falling through silently.
 
 Runtime issues use one Swift error type for thrown backend failures, OSLog entries, and debug UI state. `RuntimeIssue` conforms to `Error` and `LocalizedError`, and `RuntimeIssueStore` keeps the latest issue plus a short recent list while publishing an `AsyncStream` for future UI or backend observers.
 

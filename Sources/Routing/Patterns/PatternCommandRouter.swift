@@ -1,16 +1,19 @@
 struct PatternCommandRouter {
     private let textPatterns: TextCommandPatterns
+    private let dictionaryPatterns: DictionaryCommandPatterns
     private let mediaPatterns: MediaCommandPatterns
     private let windowPatterns: WindowCommandPatterns
     private let installedApplications: [InstalledApplicationCandidate]
 
     init(
         textPatterns: TextCommandPatterns = TextCommandPatterns(),
+        dictionaryPatterns: DictionaryCommandPatterns = DictionaryCommandPatterns(),
         mediaPatterns: MediaCommandPatterns = MediaCommandPatterns(),
         windowPatterns: WindowCommandPatterns = WindowCommandPatterns(),
         installedApplicationProvider: any InstalledApplicationProviding = DirectoryInstalledApplicationProvider()
     ) {
         self.textPatterns = textPatterns
+        self.dictionaryPatterns = dictionaryPatterns
         self.mediaPatterns = mediaPatterns
         self.windowPatterns = windowPatterns
         installedApplications = installedApplicationProvider.applications()
@@ -22,6 +25,7 @@ struct PatternCommandRouter {
         context: SystemContextSnapshot
     ) -> PatternRouteMatch? {
         textPatterns.match(command, event: event, context: context)
+            ?? dictionaryPatterns.match(command, event: event)
             ?? windowPatterns.match(command, event: event)
             ?? AppCommandPatterns(
                 workspace: context.workspace,
@@ -43,6 +47,7 @@ enum PatternCommand: String, Equatable {
     case dictateText
     case enterDictationMode
     case exitDictationMode
+    case defineTerm
 }
 
 struct PatternRouteMatch: Equatable {

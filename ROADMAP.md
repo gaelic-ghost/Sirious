@@ -76,7 +76,7 @@ In Progress
 - [x] Add Accessibility-first text insertion with pasteboard fallback and secure-text refusal.
 - [x] Harden pasteboard fallback by preserving and restoring richer pasteboard contents.
 - [ ] Manually validate pasteboard fallback against common native and Electron text fields.
-- [ ] Add deterministic dictionary commands for examples like `define apple`, `define well-being`, and `define fast local routing` using [CoreServices Dictionary Services](https://developer.apple.com/documentation/coreservices/dictionary_services), starting with `DCSCopyTextDefinition` and `DCSGetTermRangeInString`.
+- [x] Add deterministic dictionary commands for examples like `define apple`, `define well-being`, and `define fast local routing` using [CoreServices Dictionary Services](https://developer.apple.com/documentation/coreservices/dictionary_services), starting with `DCSCopyTextDefinition`.
 - [x] Add a catalog-only discovery spike for macOS Services, Shortcuts, App Intent surfaces mediated through Shortcuts or Spotlight, and Spotlight search results; see [System Command Surfaces Plan](./Docs/Architecture/SystemCommandSurfacesPlan.md).
 - [ ] Add deterministic allowlisted Services commands for examples like `summarize selection`, `search with Spotlight`, and `show map` after Debug can explain Service eligibility.
 - [ ] Add Shortcuts import as an opt-in custom-command source, starting with exact phrase matching against shortcut names and identifiers.
@@ -87,7 +87,7 @@ In Progress
 
 ### Exit Criteria
 
-- [ ] App, text, focused-window, media, and dictionary commands have typed execution requests and useful operator-facing failures.
+- [ ] App, text, dictionary, focused-window, and media commands have typed execution requests and useful operator-facing failures.
 - [ ] Secure or permission-gated contexts refuse execution clearly instead of silently falling back.
 - [ ] Common text-entry targets have been manually checked before relying on pasteboard fallback heavily.
 

@@ -19,6 +19,7 @@ enum CommandExecutionRequest: Equatable {
     case window(WindowCommandExecutionRequest)
     case media(MediaCommandExecutionRequest)
     case text(TextCommandExecutionRequest)
+    case dictionary(DictionaryCommandExecutionRequest)
 }
 
 struct ApplicationCommandExecutionRequest: Equatable {
@@ -44,6 +45,12 @@ struct TextCommandExecutionRequest: Equatable {
     var target: TextCommandTarget
 }
 
+struct DictionaryCommandExecutionRequest: Equatable {
+    var match: RouteMatch
+    var command: PatternCommand
+    var target: DictionaryCommandTarget
+}
+
 protocol ApplicationCommandExecuting {
     @MainActor
     func execute(_ request: ApplicationCommandExecutionRequest) async -> CommandExecutionResult
@@ -62,4 +69,9 @@ protocol MediaCommandExecuting {
 protocol TextCommandExecuting {
     @MainActor
     func execute(_ request: TextCommandExecutionRequest) async -> CommandExecutionResult
+}
+
+protocol DictionaryCommandExecuting {
+    @MainActor
+    func execute(_ request: DictionaryCommandExecutionRequest) async -> CommandExecutionResult
 }

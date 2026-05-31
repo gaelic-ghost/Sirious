@@ -4,6 +4,7 @@ enum CommandTarget: Equatable {
     case media
     case text(TextCommandTarget)
     case textEntrySession(TextEntrySessionCommandTarget)
+    case dictionary(DictionaryCommandTarget)
 }
 
 struct TextCommandTarget: Equatable {
@@ -14,4 +15,8 @@ struct TextCommandTarget: Equatable {
 enum TextEntrySessionCommandTarget: Equatable {
     case enterSticky(mode: RoutingMode)
     case exit
+}
+
+struct DictionaryCommandTarget: Equatable {
+    var term: String
 }

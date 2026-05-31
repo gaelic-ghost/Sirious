@@ -345,6 +345,8 @@ struct DebugView: View {
                 "\(textTarget.mode.displayName): \(textTarget.text)"
             case let .textEntrySession(target):
                 textEntrySessionTargetDescription(target)
+            case let .dictionary(target):
+                "Dictionary: \(target.term)"
             case .none:
                 "None"
         }

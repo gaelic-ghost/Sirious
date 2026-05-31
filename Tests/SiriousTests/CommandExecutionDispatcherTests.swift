@@ -85,6 +85,27 @@ struct CommandExecutionDispatcherTests {
         #expect(textExecutor.requests.first?.target == target)
     }
 
+    @Test("dispatcher sends dictionary execution requests to dictionary executor")
+    func dispatcherSendsDictionaryExecutionRequestsToDictionaryExecutor() async {
+        let dictionaryExecutor = RecordingDictionaryExecutor()
+        let target = DictionaryCommandTarget(term: "apple")
+        let dispatcher = CommandExecutionDispatcher(
+            applicationExecutor: RecordingApplicationExecutor(),
+            windowExecutor: RecordingWindowExecutor(),
+            mediaExecutor: RecordingMediaExecutor(),
+            textExecutor: RecordingTextExecutor(),
+            dictionaryExecutor: dictionaryExecutor
+        )
+
+        let result = await dispatcher.execute(
+            routeMatch(command: .defineTerm, target: .dictionary(target), domain: .knowledge)
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(dictionaryExecutor.requests.count == 1)
+        #expect(dictionaryExecutor.requests.first?.target == target)
+    }
+
     @Test("default text executor skips text execution")
     func defaultTextExecutorSkipsTextExecution() async {
         let executor = LoggingTextCommandExecutor()
@@ -100,6 +121,42 @@ struct CommandExecutionDispatcherTests {
         )
 
         #expect(result.outcome == .skipped)
+    }
+
+    @Test("dictionary executor completes when a definition is found")
+    func dictionaryExecutorCompletesWhenDefinitionIsFound() async {
+        let executor = DictionaryCommandExecutor(lookup: StaticDictionaryDefinitionLookup(definitions: ["apple": "A fruit."]))
+        let target = DictionaryCommandTarget(term: "apple")
+        let match = routeMatch(command: .defineTerm, target: .dictionary(target), domain: .knowledge)
+
+        let result = await executor.execute(
+            DictionaryCommandExecutionRequest(
+                match: match,
+                command: .defineTerm,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(result.message.contains("A fruit.") == true)
+    }
+
+    @Test("dictionary executor skips when no definition is found")
+    func dictionaryExecutorSkipsWhenNoDefinitionIsFound() async {
+        let executor = DictionaryCommandExecutor(lookup: StaticDictionaryDefinitionLookup(definitions: [:]))
+        let target = DictionaryCommandTarget(term: "unknown-word")
+        let match = routeMatch(command: .defineTerm, target: .dictionary(target), domain: .knowledge)
+
+        let result = await executor.execute(
+            DictionaryCommandExecutionRequest(
+                match: match,
+                command: .defineTerm,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .skipped)
+        #expect(result.message.contains("unknown-word") == true)
     }
 
     @Test("text executor inserts through accessibility first")
@@ -283,6 +340,24 @@ private final class RecordingTextExecutor: TextCommandExecuting {
     func execute(_ request: TextCommandExecutionRequest) async -> CommandExecutionResult {
         requests.append(request)
         return CommandExecutionResult(outcome: .completed, message: "Recorded text execution request.")
+    }
+}
+
+@MainActor
+private final class RecordingDictionaryExecutor: DictionaryCommandExecuting {
+    private(set) var requests: [DictionaryCommandExecutionRequest] = []
+
+    func execute(_ request: DictionaryCommandExecutionRequest) async -> CommandExecutionResult {
+        requests.append(request)
+        return CommandExecutionResult(outcome: .completed, message: "Recorded dictionary execution request.")
+    }
+}
+
+private struct StaticDictionaryDefinitionLookup: DictionaryDefinitionLookingUp {
+    var definitions: [String: String]
+
+    func definition(for term: String) -> String? {
+        definitions[term]
     }
 }
 

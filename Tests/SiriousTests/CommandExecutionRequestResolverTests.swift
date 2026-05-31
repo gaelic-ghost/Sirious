@@ -73,6 +73,23 @@ struct CommandExecutionRequestResolverTests {
         ))
     }
 
+    @Test("dictionary route match resolves to dictionary execution request")
+    func dictionaryRouteMatchResolvesToDictionaryExecutionRequest() {
+        let resolver = CommandExecutionRequestResolver()
+        let target = DictionaryCommandTarget(term: "apple")
+        let match = routeMatch(command: .defineTerm, target: .dictionary(target), domain: .knowledge)
+
+        let request = resolver.request(for: match)
+
+        #expect(request == .dictionary(
+            DictionaryCommandExecutionRequest(
+                match: match,
+                command: .defineTerm,
+                target: target
+            )
+        ))
+    }
+
     @Test("non-local route match has no execution request")
     func nonLocalRouteMatchHasNoExecutionRequest() {
         let resolver = CommandExecutionRequestResolver()
