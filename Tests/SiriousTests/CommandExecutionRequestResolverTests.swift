@@ -67,14 +67,16 @@ struct CommandExecutionRequestResolverTests {
     @Test("media route match resolves to media execution request")
     func mediaRouteMatchResolvesToMediaExecutionRequest() {
         let resolver = CommandExecutionRequestResolver()
-        let match = routeMatch(command: .mediaControl, target: .media, domain: .mediaControl)
+        let target = MediaCommandTarget(action: .skipForward)
+        let match = routeMatch(command: .mediaControl, target: .media(target), domain: .mediaControl)
 
         let request = resolver.request(for: match)
 
         #expect(request == .media(
             MediaCommandExecutionRequest(
                 match: match,
-                command: .mediaControl
+                command: .mediaControl,
+                action: .skipForward
             )
         ))
     }

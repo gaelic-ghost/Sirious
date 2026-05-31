@@ -1,4 +1,5 @@
 import ApplicationServices
+import IOKit
 @testable import Sirious
 import Testing
 
@@ -58,11 +59,113 @@ struct CommandExecutionDispatcherTests {
         )
 
         let result = await dispatcher.execute(
-            routeMatch(command: .mediaControl, target: .media, domain: .mediaControl)
+            routeMatch(
+                command: .mediaControl,
+                target: .media(MediaCommandTarget(action: .skipForward)),
+                domain: .mediaControl
+            )
         )
 
         #expect(result.outcome == .completed)
         #expect(mediaExecutor.requests.count == 1)
+        #expect(mediaExecutor.requests.first?.action == .skipForward)
+    }
+
+    @Test("media executor sends supported actions to controller")
+    func mediaExecutorSendsSupportedActionsToController() async {
+        let controller = RecordingMediaController()
+        let executor = MediaCommandExecutor(controller: controller)
+        let match = routeMatch(
+            command: .mediaControl,
+            target: .media(MediaCommandTarget(action: .skipBackward)),
+            domain: .mediaControl
+        )
+
+        let result = await executor.execute(
+            MediaCommandExecutionRequest(
+                match: match,
+                command: .mediaControl,
+                action: .skipBackward
+            )
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(controller.actions == [.skipBackward])
+    }
+
+    @Test("media executor skips unsupported stop action")
+    func mediaExecutorSkipsUnsupportedStopAction() async {
+        let executor = MediaCommandExecutor(controller: RecordingMediaController(supportedActions: [.play]))
+        let match = routeMatch(
+            command: .mediaControl,
+            target: .media(MediaCommandTarget(action: .stop)),
+            domain: .mediaControl
+        )
+
+        let result = await executor.execute(
+            MediaCommandExecutionRequest(
+                match: match,
+                command: .mediaControl,
+                action: .stop
+            )
+        )
+
+        #expect(result.outcome == .skipped)
+    }
+
+    @Test("now playing controller pauses active playback before using fallback")
+    func nowPlayingControllerPausesActivePlaybackBeforeUsingFallback() {
+        let poster = RecordingSystemMediaKeyPoster()
+        let controller = NowPlayingMediaCommandController(
+            audioProvider: StaticAudioStateProvider(audioSnapshot: AudioPlaybackSnapshot(
+                state: .playing,
+                sourceName: "fixture",
+                title: "Test Track",
+                artist: nil
+            )),
+            mediaKeyController: SystemMediaKeyController(poster: poster)
+        )
+
+        let result = controller.perform(.pause)
+
+        #expect(result.outcome == .completed)
+        #expect(result.message.contains("Now Playing") == true)
+        #expect(result.message.contains("fallback") == false)
+        #expect(poster.keyTypes == [NX_KEYTYPE_PLAY])
+    }
+
+    @Test("now playing controller skips pause when playback is already paused")
+    func nowPlayingControllerSkipsPauseWhenPlaybackIsAlreadyPaused() {
+        let poster = RecordingSystemMediaKeyPoster()
+        let controller = NowPlayingMediaCommandController(
+            audioProvider: StaticAudioStateProvider(audioSnapshot: AudioPlaybackSnapshot(
+                state: .paused,
+                sourceName: "fixture",
+                title: "Test Track",
+                artist: nil
+            )),
+            mediaKeyController: SystemMediaKeyController(poster: poster)
+        )
+
+        let result = controller.perform(.pause)
+
+        #expect(result.outcome == .skipped)
+        #expect(poster.keyTypes.isEmpty)
+    }
+
+    @Test("now playing controller uses generic fallback when context is unknown")
+    func nowPlayingControllerUsesGenericFallbackWhenContextIsUnknown() {
+        let poster = RecordingSystemMediaKeyPoster()
+        let controller = NowPlayingMediaCommandController(
+            audioProvider: StaticAudioStateProvider(audioSnapshot: .unknown),
+            mediaKeyController: SystemMediaKeyController(poster: poster)
+        )
+
+        let result = controller.perform(.skipForward)
+
+        #expect(result.outcome == .completed)
+        #expect(result.message.contains("fallback") == true)
+        #expect(poster.keyTypes == [NX_KEYTYPE_NEXT])
     }
 
     @Test("dispatcher sends text execution requests to text executor")
@@ -464,6 +567,48 @@ private final class RecordingMediaExecutor: MediaCommandExecuting {
     func execute(_ request: MediaCommandExecutionRequest) async -> CommandExecutionResult {
         requests.append(request)
         return CommandExecutionResult(outcome: .completed, message: "Recorded media execution request.")
+    }
+}
+
+@MainActor
+private final class RecordingMediaController: MediaCommandControlling {
+    private(set) var actions: [MediaCommandAction] = []
+    var supportedActions: Set<MediaCommandAction>
+
+    init(supportedActions: Set<MediaCommandAction> = Set(MediaCommandAction.allCasesExceptStop)) {
+        self.supportedActions = supportedActions
+    }
+
+    func perform(_ action: MediaCommandAction) -> CommandExecutionResult {
+        guard supportedActions.contains(action) else {
+            return CommandExecutionResult(outcome: .skipped, message: "Recorded unsupported media command.")
+        }
+
+        actions.append(action)
+        return CommandExecutionResult(outcome: .completed, message: "Recorded media command.")
+    }
+}
+
+@MainActor
+private final class RecordingSystemMediaKeyPoster: SystemMediaKeyPosting {
+    private(set) var keyTypes: [Int32] = []
+
+    func post(_ keyType: Int32) {
+        keyTypes.append(keyType)
+    }
+}
+
+private struct StaticAudioStateProvider: AudioStateProviding {
+    var audioSnapshot: AudioPlaybackSnapshot
+
+    func snapshot() -> AudioPlaybackSnapshot {
+        audioSnapshot
+    }
+}
+
+private extension MediaCommandAction {
+    static var allCasesExceptStop: [MediaCommandAction] {
+        [.play, .pause, .resume, .skipForward, .skipBackward]
     }
 }
 

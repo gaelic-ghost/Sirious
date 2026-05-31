@@ -37,6 +37,7 @@ struct WindowCommandExecutionRequest: Equatable {
 struct MediaCommandExecutionRequest: Equatable {
     var match: RouteMatch
     var command: PatternCommand
+    var action: MediaCommandAction
 }
 
 struct TextCommandExecutionRequest: Equatable {

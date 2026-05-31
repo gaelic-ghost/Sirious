@@ -7,15 +7,6 @@ struct LoggingWindowCommandExecutor: WindowCommandExecuting {
     }
 }
 
-struct LoggingMediaCommandExecutor: MediaCommandExecuting {
-    func execute(_ request: MediaCommandExecutionRequest) async -> CommandExecutionResult {
-        CommandExecutionResult(
-            outcome: .skipped,
-            message: "Sirious routed \(request.command.rawValue), but media execution is not implemented yet."
-        )
-    }
-}
-
 struct LoggingTextCommandExecutor: TextCommandExecuting {
     func execute(_ request: TextCommandExecutionRequest) async -> CommandExecutionResult {
         CommandExecutionResult(

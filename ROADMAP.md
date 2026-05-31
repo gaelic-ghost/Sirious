@@ -1,6 +1,6 @@
 # Sirious Roadmap
 
-Sirious is currently focused on fast, local-first voice-command routing for macOS. App open and switch routes can now reach an executor, text routes have an initial Accessibility-first executor with pasteboard fallback, and Apple Speech is available as the first debug transcription backend.
+Sirious is currently focused on fast, local-first voice-command routing for macOS. App open, switch, quit, text, dictionary, window, and typed media routes can now reach executors, and Apple Speech is available as the first debug transcription backend.
 
 ## Table of Contents
 
@@ -84,12 +84,13 @@ In Progress
 - [ ] Add Shortcuts import as an opt-in custom-command source, starting with exact phrase matching against shortcut names and identifiers.
 - [ ] Add Spotlight-backed app and content search providers for command target enrichment without treating Spotlight as an implicit executor.
 - [x] Add no-op-to-real executor transitions for focused-window and running-app main-window control after Accessibility permission is trusted.
-- [ ] Add media command execution through the safest available now-playing or media-control surface.
+- [x] Add typed media command execution for play/pause/resume and track navigation through a Now Playing-aware controller with generic system media-key fallback, with unsupported stop commands skipped clearly.
+- [ ] Decide whether a safer or richer now-playing/media-control surface can support exact play, exact pause, stop, and app-specific media behavior.
 - [ ] Add app-specific default text field focus strategies for predictable compose or search targets.
 
 ### Exit Criteria
 
-- [ ] App, text, dictionary, focused-window, and running-app main-window commands have typed execution requests and useful operator-facing failures; media is still pending real execution.
+- [ ] App, text, dictionary, media, focused-window, and running-app main-window commands have typed execution requests and useful operator-facing failures; richer media semantics are still pending a backend decision.
 - [ ] Secure or permission-gated contexts refuse execution clearly instead of silently falling back.
 - [ ] Common text-entry targets have been manually checked before relying on pasteboard fallback heavily.
 

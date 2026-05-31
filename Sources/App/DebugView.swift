@@ -339,8 +339,8 @@ struct DebugView: View {
                 application.displayName
             case let .window(windowTarget):
                 windowTargetDescription(windowTarget)
-            case .media:
-                "Media"
+            case let .media(target):
+                "Media: \(target.action.displayName)"
             case let .text(textTarget):
                 "\(textTarget.mode.displayName): \(textTarget.text)"
             case let .textEntrySession(target):

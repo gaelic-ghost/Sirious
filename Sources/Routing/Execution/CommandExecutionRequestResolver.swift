@@ -53,11 +53,12 @@ struct CommandExecutionRequestResolver {
                         target: target
                     )
                 )
-            case (.mediaControl?, .media, .mediaControl):
+            case let (.mediaControl?, .media(target), .mediaControl):
                 return CommandExecutionRequest.media(
                     MediaCommandExecutionRequest(
                         match: match,
-                        command: .mediaControl
+                        command: .mediaControl,
+                        action: target.action
                     )
                 )
             case let (.typeText?, .text(target), .textAction):

@@ -23,7 +23,7 @@ Each stage lives in its own file so the pipeline stays easy to inspect, replace,
 
 The first stage should do as little learned classification as possible. Simple commands should route through deterministic checks that are easy to test and benchmark.
 
-- Use exact string and token checks for tiny commands such as `pause`, `play`, `stop`, and `resume`.
+- Use exact string and token checks for tiny commands such as `pause`, `play`, `stop`, `resume`, `skip`, `next track`, and `previous track`.
 - Use `Scanner` for command shapes with a verb and a free-form remainder, such as `open Safari`, `launch Xcode`, `start Music`, `close this window`, `close Safari`, and `focus next window`.
 - Use cached `NSRegularExpression` values for anchored patterns when scanner parsing becomes awkward or needs grouped captures.
 - Use Swift Regex or RegexBuilder only where readability clearly wins and the path is not hot.
@@ -82,11 +82,17 @@ App open, launch, start, and switch commands should use the same user-facing beh
 
 The app executor should stay behind an `ApplicationExecutionClient` so tests can verify routing and execution decisions without launching real apps. App execution should return a clear failure when Sirious has a display name but no resolved bundle location for an app that is not running.
 
+## Media Execution Policy
+
+Media commands should preserve a typed action from deterministic routing through execution. The current grammar maps `play`, `pause`, `resume`, `stop`, `skip`, `skip forward`, `next`, `next track`, `skip backward`, `previous`, `previous track`, and `last track` into `MediaCommandAction` payloads.
+
+The first executor should be Now Playing-aware by default. It reads audio context first so exact commands like `pause` can avoid toggling playback when audio is already paused, then falls back to generic system media-key events when Now Playing context is unavailable. The backend intentionally skips `stop` with a clear operator-facing message until Sirious chooses a safe stop-capable media surface or an app-specific media integration.
+
 ## Near-Term Backend Choices
 
 - Apple SpeechAnalyzer should be the native macOS integration path, including a custom module or adapter when that gives clean access to analyzer timing and result finality.
 - Voxtral Realtime should remain a parallel transcript backend behind the same protocol so streaming quality and latency can be compared without changing the router.
-- MPNowPlaying should be the first audio context provider, but audio state should stay behind `AudioStateProviding` so later sources can be added without changing routing decisions.
+- MPNowPlaying should be the first audio context provider, but audio state should stay behind `AudioStateProviding` so later sources can be added without changing routing decisions. Media execution should stay behind `MediaCommandControlling` so future app-specific or now-playing-capable backends can replace generic media-key posting.
 - NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
 - Focused UI control detection should be layered onto workspace context after the runtime owner exists, likely through Accessibility APIs that read the focused element for the frontmost app.
 - Focused-window `close`, `minimize`, and `focus` commands execute through Accessibility after permission gating.

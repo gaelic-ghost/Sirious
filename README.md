@@ -47,7 +47,7 @@ The current local command families include:
 
 - App commands such as `open Safari` and `quit Safari`, routed toward app activation or termination.
 - Window commands such as `close`, `minimize`, and `close Safari`, executed through Accessibility when trusted.
-- Media commands such as `pause`, `play`, and `resume`, routed from playback context.
+- Media commands such as `pause`, `play`, `resume`, `skip`, `skip forward`, and `skip backward`, routed from playback context and executed through a Now Playing-aware controller with generic system media-key fallback.
 - Text commands such as `type hello` and `dictate hello`, routed only when focused context is text-friendly.
 - Dictionary commands such as `define apple`, routed through macOS Dictionary Services.
 - Search fallback phrases such as `lookup cats` and `look-up cats`.
@@ -135,6 +135,8 @@ Text commands currently classify `type <text>` and `dictate <text>` only when fo
 Text execution uses the documented Accessibility value path first: Sirious reads the focused editable Accessibility element, replaces its selected text range, and writes the updated `AXValue` back. If that path is unavailable, Sirious uses a pasteboard Command-V fallback and restores the previous string pasteboard content afterward. Secure text targets are skipped.
 
 Dictionary commands classify `define <word-or-phrase>` into a local knowledge route and use CoreServices Dictionary Services to query the active macOS dictionaries. Missing definitions return a clear skipped execution result instead of falling through silently.
+
+Media commands preserve typed actions such as play, pause, resume, skip forward, and skip backward through the route match and execution request. The default executor reads Now Playing context first so exact commands like `pause` can avoid toggling playback when audio is already paused. When Now Playing context is unavailable, Sirious falls back to generic macOS auxiliary media-key events for play/pause and track navigation. `stop` still routes deterministically, but the backend skips it with a clear message until a safer stop-capable media surface is chosen.
 
 Runtime issues use one Swift error type for thrown backend failures, OSLog entries, and debug UI state. `RuntimeIssue` conforms to `Error` and `LocalizedError`, and `RuntimeIssueStore` keeps the latest issue plus a short recent list while publishing an `AsyncStream` for future UI or backend observers.
 

@@ -16,7 +16,7 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
         resolver: CommandExecutionRequestResolver = CommandExecutionRequestResolver(),
         applicationExecutor: any ApplicationCommandExecuting = AppCommandExecutor(),
         windowExecutor: any WindowCommandExecuting = WindowCommandExecutor(),
-        mediaExecutor: any MediaCommandExecuting = LoggingMediaCommandExecutor(),
+        mediaExecutor: any MediaCommandExecuting = MediaCommandExecutor(),
         textExecutor: any TextCommandExecuting = TextCommandExecutor(),
         dictionaryExecutor: any DictionaryCommandExecuting = DictionaryCommandExecutor()
     ) {
