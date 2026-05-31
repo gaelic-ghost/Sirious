@@ -10,6 +10,7 @@ Sirious is currently focused on fast, local-first voice-command routing for macO
 - [Milestone 0: Routing Foundation](#milestone-0-routing-foundation)
 - [Milestone 1: Local Command Execution](#milestone-1-local-command-execution)
 - [Milestone 2: Speech Activation And ASR](#milestone-2-speech-activation-and-asr)
+- [Milestone 3: Custom Commands And Window Layouts](#milestone-3-custom-commands-and-window-layouts)
 - [Backlog Candidates](#backlog-candidates)
 - [History](#history)
 
@@ -32,6 +33,7 @@ Sirious is currently focused on fast, local-first voice-command routing for macO
 - Milestone 0: Routing Foundation - Completed
 - Milestone 1: Local Command Execution - In Progress
 - Milestone 2: Speech Activation And ASR - Planned
+- Milestone 3: Custom Commands And Window Layouts - Planned
 
 ## Milestone 0: Routing Foundation
 
@@ -120,10 +122,38 @@ Planned
 - [ ] Apple Speech behavior is understood well enough to decide the default beta backend.
 - [ ] Local-model ASR candidates have a clear comparison plan before implementation.
 
+## Milestone 3: Custom Commands And Window Layouts
+
+### Status
+
+Planned
+
+### Scope
+
+- [ ] Add user- and agent-authored command recipes, then use that recipe surface to support Stage Manager-friendly saved window layouts without hard-coding one-off conversation paths.
+
+### Tickets
+
+- [ ] Add an in-memory custom-command definition model with trigger phrases, aliases, required context, ordered steps, risk metadata, and display names.
+- [ ] Add a custom-command catalog and resolver that can match normalized transcripts to saved definitions before falling back to ML or clarification.
+- [ ] Add a custom-command plan validator that turns matched definitions into allowed execution plans using existing permission, delay, cancellation, and runtime-issue surfaces.
+- [ ] Add a missing-parameter interaction flow so commands like `save layout` can ask the user for a layout name before persisting a recipe.
+- [ ] Add `WindowLayoutSnapshot` capture for visible apps, stable app identity, window titles when safe, bounds, screen identity, minimized state, and likely focus order.
+- [ ] Add `WindowLayoutDefinition` with a user-facing layout name, aliases, the captured snapshot, and generated command triggers such as `restore <layout-name>`, `open <layout-name>`, and `switch to <layout-name>`.
+- [ ] Add a Stage Manager compatibility spike that records what Accessibility and NSWorkspace can reliably observe and restore when Stage Manager is enabled.
+- [ ] Add `WindowLayoutExecuting` to restore captured layouts by activating or opening apps, finding their main windows, and moving, resizing, minimizing, or focusing windows through Accessibility where permission allows.
+- [ ] Add Core Data persistence for custom command definitions and multi-step command recipes after the in-memory catalog protocol settles.
+- [ ] Keep `quit <app>` separate from `close <app>` and route quit commands through the risk-delay path before any saved layout recipe can include them.
+
+### Exit Criteria
+
+- [ ] A `save layout` command can capture the current workspace, ask for a name, and save a layout recipe without adding a special-case one-off command path.
+- [ ] Saved layout names generate deterministic commands such as `restore writing layout` and `open coding layout`.
+- [ ] Layout restoration handles missing apps, missing windows, permission failures, and Stage Manager limitations with clear runtime issues instead of silent partial success.
+- [ ] The same recipe model can support ordinary custom multi-step commands, not only window layouts.
+
 ## Backlog Candidates
 
-- [ ] Add custom-command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata.
-- [ ] Add Core Data persistence for custom command definitions and multi-step command recipes after the in-memory catalog protocol settles.
 - [ ] Add Sirious-owned App Intents for high-value app actions after the internal command model stabilizes.
 - [ ] Investigate user-reviewed enablement for imported Services and Shortcuts before they can route from speech.
 - [ ] Add dictation pause cleanup and text post-processing profiles so ordinary voice typing can be corrected during pauses without a large editing-command grammar.
@@ -141,3 +171,4 @@ Planned
 - Added deterministic dictionary commands as planned local command-execution work.
 - Added the system command surfaces plan for Services, Shortcuts, App Intents, and Spotlight-backed command discovery.
 - Added the first catalog-only system command discovery slice with Debug visibility and no execution.
+- Added a planned milestone for custom command recipes and Stage Manager-friendly saved window layouts.
