@@ -41,6 +41,14 @@ final class AppleSpeechTranscriptSource: TranscriptEventSource {
         recognizer = SFSpeechRecognizer(locale: locale)
     }
 
+    private nonisolated static func requestSpeechRecognitionAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+
     func state() async -> TranscriptionRuntimeState {
         runtimeState
     }
@@ -58,7 +66,7 @@ final class AppleSpeechTranscriptSource: TranscriptEventSource {
     }
 
     private func preparePermissions() async throws {
-        let speechStatus = await requestSpeechRecognitionAuthorization()
+        let speechStatus = await Self.requestSpeechRecognitionAuthorization()
         guard speechStatus == .authorized else {
             throw recordFailure(
                 message: "Speech recognition permission is \(speechStatus.displayName).",
@@ -203,14 +211,6 @@ final class AppleSpeechTranscriptSource: TranscriptEventSource {
     private func yield(_ event: TranscriptEvent) {
         for continuation in eventContinuations.values {
             continuation.yield(event)
-        }
-    }
-
-    private func requestSpeechRecognitionAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
-        await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                continuation.resume(returning: status)
-            }
         }
     }
 

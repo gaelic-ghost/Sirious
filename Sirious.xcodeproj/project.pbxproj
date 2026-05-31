@@ -93,6 +93,7 @@
 		C98A249EC807DFBB7605C55B /* AppleSpeechTranscriptSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE363D7A7D65FEB09108B6DC /* AppleSpeechTranscriptSource.swift */; };
 		C9B6138F64ECDBF4A3BB0245 /* WindowCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946A3334258A628FE8C767EF /* WindowCommandPatterns.swift */; };
 		CA0E871BC79B92B10294CA0E /* AudioStateProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD82DDD5D3CDB656996BA9A /* AudioStateProviding.swift */; };
+		CAD55E951954CBE84E6ACF2E /* AppleSpeechAudioFileRecognitionIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF4E63D2E0BE00322E86CB8 /* AppleSpeechAudioFileRecognitionIntegrationTests.swift */; };
 		CDC9F991C89AC1913C3BB606 /* CommandExecution.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86D8C436A675858E635E570 /* CommandExecution.swift */; };
 		CEF210D1AF46499AB42B3F7E /* SiriousRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F1634F0993DB7160D620AA /* SiriousRuntimeTests.swift */; };
 		D10AE22E8E44D0202D92A187 /* TextCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1002FF2227CD2B83D1C57EC /* TextCommandPatterns.swift */; };
@@ -175,6 +176,7 @@
 		5A47C331DC612DB0514F233B /* AccessibilityPermissionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityPermissionState.swift; sourceTree = "<group>"; };
 		5A5BBCEF49329C2CFF815316 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		5BA62AC9B866BCC81D86D71E /* CommandExecutionRequestResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutionRequestResolverTests.swift; sourceTree = "<group>"; };
+		5BF4E63D2E0BE00322E86CB8 /* AppleSpeechAudioFileRecognitionIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechAudioFileRecognitionIntegrationTests.swift; sourceTree = "<group>"; };
 		5CBD4EBE52C0BFB14673B01E /* CommandCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandCenterView.swift; sourceTree = "<group>"; };
 		601B712F4A4F30B8E987A12C /* PatternCommandRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatternCommandRouter.swift; sourceTree = "<group>"; };
 		651F0FD88128DF3A97143425 /* TranscriptStability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptStability.swift; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 			isa = PBXGroup;
 			children = (
 				C81A7629B0E6A04787F8C0A0 /* AppCommandExecutorTests.swift */,
+				5BF4E63D2E0BE00322E86CB8 /* AppleSpeechAudioFileRecognitionIntegrationTests.swift */,
 				162110AD8307759C8420ADCA /* AppleSpeechAudioFileTranscriptSourceTests.swift */,
 				14215BF76E17A6633AC975DF /* CommandExecutionDispatcherTests.swift */,
 				5BA62AC9B866BCC81D86D71E /* CommandExecutionRequestResolverTests.swift */,
@@ -737,6 +740,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E2179CB9ECECB8FB5D6AE6D /* AppCommandExecutorTests.swift in Sources */,
+				CAD55E951954CBE84E6ACF2E /* AppleSpeechAudioFileRecognitionIntegrationTests.swift in Sources */,
 				0FFB5237F77665C88532B01E /* AppleSpeechAudioFileTranscriptSourceTests.swift in Sources */,
 				365D61CB718CC9F9CF0EA6D8 /* CommandExecutionDispatcherTests.swift in Sources */,
 				B94C28C850A93DEFC53BB948 /* CommandExecutionRequestResolverTests.swift in Sources */,

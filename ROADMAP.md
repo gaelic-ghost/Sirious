@@ -21,9 +21,9 @@ Routing mode is backed by focused-control context. Sirious caches the focused Ac
 - [x] Add a first Apple Speech debug activation path for checking microphone, permission, partial transcript, and routing behavior before global hotkey capture.
 - [x] Add experimental debug activation inputs for `NSSpeechRecognizer` wake phrases and Option-key double-tap/double-tap-hold gestures.
 - [x] Add an Apple Speech audio-file transcript source so generated command fixtures can exercise routing without live microphone input.
+- [x] Generate and retain a small SpeakSwiftly `swift-signal` fixture set for local Apple Speech file-recognition smoke tests.
 - [ ] Decide how global hotkey ownership feeds `TranscriptionActivationPolicy`, including push-to-talk hold, double-tap toggle, and required Input Monitoring or event-tap permissions after real-device testing.
 - [ ] Decide where partial transcript stabilization lives once the first real ASR backend exposes its own partial/final semantics.
-- [ ] Generate and retain a small SpeakSwiftly `swift-signal` fixture set for local Apple Speech file-recognition smoke tests.
 - [ ] Compare initial ASR backends behind `TranscriptEventSource`: Apple Speech framework first for sandbox/App Store fit, MLX-backed Parakeet or Qwen3 ASR for local model quality experiments, and Voxtral-style realtime streaming if the local/server split becomes worth it.
 - [ ] Research native wake-word options: `NSSpeechRecognizer` command grammar, Siri/App Intents and Shortcuts integration limits on macOS, Vocal Shortcuts user configuration, and whether any documented API allows third-party always-listening wake phrases.
 

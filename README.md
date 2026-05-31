@@ -71,6 +71,8 @@ Run the main validation path:
 xcodebuild -project Sirious.xcodeproj -scheme Sirious -configuration Debug -destination platform=macOS test
 ```
 
+Run local Apple Speech audio-fixture recognition by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`, then running the normal test command. Without that manifest, the integration test exits without touching Apple Speech.
+
 Install the local SwiftFormat pre-commit hook:
 
 ```sh

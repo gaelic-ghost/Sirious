@@ -119,8 +119,16 @@ final class AppleSpeechAudioFileRecognizer: AudioFileSpeechRecognizing {
         self.locale = locale
     }
 
+    private nonisolated static func requestSpeechRecognitionAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+
     func transcribeAudioFile(at url: URL) async throws -> [AudioFileSpeechRecognitionResult] {
-        let speechStatus = await requestSpeechRecognitionAuthorization()
+        let speechStatus = await Self.requestSpeechRecognitionAuthorization()
         guard speechStatus == .authorized else {
             throw RuntimeIssue(
                 subsystem: .transcription,
@@ -158,14 +166,6 @@ final class AppleSpeechAudioFileRecognizer: AudioFileSpeechRecognizing {
                 Task { @MainActor in
                     accumulator.handle(result: result, error: error)
                 }
-            }
-        }
-    }
-
-    private func requestSpeechRecognitionAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
-        await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                continuation.resume(returning: status)
             }
         }
     }
