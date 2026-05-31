@@ -1,3 +1,4 @@
+import AppKit
 import ApplicationServices
 import IOKit
 @testable import Sirious
@@ -197,7 +198,8 @@ struct CommandExecutionDispatcherTests {
             windowExecutor: RecordingWindowExecutor(),
             mediaExecutor: RecordingMediaExecutor(),
             textExecutor: RecordingTextExecutor(),
-            dictionaryExecutor: dictionaryExecutor
+            dictionaryExecutor: dictionaryExecutor,
+            systemServiceExecutor: RecordingSystemServiceExecutor()
         )
 
         let result = await dispatcher.execute(
@@ -207,6 +209,32 @@ struct CommandExecutionDispatcherTests {
         #expect(result.outcome == .completed)
         #expect(dictionaryExecutor.requests.count == 1)
         #expect(dictionaryExecutor.requests.first?.target == target)
+    }
+
+    @Test("dispatcher sends Services execution requests to Services executor")
+    func dispatcherSendsServicesExecutionRequestsToServicesExecutor() async {
+        let serviceExecutor = RecordingSystemServiceExecutor()
+        let target = SystemServiceCommandTarget(
+            action: .summarizeSelection,
+            serviceName: "Summarize",
+            requiresSelectedText: true
+        )
+        let dispatcher = CommandExecutionDispatcher(
+            applicationExecutor: RecordingApplicationExecutor(),
+            windowExecutor: RecordingWindowExecutor(),
+            mediaExecutor: RecordingMediaExecutor(),
+            textExecutor: RecordingTextExecutor(),
+            dictionaryExecutor: RecordingDictionaryExecutor(),
+            systemServiceExecutor: serviceExecutor
+        )
+
+        let result = await dispatcher.execute(
+            routeMatch(command: .performSystemService, target: .systemService(target), domain: .automation)
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(serviceExecutor.requests.count == 1)
+        #expect(serviceExecutor.requests.first?.target == target)
     }
 
     @Test("default text executor skips text execution")
@@ -260,6 +288,82 @@ struct CommandExecutionDispatcherTests {
 
         #expect(result.outcome == .skipped)
         #expect(result.message.contains("unknown-word") == true)
+    }
+
+    @Test("Services executor performs allowlisted service with selected text")
+    func servicesExecutorPerformsAllowlistedServiceWithSelectedText() async {
+        let performer = RecordingSystemServicePerformer(shouldPerform: true)
+        let executor = SystemServiceCommandExecutor(
+            selectedTextReader: StaticServiceSelectedTextReader(text: "Cupertino"),
+            servicePerformer: performer
+        )
+        let target = SystemServiceCommandTarget(
+            action: .showMap,
+            serviceName: "Show Map",
+            requiresSelectedText: true
+        )
+
+        let result = await executor.execute(
+            SystemServiceCommandExecutionRequest(
+                match: routeMatch(command: .performSystemService, target: .systemService(target), domain: .automation),
+                command: .performSystemService,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(performer.performedServiceNames == ["Show Map"])
+        #expect(performer.pasteboards.first?.string(forType: .string) == "Cupertino")
+    }
+
+    @Test("Services executor skips when selected text is unavailable")
+    func servicesExecutorSkipsWhenSelectedTextIsUnavailable() async {
+        let performer = RecordingSystemServicePerformer(shouldPerform: true)
+        let executor = SystemServiceCommandExecutor(
+            selectedTextReader: StaticServiceSelectedTextReader(text: nil),
+            servicePerformer: performer
+        )
+        let target = SystemServiceCommandTarget(
+            action: .summarizeSelection,
+            serviceName: "Summarize",
+            requiresSelectedText: true
+        )
+
+        let result = await executor.execute(
+            SystemServiceCommandExecutionRequest(
+                match: routeMatch(command: .performSystemService, target: .systemService(target), domain: .automation),
+                command: .performSystemService,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .skipped)
+        #expect(performer.performedServiceNames.isEmpty)
+    }
+
+    @Test("Services executor fails when AppKit cannot perform service")
+    func servicesExecutorFailsWhenAppKitCannotPerformService() async {
+        let performer = RecordingSystemServicePerformer(shouldPerform: false)
+        let executor = SystemServiceCommandExecutor(
+            selectedTextReader: StaticServiceSelectedTextReader(text: "hello"),
+            servicePerformer: performer
+        )
+        let target = SystemServiceCommandTarget(
+            action: .searchWithSpotlight,
+            serviceName: "Search with Spotlight",
+            requiresSelectedText: true
+        )
+
+        let result = await executor.execute(
+            SystemServiceCommandExecutionRequest(
+                match: routeMatch(command: .performSystemService, target: .systemService(target), domain: .automation),
+                command: .performSystemService,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .failed)
+        #expect(result.message.contains("Search with Spotlight") == true)
     }
 
     @Test("focused window executor closes focused window")
@@ -637,6 +741,46 @@ private struct StaticDictionaryDefinitionLookup: DictionaryDefinitionLookingUp {
 
     func definition(for term: String) -> String? {
         definitions[term]
+    }
+}
+
+@MainActor
+private final class RecordingSystemServiceExecutor: SystemServiceCommandExecuting {
+    private(set) var requests: [SystemServiceCommandExecutionRequest] = []
+
+    func execute(_ request: SystemServiceCommandExecutionRequest) async -> CommandExecutionResult {
+        requests.append(request)
+        return CommandExecutionResult(outcome: .completed, message: "Recorded Services execution request.")
+    }
+}
+
+@MainActor
+private struct StaticServiceSelectedTextReader: ServiceSelectedTextReading {
+    var text: String?
+
+    func selectedText() -> String? {
+        text
+    }
+}
+
+@MainActor
+private final class RecordingSystemServicePerformer: SystemServicePerforming {
+    private(set) var performedServiceNames: [String] = []
+    private(set) var pasteboards: [NSPasteboard] = []
+    var shouldPerform: Bool
+
+    init(shouldPerform: Bool) {
+        self.shouldPerform = shouldPerform
+    }
+
+    func makePasteboard() -> NSPasteboard {
+        NSPasteboard(name: NSPasteboard.Name("com.galewilliams.Sirious.tests.\(UUID().uuidString)"))
+    }
+
+    func performService(named serviceName: String, pasteboard: NSPasteboard) -> Bool {
+        performedServiceNames.append(serviceName)
+        pasteboards.append(pasteboard)
+        return shouldPerform
     }
 }
 

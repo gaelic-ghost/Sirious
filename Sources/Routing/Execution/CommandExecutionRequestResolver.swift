@@ -85,6 +85,14 @@ struct CommandExecutionRequestResolver {
                         target: target
                     )
                 )
+            case let (.performSystemService?, .systemService(target), .automation):
+                return CommandExecutionRequest.systemService(
+                    SystemServiceCommandExecutionRequest(
+                        match: match,
+                        command: .performSystemService,
+                        target: target
+                    )
+                )
             default:
                 return nil
         }

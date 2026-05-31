@@ -115,6 +115,27 @@ struct CommandExecutionRequestResolverTests {
         ))
     }
 
+    @Test("Services route match resolves to Services execution request")
+    func servicesRouteMatchResolvesToServicesExecutionRequest() {
+        let resolver = CommandExecutionRequestResolver()
+        let target = SystemServiceCommandTarget(
+            action: .summarizeSelection,
+            serviceName: "Summarize",
+            requiresSelectedText: true
+        )
+        let match = routeMatch(command: .performSystemService, target: .systemService(target), domain: .automation)
+
+        let request = resolver.request(for: match)
+
+        #expect(request == .systemService(
+            SystemServiceCommandExecutionRequest(
+                match: match,
+                command: .performSystemService,
+                target: target
+            )
+        ))
+    }
+
     @Test("non-local route match has no execution request")
     func nonLocalRouteMatchHasNoExecutionRequest() {
         let resolver = CommandExecutionRequestResolver()

@@ -80,7 +80,7 @@ In Progress
 - [ ] Manually validate pasteboard fallback against common native and Electron text fields.
 - [x] Add deterministic dictionary commands for examples like `define apple`, `define well-being`, and `define fast local routing` using [CoreServices Dictionary Services](https://developer.apple.com/documentation/coreservices/dictionary_services), starting with `DCSCopyTextDefinition`.
 - [x] Add a catalog-only discovery spike for macOS Services, Shortcuts, App Intent surfaces mediated through Shortcuts or Spotlight, and Spotlight search results; see [System Command Surfaces Plan](./Docs/Architecture/SystemCommandSurfacesPlan.md).
-- [ ] Add deterministic allowlisted Services commands for examples like `summarize selection`, `search with Spotlight`, and `show map` after Debug can explain Service eligibility.
+- [x] Add deterministic allowlisted Services commands for examples like `summarize selection`, `search with Spotlight`, and `show map` after Debug can explain Service eligibility.
 - [ ] Add Shortcuts import as an opt-in custom-command source, starting with exact phrase matching against shortcut names and identifiers.
 - [ ] Add Spotlight-backed app and content search providers for command target enrichment without treating Spotlight as an implicit executor.
 - [x] Add no-op-to-real executor transitions for focused-window and running-app main-window control after Accessibility permission is trusted.
@@ -173,3 +173,4 @@ Planned
 - Added the system command surfaces plan for Services, Shortcuts, App Intents, and Spotlight-backed command discovery.
 - Added the first catalog-only system command discovery slice with Debug visibility and no execution.
 - Added a planned milestone for custom command recipes and Stage Manager-friendly saved window layouts.
+- Added deterministic allowlisted Services routing and execution for selected-text commands.

@@ -11,6 +11,7 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
     var mediaExecutor: any MediaCommandExecuting
     var textExecutor: any TextCommandExecuting
     var dictionaryExecutor: any DictionaryCommandExecuting
+    var systemServiceExecutor: any SystemServiceCommandExecuting
 
     init(
         resolver: CommandExecutionRequestResolver = CommandExecutionRequestResolver(),
@@ -18,7 +19,8 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
         windowExecutor: any WindowCommandExecuting = WindowCommandExecutor(),
         mediaExecutor: any MediaCommandExecuting = MediaCommandExecutor(),
         textExecutor: any TextCommandExecuting = TextCommandExecutor(),
-        dictionaryExecutor: any DictionaryCommandExecuting = DictionaryCommandExecutor()
+        dictionaryExecutor: any DictionaryCommandExecuting = DictionaryCommandExecutor(),
+        systemServiceExecutor: any SystemServiceCommandExecuting = SystemServiceCommandExecutor()
     ) {
         self.resolver = resolver
         self.applicationExecutor = applicationExecutor
@@ -26,6 +28,7 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
         self.mediaExecutor = mediaExecutor
         self.textExecutor = textExecutor
         self.dictionaryExecutor = dictionaryExecutor
+        self.systemServiceExecutor = systemServiceExecutor
     }
 
     func execute(_ match: RouteMatch) async -> CommandExecutionResult {
@@ -47,6 +50,8 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
                 return await textExecutor.execute(request)
             case let .dictionary(request):
                 return await dictionaryExecutor.execute(request)
+            case let .systemService(request):
+                return await systemServiceExecutor.execute(request)
         }
     }
 }

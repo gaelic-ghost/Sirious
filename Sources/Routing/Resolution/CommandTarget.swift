@@ -5,6 +5,7 @@ enum CommandTarget: Equatable {
     case text(TextCommandTarget)
     case textEntrySession(TextEntrySessionCommandTarget)
     case dictionary(DictionaryCommandTarget)
+    case systemService(SystemServiceCommandTarget)
 }
 
 struct MediaCommandTarget: Equatable {
@@ -49,4 +50,27 @@ enum TextEntrySessionCommandTarget: Equatable {
 
 struct DictionaryCommandTarget: Equatable {
     var term: String
+}
+
+struct SystemServiceCommandTarget: Equatable {
+    var action: SystemServiceCommandAction
+    var serviceName: String
+    var requiresSelectedText: Bool
+}
+
+enum SystemServiceCommandAction: String, Equatable {
+    case summarizeSelection
+    case searchWithSpotlight
+    case showMap
+
+    var displayName: String {
+        switch self {
+            case .summarizeSelection:
+                "summarize selection"
+            case .searchWithSpotlight:
+                "search with Spotlight"
+            case .showMap:
+                "show map"
+        }
+    }
 }

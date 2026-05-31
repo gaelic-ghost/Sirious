@@ -347,6 +347,8 @@ struct DebugView: View {
                 textEntrySessionTargetDescription(target)
             case let .dictionary(target):
                 "Dictionary: \(target.term)"
+            case let .systemService(target):
+                "Service: \(target.serviceName) / \(target.action.displayName)"
             case .none:
                 "None"
         }

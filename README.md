@@ -50,6 +50,7 @@ The current local command families include:
 - Media commands such as `pause`, `play`, `resume`, `skip`, `skip forward`, and `skip backward`, routed from playback context and executed through a Now Playing-aware controller with generic system media-key fallback.
 - Text commands such as `type hello` and `dictate hello`, routed only when focused context is text-friendly.
 - Dictionary commands such as `define apple`, routed through macOS Dictionary Services.
+- Allowlisted Services commands such as `summarize selection`, `search with Spotlight`, and `show map`, routed through macOS Services when selected text is available.
 - Search fallback phrases such as `lookup cats` and `look-up cats`.
 
 Apple Speech can be exercised from the Debug window for live microphone behavior. Audio-file recognition tests can also be enabled by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`, then running the normal test command. Without that manifest, the audio-file integration test exits without touching Apple Speech.
