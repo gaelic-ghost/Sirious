@@ -19,7 +19,8 @@ Routing mode is backed by focused-control context. Sirious caches the focused Ac
 - [x] Decide the first `TranscriptEventSource` lifecycle shape: source state, start/stop requests, transcript stream, issue stream, and backend-owned recovery behavior.
 - [ ] Manually validate pasteboard fallback against common native and Electron text fields.
 - [x] Add a first Apple Speech debug activation path for checking microphone, permission, partial transcript, and routing behavior before global hotkey capture.
-- [ ] Decide how global hotkey ownership feeds `TranscriptionActivationPolicy`, including push-to-talk hold, double-tap toggle, and required Input Monitoring or event-tap permissions.
+- [x] Add experimental debug activation inputs for `NSSpeechRecognizer` wake phrases and Option-key double-tap/double-tap-hold gestures.
+- [ ] Decide how global hotkey ownership feeds `TranscriptionActivationPolicy`, including push-to-talk hold, double-tap toggle, and required Input Monitoring or event-tap permissions after real-device testing.
 - [ ] Decide where partial transcript stabilization lives once the first real ASR backend exposes its own partial/final semantics.
 - [ ] Compare initial ASR backends behind `TranscriptEventSource`: Apple Speech framework first for sandbox/App Store fit, MLX-backed Parakeet or Qwen3 ASR for local model quality experiments, and Voxtral-style realtime streaming if the local/server split becomes worth it.
 - [ ] Research native wake-word options: `NSSpeechRecognizer` command grammar, Siri/App Intents and Shortcuts integration limits on macOS, Vocal Shortcuts user configuration, and whether any documented API allows third-party always-listening wake phrases.

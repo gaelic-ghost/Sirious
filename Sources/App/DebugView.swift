@@ -41,6 +41,36 @@ struct DebugView: View {
                 }
             }
 
+            Section("Wake Phrase") {
+                labeledValue("Listening", runtime.isWakePhraseListening ? "Yes" : "No")
+                labeledValue("Latest", runtime.latestWakePhraseCommand ?? "None")
+
+                HStack {
+                    Button("Start Wake Phrase") {
+                        runtime.startWakePhraseListening()
+                    }
+
+                    Button("Stop Wake Phrase") {
+                        runtime.stopWakePhraseListening()
+                    }
+                }
+            }
+
+            Section("Option Activation") {
+                labeledValue("Monitoring", runtime.isOptionActivationMonitoring ? "Yes" : "No")
+                labeledValue("Latest", runtime.latestOptionActivation?.displayName ?? "None")
+
+                HStack {
+                    Button("Start Option Monitor") {
+                        runtime.startOptionActivationMonitoring()
+                    }
+
+                    Button("Stop Option Monitor") {
+                        runtime.stopOptionActivationMonitoring()
+                    }
+                }
+            }
+
             Section("Mode") {
                 labeledValue("Routing", runtime.routingMode.mode.displayName)
                 labeledValue("Menu Symbol", runtime.routingMode.mode.menuBarSystemImage)

@@ -38,6 +38,8 @@ Transcript sources expose transcript events, runtime issues, current state, and 
 
 Apple Speech is the first microphone-backed transcript source. The debug window can start and stop the Apple Speech source with a local push-to-talk-style activation policy, then feeds partial and final transcripts back through the same routing path as the manual transcript injector. This is intentionally a behavior probe before adding global hotkeys or wake-word listening.
 
+The debug window can also enable two experimental native activation inputs. `NSSpeechRecognizer` listens for the fixed commands `Sirious` and `Hey Sirious`, then starts Apple Speech for the full command. An `NSEvent` option-key monitor detects double-tap Option to toggle listening and double-tap-and-hold Option for push-to-talk. These are behavior probes before deciding the final permission and onboarding shape.
+
 The next routing shape adds two context-aware surfaces:
 
 - Custom commands: user- or agent-authored declarative command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata. Definitions should be loaded through a catalog protocol and validated before execution.

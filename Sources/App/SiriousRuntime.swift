@@ -17,6 +17,10 @@ final class SiriousRuntime {
     private(set) var latestRouteMatch: RouteMatch?
     private(set) var latestTranscriptEvent: TranscriptEvent?
     private(set) var transcriptionState: TranscriptionRuntimeState = .idle
+    private(set) var isWakePhraseListening = false
+    private(set) var latestWakePhraseCommand: String?
+    private(set) var isOptionActivationMonitoring = false
+    private(set) var latestOptionActivation: OptionKeyActivationEvent?
     private(set) var executionRecords: [CommandExecutionRecord] = []
 
     @ObservationIgnored
@@ -39,6 +43,12 @@ final class SiriousRuntime {
 
     @ObservationIgnored
     private var transcriptIssueTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var wakePhraseRecognizer: WakePhraseRecognizer?
+
+    @ObservationIgnored
+    private var optionActivationMonitor: OptionKeyActivationMonitor?
 
     init(
         pendingCommands: PendingCommandStore = PendingCommandStore(),
@@ -80,6 +90,7 @@ final class SiriousRuntime {
         pendingCommands.setReleaseHandler { [weak self] command in
             self?.executeReleasedCommand(command)
         }
+        configureActivationInputs()
         focusedControlObserver.start()
         observeTranscriptSource()
         observeApplicationTermination()
@@ -141,6 +152,39 @@ final class SiriousRuntime {
         transcriptionState = await transcriptSource.state()
     }
 
+    func startWakePhraseListening() {
+        do {
+            try wakePhraseRecognizer?.start()
+            isWakePhraseListening = wakePhraseRecognizer?.isListening ?? false
+        } catch let issue as RuntimeIssue {
+            recordIssue(issue)
+        } catch {
+            recordIssue(
+                RuntimeIssue(
+                    subsystem: .transcription,
+                    severity: .error,
+                    message: "Wake phrase listening failed to start: \(error.localizedDescription)",
+                    recoveryHint: "Check microphone and speech recognition permissions, then try enabling the wake phrase again."
+                )
+            )
+        }
+    }
+
+    func stopWakePhraseListening() {
+        wakePhraseRecognizer?.stop()
+        isWakePhraseListening = false
+    }
+
+    func startOptionActivationMonitoring() {
+        optionActivationMonitor?.start()
+        isOptionActivationMonitoring = optionActivationMonitor?.isMonitoring ?? false
+    }
+
+    func stopOptionActivationMonitoring() {
+        optionActivationMonitor?.stop()
+        isOptionActivationMonitoring = false
+    }
+
     func stop() {
         transcriptEventTask?.cancel()
         transcriptIssueTask?.cancel()
@@ -149,6 +193,8 @@ final class SiriousRuntime {
         Task { [transcriptSource] in
             await transcriptSource.stop()
         }
+        stopWakePhraseListening()
+        stopOptionActivationMonitoring()
         workspaceStore.stopObserving()
         focusedControlObserver.stop()
         homeDirectoryAccess.stopAccessing()
@@ -156,6 +202,64 @@ final class SiriousRuntime {
         if let terminationObserver {
             NotificationCenter.default.removeObserver(terminationObserver)
             self.terminationObserver = nil
+        }
+    }
+
+    private func configureActivationInputs() {
+        wakePhraseRecognizer = WakePhraseRecognizer(
+            commands: ["Sirious", "Hey Sirious"]
+        ) { [weak self] command in
+            Task { @MainActor [weak self] in
+                self?.handleWakePhrase(command)
+            }
+        }
+
+        optionActivationMonitor = OptionKeyActivationMonitor { [weak self] event in
+            Task { @MainActor [weak self] in
+                await self?.handleOptionActivation(event)
+            }
+        }
+    }
+
+    private func handleWakePhrase(_ command: String) {
+        latestWakePhraseCommand = command
+        isWakePhraseListening = wakePhraseRecognizer?.isListening ?? false
+
+        Task { @MainActor [weak self] in
+            await self?.startTranscription(
+                activationPolicy: .wakeWord(
+                    WakeWordConfiguration(
+                        phrase: command,
+                        gracePeriod: .timer(seconds: 8)
+                    )
+                )
+            )
+        }
+    }
+
+    private func handleOptionActivation(_ event: OptionKeyActivationEvent) async {
+        latestOptionActivation = event
+        isOptionActivationMonitoring = optionActivationMonitor?.isMonitoring ?? false
+
+        switch event {
+            case .toggleListening:
+                if case .listening = transcriptionState {
+                    await stopTranscription()
+                } else {
+                    await startTranscription(
+                        activationPolicy: .toggleHotkey(
+                            hotKey: HotKeyDescriptor(key: "Option", modifiers: [.option])
+                        )
+                    )
+                }
+            case .beginPushToTalk:
+                await startTranscription(
+                    activationPolicy: .pushToTalk(
+                        hotKey: HotKeyDescriptor(key: "Option hold", modifiers: [.option])
+                    )
+                )
+            case .endPushToTalk:
+                await stopTranscription()
         }
     }
 
