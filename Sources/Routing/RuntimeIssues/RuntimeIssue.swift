@@ -38,6 +38,7 @@ enum RuntimeIssueSubsystem: String, Equatable {
     case routing
     case execution
     case permissions
+    case systemCommands = "system_commands"
 
     var displayName: String {
         switch self {
@@ -49,6 +50,8 @@ enum RuntimeIssueSubsystem: String, Equatable {
                 "Execution"
             case .permissions:
                 "Permissions"
+            case .systemCommands:
+                "System Commands"
         }
     }
 }

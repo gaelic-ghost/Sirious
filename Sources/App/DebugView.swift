@@ -71,6 +71,48 @@ struct DebugView: View {
                 }
             }
 
+            Section("System Command Catalog") {
+                labeledValue("Refreshing", runtime.systemCommandCatalog.isRefreshing ? "Yes" : "No")
+                labeledValue("Candidates", "\(runtime.systemCommandCatalog.candidates.count)")
+                labeledValue("Issues", "\(runtime.systemCommandCatalog.issues.count)")
+                labeledValue("Last Refresh", refreshDateDescription(runtime.systemCommandCatalog.lastRefreshedAt))
+
+                Button("Refresh System Commands") {
+                    Task {
+                        await runtime.systemCommandCatalog.refresh()
+                    }
+                }
+                .disabled(runtime.systemCommandCatalog.isRefreshing)
+
+                ForEach(runtime.systemCommandCatalog.issues.prefix(3)) { issue in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(issueSummary(issue))
+                            .monospaced()
+
+                        if let recoveryHint = issue.recoveryHint {
+                            Text(recoveryHint)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                ForEach(runtime.systemCommandCatalog.candidates.prefix(12)) { candidate in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(candidate.displayName)
+                            .font(.headline)
+
+                        Text(systemCommandSummary(candidate))
+                            .foregroundStyle(.secondary)
+                            .monospaced()
+
+                        if let detail = candidate.detail {
+                            Text(detail)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
             Section("Mode") {
                 labeledValue("Routing", runtime.routingMode.mode.displayName)
                 labeledValue("Menu Symbol", runtime.routingMode.mode.menuBarSystemImage)
@@ -226,6 +268,22 @@ struct DebugView: View {
 
     private func issueSummary(_ issue: RuntimeIssue) -> String {
         "\(issue.severity.displayName) / \(issue.subsystem.displayName): \(issue.message)"
+    }
+
+    private func refreshDateDescription(_ date: Date?) -> String {
+        guard let date else {
+            return "Never"
+        }
+
+        return date.formatted(date: .omitted, time: .standard)
+    }
+
+    private func systemCommandSummary(_ candidate: SystemCommandCandidate) -> String {
+        [
+            candidate.source.displayName,
+            "risk \(candidate.risk.rawValue)",
+            "context \(candidate.requiredContext.displayName)",
+        ].joined(separator: " / ")
     }
 
     private func transcriptionStateDescription(_ state: TranscriptionRuntimeState) -> String {

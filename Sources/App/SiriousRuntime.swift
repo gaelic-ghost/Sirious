@@ -14,6 +14,7 @@ final class SiriousRuntime {
     let homeDirectoryAccess: HomeDirectoryAccessState
     let issueStore: RuntimeIssueStore
     let transcriptSource: any TranscriptEventSource
+    let systemCommandCatalog: SystemCommandCatalogStore
     private(set) var latestRouteMatch: RouteMatch?
     private(set) var latestTranscriptEvent: TranscriptEvent?
     private(set) var transcriptionState: TranscriptionRuntimeState = .idle
@@ -61,6 +62,7 @@ final class SiriousRuntime {
         homeDirectoryAccess: HomeDirectoryAccessState = HomeDirectoryAccessState(),
         issueStore: RuntimeIssueStore = RuntimeIssueStore(),
         transcriptSource: any TranscriptEventSource = AppleSpeechTranscriptSource(),
+        systemCommandCatalog: SystemCommandCatalogStore = SystemCommandCatalogStore(),
         focusedControlReader: any FocusedControlReading = AXFocusedControlReader(),
         startupFileAccessPromptDisabled: Bool = SiriousRuntime.defaultStartupFileAccessPromptDisabled()
     ) {
@@ -72,6 +74,7 @@ final class SiriousRuntime {
         self.homeDirectoryAccess = homeDirectoryAccess
         self.issueStore = issueStore
         self.transcriptSource = transcriptSource
+        self.systemCommandCatalog = systemCommandCatalog
         self.startupFileAccessPromptDisabled = startupFileAccessPromptDisabled
         focusedControlObserver = AccessibilityFocusedControlObserver(
             store: focusedControl,

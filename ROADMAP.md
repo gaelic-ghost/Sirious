@@ -77,7 +77,7 @@ In Progress
 - [x] Harden pasteboard fallback by preserving and restoring richer pasteboard contents.
 - [ ] Manually validate pasteboard fallback against common native and Electron text fields.
 - [ ] Add deterministic dictionary commands for examples like `define apple`, `define well-being`, and `define fast local routing` using [CoreServices Dictionary Services](https://developer.apple.com/documentation/coreservices/dictionary_services), starting with `DCSCopyTextDefinition` and `DCSGetTermRangeInString`.
-- [ ] Add a catalog-only discovery spike for macOS Services, Shortcuts, App Intent surfaces mediated through Shortcuts or Spotlight, and Spotlight search results; see [System Command Surfaces Plan](./Docs/Architecture/SystemCommandSurfacesPlan.md).
+- [x] Add a catalog-only discovery spike for macOS Services, Shortcuts, App Intent surfaces mediated through Shortcuts or Spotlight, and Spotlight search results; see [System Command Surfaces Plan](./Docs/Architecture/SystemCommandSurfacesPlan.md).
 - [ ] Add deterministic allowlisted Services commands for examples like `summarize selection`, `search with Spotlight`, and `show map` after Debug can explain Service eligibility.
 - [ ] Add Shortcuts import as an opt-in custom-command source, starting with exact phrase matching against shortcut names and identifiers.
 - [ ] Add Spotlight-backed app and content search providers for command target enrichment without treating Spotlight as an implicit executor.
@@ -140,3 +140,4 @@ Planned
 - Migrated the roadmap to the canonical checklist schema and grouped existing work into milestone sections.
 - Added deterministic dictionary commands as planned local command-execution work.
 - Added the system command surfaces plan for Services, Shortcuts, App Intents, and Spotlight-backed command discovery.
+- Added the first catalog-only system command discovery slice with Debug visibility and no execution.
