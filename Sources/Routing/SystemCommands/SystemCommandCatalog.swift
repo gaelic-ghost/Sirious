@@ -44,10 +44,13 @@ struct CompositeSystemCommandCatalogProvider: SystemCommandCatalogProviding {
 
         return SystemCommandCatalogSnapshot(
             candidates: candidates.sorted { lhs, rhs in
-                if lhs.source.rawValue == rhs.source.rawValue {
-                    lhs.displayName.localizedCaseInsensitiveCompare(rhs.displayName) == .orderedAscending
+                let lhsSourceIndex = SystemCommandSource.catalogDisplayOrder.firstIndex(of: lhs.source) ?? .max
+                let rhsSourceIndex = SystemCommandSource.catalogDisplayOrder.firstIndex(of: rhs.source) ?? .max
+
+                if lhsSourceIndex == rhsSourceIndex {
+                    return lhs.displayName.localizedCaseInsensitiveCompare(rhs.displayName) == .orderedAscending
                 } else {
-                    lhs.source.rawValue < rhs.source.rawValue
+                    return lhsSourceIndex < rhsSourceIndex
                 }
             },
             issues: issues
