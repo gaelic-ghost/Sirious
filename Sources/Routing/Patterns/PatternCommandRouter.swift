@@ -39,6 +39,7 @@ struct PatternCommandRouter {
 enum PatternCommand: String, Equatable {
     case openApplication
     case switchApplication
+    case quitApplication
     case closeWindow
     case minimizeWindow
     case focusWindow

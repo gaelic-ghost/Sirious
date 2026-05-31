@@ -73,7 +73,7 @@ In Progress
 
 ### Tickets
 
-- [x] Add app open and switch execution that activates already-running apps and opens resolved app bundles when needed.
+- [x] Add app open, switch, and quit execution that activates already-running apps, opens resolved app bundles when needed, and delays risky app termination.
 - [x] Resolve installed app candidates from standard application folders without treating the scan as a complete software inventory.
 - [x] Add Accessibility-first text insertion with pasteboard fallback and secure-text refusal.
 - [x] Harden pasteboard fallback by preserving and restoring richer pasteboard contents.
@@ -143,7 +143,7 @@ Planned
 - [ ] Add a Stage Manager compatibility spike that records what Accessibility and NSWorkspace can reliably observe and restore when Stage Manager is enabled.
 - [ ] Add `WindowLayoutExecuting` to restore captured layouts by activating or opening apps, finding their main windows, and moving, resizing, minimizing, or focusing windows through Accessibility where permission allows.
 - [ ] Add Core Data persistence for custom command definitions and multi-step command recipes after the in-memory catalog protocol settles.
-- [ ] Keep `quit <app>` separate from `close <app>` and route quit commands through the risk-delay path before any saved layout recipe can include them.
+- [x] Keep `quit <app>` separate from `close <app>` and route quit commands through the risk-delay path before any saved layout recipe can include them.
 
 ### Exit Criteria
 

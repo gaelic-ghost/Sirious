@@ -16,6 +16,7 @@ enum ApplicationExecutionClientError: LocalizedError, Equatable {
 protocol ApplicationExecutionClient {
     func activateRunningApplication(_ application: ApplicationSnapshot) -> Bool
     func openApplication(at url: URL) async throws -> ApplicationSnapshot
+    func terminateRunningApplication(_ application: ApplicationSnapshot) -> Bool
 }
 
 struct WorkspaceApplicationExecutionClient: ApplicationExecutionClient {
@@ -54,5 +55,15 @@ struct WorkspaceApplicationExecutionClient: ApplicationExecutionClient {
                 continuation.resume(returning: ApplicationSnapshot(runningApplication))
             }
         }
+    }
+
+    func terminateRunningApplication(_ application: ApplicationSnapshot) -> Bool {
+        guard let processIdentifier = application.processIdentifier,
+              let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
+        else {
+            return false
+        }
+
+        return runningApplication.terminate()
     }
 }

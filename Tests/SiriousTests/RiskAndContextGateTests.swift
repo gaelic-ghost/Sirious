@@ -66,6 +66,38 @@ struct RiskAndContextGateTests {
         #expect(gated.match.command == .closeWindow)
     }
 
+    @Test("quit app route is delayed")
+    func quitAppRouteIsDelayed() async {
+        let gate = RiskAndContextGate(
+            accessibilityPermission: FixtureAccessibilityPermissionProvider(permissionStatus: .trusted)
+        )
+        let decision = RouteDecision(
+            route: .localFunction,
+            domain: .appControl,
+            complexity: .atomic,
+            risk: .confirm,
+            readiness: .actionable,
+            confidence: 0.86
+        )
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: nil,
+            processIdentifier: 42,
+            isActive: false
+        )
+
+        let gated = await gate.approve(routeMatch(
+            decision: decision,
+            command: .quitApplication,
+            target: .application(application)
+        ))
+
+        #expect(gated.status == .delayed)
+        #expect(gated.match.command == .quitApplication)
+        #expect(gated.match.target == .application(application))
+    }
+
     private func windowDecision() -> RouteDecision {
         RouteDecision(
             route: .localFunction,

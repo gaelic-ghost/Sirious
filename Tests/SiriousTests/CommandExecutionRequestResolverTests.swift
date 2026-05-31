@@ -25,6 +25,29 @@ struct CommandExecutionRequestResolverTests {
         ))
     }
 
+    @Test("quit app route match resolves to application execution request")
+    func quitAppRouteMatchResolvesToApplicationExecutionRequest() {
+        let resolver = CommandExecutionRequestResolver()
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: nil,
+            processIdentifier: 42,
+            isActive: false
+        )
+        let match = routeMatch(command: .quitApplication, target: .application(application), domain: .appControl)
+
+        let request = resolver.request(for: match)
+
+        #expect(request == .application(
+            ApplicationCommandExecutionRequest(
+                match: match,
+                command: .quitApplication,
+                application: application
+            )
+        ))
+    }
+
     @Test("window route match resolves to window execution request")
     func windowRouteMatchResolvesToWindowExecutionRequest() {
         let resolver = CommandExecutionRequestResolver()

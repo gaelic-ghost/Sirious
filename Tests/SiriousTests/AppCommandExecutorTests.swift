@@ -99,6 +99,64 @@ struct AppCommandExecutorTests {
         #expect(client.activatedApplications == [application])
     }
 
+    @Test("quit command terminates app that is already running")
+    func quitCommandTerminatesAppThatIsAlreadyRunning() async {
+        let client = FakeApplicationExecutionClient()
+        let executor = AppCommandExecutor(client: client)
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: URL(filePath: "/Applications/Safari.app"),
+            processIdentifier: 42,
+            isActive: false
+        )
+
+        let result = await executor.execute(request(command: .quitApplication, application: application))
+
+        #expect(result.outcome == .completed)
+        #expect(client.terminatedApplications == [application])
+        #expect(client.activatedApplications.isEmpty)
+        #expect(client.openedURLs.isEmpty)
+    }
+
+    @Test("quit command skips app that is not running")
+    func quitCommandSkipsAppThatIsNotRunning() async {
+        let client = FakeApplicationExecutionClient()
+        let executor = AppCommandExecutor(client: client)
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: URL(filePath: "/Applications/Safari.app"),
+            processIdentifier: nil,
+            isActive: false
+        )
+
+        let result = await executor.execute(request(command: .quitApplication, application: application))
+
+        #expect(result.outcome == .skipped)
+        #expect(client.terminatedApplications.isEmpty)
+        #expect(client.activatedApplications.isEmpty)
+        #expect(client.openedURLs.isEmpty)
+    }
+
+    @Test("quit command reports termination failures")
+    func quitCommandReportsTerminationFailures() async {
+        let client = FakeApplicationExecutionClient(terminationResult: false)
+        let executor = AppCommandExecutor(client: client)
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: URL(filePath: "/Applications/Safari.app"),
+            processIdentifier: 42,
+            isActive: false
+        )
+
+        let result = await executor.execute(request(command: .quitApplication, application: application))
+
+        #expect(result.outcome == .failed)
+        #expect(client.terminatedApplications == [application])
+    }
+
     private func request(
         command: PatternCommand,
         application: ApplicationSnapshot
@@ -128,10 +186,13 @@ struct AppCommandExecutorTests {
 private final class FakeApplicationExecutionClient: ApplicationExecutionClient {
     private(set) var activatedApplications: [ApplicationSnapshot] = []
     private(set) var openedURLs: [URL] = []
+    private(set) var terminatedApplications: [ApplicationSnapshot] = []
     private let activationResult: Bool
+    private let terminationResult: Bool
 
-    init(activationResult: Bool = true) {
+    init(activationResult: Bool = true, terminationResult: Bool = true) {
         self.activationResult = activationResult
+        self.terminationResult = terminationResult
     }
 
     func activateRunningApplication(_ application: ApplicationSnapshot) -> Bool {
@@ -148,5 +209,10 @@ private final class FakeApplicationExecutionClient: ApplicationExecutionClient {
             processIdentifier: 123,
             isActive: true
         )
+    }
+
+    func terminateRunningApplication(_ application: ApplicationSnapshot) -> Bool {
+        terminatedApplications.append(application)
+        return terminationResult
     }
 }

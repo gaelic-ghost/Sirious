@@ -78,7 +78,7 @@ Window-control routes still require Accessibility permission before they can be 
 
 ## App Execution Policy
 
-App open, launch, start, and switch commands should use the same user-facing behavior as the Dock. If the target app is already running, Sirious activates it and brings its windows forward. If the app is not running but the app bundle location is known, Sirious asks `NSWorkspace` to open that app and activate it.
+App open, launch, start, and switch commands should use the same user-facing behavior as the Dock. If the target app is already running, Sirious activates it and brings its windows forward. If the app is not running but the app bundle location is known, Sirious asks `NSWorkspace` to open that app and activate it. App quit commands are separate from window close commands, only act on running apps, and use the risk-delay path before asking the app to terminate.
 
 The app executor should stay behind an `ApplicationExecutionClient` so tests can verify routing and execution decisions without launching real apps. App execution should return a clear failure when Sirious has a display name but no resolved bundle location for an app that is not running.
 
@@ -90,7 +90,7 @@ The app executor should stay behind an `ApplicationExecutionClient` so tests can
 - NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
 - Focused UI control detection should be layered onto workspace context after the runtime owner exists, likely through Accessibility APIs that read the focused element for the frontmost app.
 - Focused-window `close`, `minimize`, and `focus` commands execute through Accessibility after permission gating.
-- Running-app window targets such as `close Safari` execute against that app's main or focused Accessibility window. This means `close Safari` closes Safari's frontmost/main window; `quit Safari` remains a separate future app command.
+- Running-app window targets such as `close Safari` execute against that app's main or focused Accessibility window. This means `close Safari` closes Safari's frontmost/main window; `quit Safari` remains separate app termination.
 - Selection and cycling targets such as next, previous, or indicated windows should stay classification-only until selection and cycling behavior is designed explicitly.
 - Window control requires Accessibility permission before execution; classification can still identify the route before that permission is granted.
 - Bare `close` and `minimize` commands target the focused window.

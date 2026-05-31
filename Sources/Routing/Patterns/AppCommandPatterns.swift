@@ -52,6 +52,23 @@ struct AppCommandPatterns {
             )
         }
 
+        if let appName = parseApplicationName(command.original, verbs: ["quit", "exit"]),
+           let target = resolver.target(named: appName) {
+            return PatternRouteMatch(
+                decision: RouteDecision(
+                    route: .localFunction,
+                    domain: .appControl,
+                    complexity: .atomic,
+                    risk: .confirm,
+                    readiness: event.isFinal ? .actionable : .likelyRoute,
+                    confidence: workspace.containsApplication(named: appName) ? 0.86 : 0.7
+                ),
+                command: .quitApplication,
+                target: target,
+                reason: "scanner matched app-quit command"
+            )
+        }
+
         return nil
     }
 

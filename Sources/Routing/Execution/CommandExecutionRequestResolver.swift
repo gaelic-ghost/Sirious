@@ -21,6 +21,14 @@ struct CommandExecutionRequestResolver {
                         application: application
                     )
                 )
+            case let (.quitApplication?, .application(application), .appControl):
+                return CommandExecutionRequest.application(
+                    ApplicationCommandExecutionRequest(
+                        match: match,
+                        command: .quitApplication,
+                        application: application
+                    )
+                )
             case let (.closeWindow?, .window(target), .windowControl):
                 return CommandExecutionRequest.window(
                     WindowCommandExecutionRequest(
