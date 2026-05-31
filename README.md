@@ -38,6 +38,8 @@ Transcript sources expose transcript events, runtime issues, current state, and 
 
 Apple Speech is the first microphone-backed transcript source. The debug window can start and stop the Apple Speech source with a local push-to-talk-style activation policy, then feeds partial and final transcripts back through the same routing path as the manual transcript injector. This is intentionally a behavior probe before adding global hotkeys or wake-word listening.
 
+Apple Speech also has an audio-file transcript source for integration-style tests. Generated fixtures, including future SpeakSwiftly `swift-signal` samples, can flow through an injectable file recognizer and produce normal `TranscriptEvent` values without requiring a live microphone in automated tests.
+
 The debug window can also enable two experimental native activation inputs. `NSSpeechRecognizer` listens for the fixed commands `Sirious` and `Hey Sirious`, then starts Apple Speech for the full command. An `NSEvent` option-key monitor detects double-tap Option to toggle listening and double-tap-and-hold Option for push-to-talk. These are behavior probes before deciding the final permission and onboarding shape.
 
 The next routing shape adds two context-aware surfaces:
