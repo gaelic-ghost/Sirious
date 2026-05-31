@@ -161,9 +161,9 @@ struct CommandExecutionDispatcherTests {
 
     @Test("focused window executor closes focused window")
     func focusedWindowExecutorClosesFocusedWindow() async {
-        let controller = RecordingFocusedWindowController()
+        let controller = RecordingWindowController()
         let executor = WindowCommandExecutor(
-            targetReader: StaticFocusedWindowTargetReader(target: focusedWindowTarget()),
+            targetReader: StaticWindowTargetReader(targets: [(.focusedWindow, windowExecutionTarget())]),
             controller: controller
         )
 
@@ -181,9 +181,9 @@ struct CommandExecutionDispatcherTests {
 
     @Test("focused window executor minimizes focused window")
     func focusedWindowExecutorMinimizesFocusedWindow() async {
-        let controller = RecordingFocusedWindowController()
+        let controller = RecordingWindowController()
         let executor = WindowCommandExecutor(
-            targetReader: StaticFocusedWindowTargetReader(target: focusedWindowTarget()),
+            targetReader: StaticWindowTargetReader(targets: [(.focusedWindow, windowExecutionTarget())]),
             controller: controller
         )
 
@@ -201,9 +201,9 @@ struct CommandExecutionDispatcherTests {
 
     @Test("focused window executor raises focused window")
     func focusedWindowExecutorRaisesFocusedWindow() async {
-        let controller = RecordingFocusedWindowController()
+        let controller = RecordingWindowController()
         let executor = WindowCommandExecutor(
-            targetReader: StaticFocusedWindowTargetReader(target: focusedWindowTarget()),
+            targetReader: StaticWindowTargetReader(targets: [(.focusedWindow, windowExecutionTarget())]),
             controller: controller
         )
 
@@ -219,31 +219,39 @@ struct CommandExecutionDispatcherTests {
         #expect(controller.commands == [.focusWindow])
     }
 
-    @Test("focused window executor skips unsupported window targets")
-    func focusedWindowExecutorSkipsUnsupportedWindowTargets() async {
-        let controller = RecordingFocusedWindowController()
+    @Test("window executor controls app main window targets")
+    func windowExecutorControlsAppMainWindowTargets() async {
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: nil,
+            processIdentifier: 42,
+            isActive: false
+        )
+        let target = WindowTarget.applicationMainWindow(application)
+        let controller = RecordingWindowController()
         let executor = WindowCommandExecutor(
-            targetReader: StaticFocusedWindowTargetReader(target: focusedWindowTarget()),
+            targetReader: StaticWindowTargetReader(targets: [(target, windowExecutionTarget())]),
             controller: controller
         )
 
         let result = await executor.execute(
             WindowCommandExecutionRequest(
-                match: routeMatch(command: .closeWindow, target: .window(.nextWindow), domain: .windowControl),
+                match: routeMatch(command: .closeWindow, target: .window(target), domain: .windowControl),
                 command: .closeWindow,
-                target: .nextWindow
+                target: target
             )
         )
 
-        #expect(result.outcome == .skipped)
-        #expect(controller.commands.isEmpty)
+        #expect(result.outcome == .completed)
+        #expect(controller.commands == [.closeWindow])
     }
 
     @Test("focused window executor fails when no focused window is available")
     func focusedWindowExecutorFailsWhenNoFocusedWindowIsAvailable() async {
-        let controller = RecordingFocusedWindowController()
+        let controller = RecordingWindowController()
         let executor = WindowCommandExecutor(
-            targetReader: StaticFocusedWindowTargetReader(target: nil),
+            targetReader: StaticWindowTargetReader(targets: []),
             controller: controller
         )
 
@@ -256,7 +264,7 @@ struct CommandExecutionDispatcherTests {
         )
 
         #expect(result.outcome == .failed)
-        #expect(result.message.contains("focused Accessibility window") == true)
+        #expect(result.message.contains("matching Accessibility window") == true)
         #expect(controller.commands.isEmpty)
     }
 
@@ -403,8 +411,8 @@ struct CommandExecutionDispatcherTests {
         )
     }
 
-    private func focusedWindowTarget() -> FocusedWindowTarget {
-        FocusedWindowTarget(element: AXUIElementCreateSystemWide())
+    private func windowExecutionTarget() -> WindowExecutionTarget {
+        WindowExecutionTarget(element: AXUIElementCreateSystemWide())
     }
 }
 
@@ -475,30 +483,31 @@ private struct StaticFocusedTextTargetReader: FocusedTextTargetReading {
     }
 }
 
-@MainActor
-private struct StaticFocusedWindowTargetReader: FocusedWindowTargetReading {
-    var target: FocusedWindowTarget?
+private struct StaticWindowTargetReader: WindowTargetReading {
+    var targets: [(WindowTarget, WindowExecutionTarget)]
 
-    func focusedWindowTarget() -> FocusedWindowTarget? {
-        target
+    func windowTarget(for target: WindowTarget) -> WindowExecutionTarget? {
+        targets.first { storedTarget, _ in
+            storedTarget == target
+        }?.1
     }
 }
 
 @MainActor
-private final class RecordingFocusedWindowController: FocusedWindowControlling {
+private final class RecordingWindowController: WindowControlling {
     private(set) var commands: [PatternCommand] = []
 
-    func close(_ target: FocusedWindowTarget) -> CommandExecutionResult {
+    func close(_ target: WindowExecutionTarget) -> CommandExecutionResult {
         commands.append(.closeWindow)
         return CommandExecutionResult(outcome: .completed, message: "Recorded focused window close.")
     }
 
-    func minimize(_ target: FocusedWindowTarget) -> CommandExecutionResult {
+    func minimize(_ target: WindowExecutionTarget) -> CommandExecutionResult {
         commands.append(.minimizeWindow)
         return CommandExecutionResult(outcome: .completed, message: "Recorded focused window minimize.")
     }
 
-    func focus(_ target: FocusedWindowTarget) -> CommandExecutionResult {
+    func focus(_ target: WindowExecutionTarget) -> CommandExecutionResult {
         commands.append(.focusWindow)
         return CommandExecutionResult(outcome: .completed, message: "Recorded focused window focus.")
     }

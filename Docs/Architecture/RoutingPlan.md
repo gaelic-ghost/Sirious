@@ -24,7 +24,7 @@ Each stage lives in its own file so the pipeline stays easy to inspect, replace,
 The first stage should do as little learned classification as possible. Simple commands should route through deterministic checks that are easy to test and benchmark.
 
 - Use exact string and token checks for tiny commands such as `pause`, `play`, `stop`, and `resume`.
-- Use `Scanner` for command shapes with a verb and a free-form remainder, such as `open Safari`, `launch Xcode`, `start Music`, `close this window`, and `focus next window`.
+- Use `Scanner` for command shapes with a verb and a free-form remainder, such as `open Safari`, `launch Xcode`, `start Music`, `close this window`, `close Safari`, and `focus next window`.
 - Use cached `NSRegularExpression` values for anchored patterns when scanner parsing becomes awkward or needs grouped captures.
 - Use Swift Regex or RegexBuilder only where readability clearly wins and the path is not hot.
 - Fall back to the learned classifier only when deterministic matching returns no route.
@@ -90,7 +90,8 @@ The app executor should stay behind an `ApplicationExecutionClient` so tests can
 - NSWorkspace should be the first workspace context provider, tracking running apps and app activation changes without executing app actions in the routing stage.
 - Focused UI control detection should be layered onto workspace context after the runtime owner exists, likely through Accessibility APIs that read the focused element for the frontmost app.
 - Focused-window `close`, `minimize`, and `focus` commands execute through Accessibility after permission gating.
-- Non-focused window targets should stay classification-only until selection, cycling, or app-specific window targeting is designed explicitly.
+- Running-app window targets such as `close Safari` execute against that app's main or focused Accessibility window. This means `close Safari` closes Safari's frontmost/main window; `quit Safari` remains a separate future app command.
+- Selection and cycling targets such as next, previous, or indicated windows should stay classification-only until selection and cycling behavior is designed explicitly.
 - Window control requires Accessibility permission before execution; classification can still identify the route before that permission is granted.
 - Bare `close` and `minimize` commands target the focused window.
 - FunctionGemma should sit after route narrowing as a small function-call formatter for constrained tool schemas, not as the first consumer of raw partial transcription.

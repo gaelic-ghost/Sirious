@@ -41,6 +41,27 @@ struct FirstStageContextResolverTests {
         #expect(target == .window(.nextWindow))
     }
 
+    @Test("window target resolver maps running app main window")
+    func windowTargetResolverMapsRunningAppMainWindow() {
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: nil,
+            processIdentifier: 42,
+            isActive: false
+        )
+        let resolver = WindowTargetResolver(
+            workspace: WorkspaceSnapshot(
+                runningApplications: [application],
+                frontmostApplication: nil
+            )
+        )
+
+        let target = resolver.target(named: "the Safari window")
+
+        #expect(target == .window(.applicationMainWindow(application)))
+    }
+
     @Test("live system context provider combines audio and workspace providers")
     func liveSystemContextProviderCombinesAudioAndWorkspaceProviders() async {
         let workspace = WorkspaceSnapshot(

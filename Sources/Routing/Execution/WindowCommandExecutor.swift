@@ -3,28 +3,22 @@ import Foundation
 
 @MainActor
 struct WindowCommandExecutor: WindowCommandExecuting {
-    var targetReader: any FocusedWindowTargetReading
-    var controller: any FocusedWindowControlling
+    var targetReader: any WindowTargetReading
+    var controller: any WindowControlling
 
     init(
-        targetReader: any FocusedWindowTargetReading = AXFocusedWindowTargetReader(),
-        controller: any FocusedWindowControlling = AXFocusedWindowController()
+        targetReader: any WindowTargetReading = AXWindowTargetReader(),
+        controller: any WindowControlling = AXWindowController()
     ) {
         self.targetReader = targetReader
         self.controller = controller
     }
 
     func execute(_ request: WindowCommandExecutionRequest) async -> CommandExecutionResult {
-        guard request.target == .focusedWindow else {
-            return CommandExecutionResult(
-                outcome: .skipped,
-                message: "Sirious routed \(request.command.rawValue) for \(request.target.description), but only focused-window execution is implemented right now."
-            )
-        }
-        guard let target = targetReader.focusedWindowTarget() else {
+        guard let target = targetReader.windowTarget(for: request.target) else {
             return CommandExecutionResult(
                 outcome: .failed,
-                message: "Sirious could not control the focused window because macOS did not provide a focused Accessibility window. Accessibility permission may be missing, the frontmost app may not expose a focused window, or the focused item may not belong to a standard app window."
+                message: "Sirious could not control \(request.target.description) because macOS did not provide a matching Accessibility window. Accessibility permission may be missing, the target app may not expose a main window, or the target may not belong to a standard app window."
             )
         }
 
@@ -44,24 +38,35 @@ struct WindowCommandExecutor: WindowCommandExecuting {
     }
 }
 
-struct FocusedWindowTarget {
+struct WindowExecutionTarget {
     var element: AXUIElement
 }
 
 @MainActor
-protocol FocusedWindowTargetReading {
-    func focusedWindowTarget() -> FocusedWindowTarget?
+protocol WindowTargetReading {
+    func windowTarget(for target: WindowTarget) -> WindowExecutionTarget?
 }
 
-struct AXFocusedWindowTargetReader: FocusedWindowTargetReading {
-    func focusedWindowTarget() -> FocusedWindowTarget? {
+struct AXWindowTargetReader: WindowTargetReading {
+    func windowTarget(for target: WindowTarget) -> WindowExecutionTarget? {
         guard AXIsProcessTrusted() else {
             return nil
         }
 
+        switch target {
+            case .focusedWindow, .indicatedWindow:
+                return focusedWindowTarget()
+            case let .applicationMainWindow(application):
+                return applicationMainWindowTarget(application)
+            case .nextWindow, .previousWindow:
+                return nil
+        }
+    }
+
+    private func focusedWindowTarget() -> WindowExecutionTarget? {
         let systemElement = AXUIElementCreateSystemWide()
         if let window = axElementAttribute(kAXFocusedWindowAttribute as CFString, from: systemElement) {
-            return FocusedWindowTarget(element: window)
+            return WindowExecutionTarget(element: window)
         }
 
         guard let application = axElementAttribute(kAXFocusedApplicationAttribute as CFString, from: systemElement),
@@ -70,7 +75,24 @@ struct AXFocusedWindowTargetReader: FocusedWindowTargetReading {
             return nil
         }
 
-        return FocusedWindowTarget(element: window)
+        return WindowExecutionTarget(element: window)
+    }
+
+    private func applicationMainWindowTarget(_ application: ApplicationSnapshot) -> WindowExecutionTarget? {
+        guard let processIdentifier = application.processIdentifier else {
+            return nil
+        }
+
+        let applicationElement = AXUIElementCreateApplication(processIdentifier)
+        if let mainWindow = axElementAttribute(kAXMainWindowAttribute as CFString, from: applicationElement) {
+            return WindowExecutionTarget(element: mainWindow)
+        }
+
+        guard let focusedWindow = axElementAttribute(kAXFocusedWindowAttribute as CFString, from: applicationElement) else {
+            return nil
+        }
+
+        return WindowExecutionTarget(element: focusedWindow)
     }
 
     private func axElementAttribute(_ attribute: CFString, from element: AXUIElement) -> AXUIElement? {
@@ -89,14 +111,14 @@ struct AXFocusedWindowTargetReader: FocusedWindowTargetReading {
 }
 
 @MainActor
-protocol FocusedWindowControlling {
-    func close(_ target: FocusedWindowTarget) -> CommandExecutionResult
-    func minimize(_ target: FocusedWindowTarget) -> CommandExecutionResult
-    func focus(_ target: FocusedWindowTarget) -> CommandExecutionResult
+protocol WindowControlling {
+    func close(_ target: WindowExecutionTarget) -> CommandExecutionResult
+    func minimize(_ target: WindowExecutionTarget) -> CommandExecutionResult
+    func focus(_ target: WindowExecutionTarget) -> CommandExecutionResult
 }
 
-struct AXFocusedWindowController: FocusedWindowControlling {
-    func close(_ target: FocusedWindowTarget) -> CommandExecutionResult {
+struct AXWindowController: WindowControlling {
+    func close(_ target: WindowExecutionTarget) -> CommandExecutionResult {
         if let closeButton = axElementAttribute(kAXCloseButtonAttribute as CFString, from: target.element) {
             let result = AXUIElementPerformAction(closeButton, kAXPressAction as CFString)
             guard result == .success else {
@@ -126,7 +148,7 @@ struct AXFocusedWindowController: FocusedWindowControlling {
         )
     }
 
-    func minimize(_ target: FocusedWindowTarget) -> CommandExecutionResult {
+    func minimize(_ target: WindowExecutionTarget) -> CommandExecutionResult {
         let setMinimizedResult = AXUIElementSetAttributeValue(
             target.element,
             kAXMinimizedAttribute as CFString,
@@ -160,7 +182,7 @@ struct AXFocusedWindowController: FocusedWindowControlling {
         )
     }
 
-    func focus(_ target: FocusedWindowTarget) -> CommandExecutionResult {
+    func focus(_ target: WindowExecutionTarget) -> CommandExecutionResult {
         let result = AXUIElementPerformAction(target.element, kAXRaiseAction as CFString)
         guard result == .success else {
             return CommandExecutionResult(
@@ -201,6 +223,8 @@ extension WindowTarget {
                 "the next window"
             case .previousWindow:
                 "the previous window"
+            case let .applicationMainWindow(application):
+                "\(application.displayName)'s main window"
         }
     }
 }

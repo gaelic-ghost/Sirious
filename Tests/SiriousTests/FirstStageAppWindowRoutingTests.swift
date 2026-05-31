@@ -129,4 +129,60 @@ struct FirstStageAppWindowRoutingTests {
         #expect(minimizeMatch.command == .minimizeWindow)
         #expect(minimizeMatch.target == .window(.focusedWindow))
     }
+
+    @Test("close app command targets running app main window")
+    func closeAppCommandTargetsRunningAppMainWindow() async {
+        let application = ApplicationSnapshot(
+            displayName: "Safari",
+            bundleIdentifier: "com.apple.Safari",
+            bundleURL: nil,
+            processIdentifier: 42,
+            isActive: false
+        )
+        let classifier = FirstStageRouteClassifier(
+            context: SystemContextSnapshot(
+                routingMode: .command,
+                focusedControl: .unknown,
+                audio: .unknown,
+                workspace: WorkspaceSnapshot(
+                    runningApplications: [application],
+                    frontmostApplication: nil
+                )
+            )
+        )
+        let event = TranscriptEvent(
+            text: "close Safari",
+            range: nil,
+            isFinal: true,
+            stability: .final,
+            source: .fixture
+        )
+
+        let match = await classifier.classify(event)
+
+        #expect(match.decision.route == .localFunction)
+        #expect(match.decision.domain == .windowControl)
+        #expect(match.decision.risk == .confirm)
+        #expect(match.command == .closeWindow)
+        #expect(match.target == .window(.applicationMainWindow(application)))
+    }
+
+    @Test("unknown app window command falls through to clarify")
+    func unknownAppWindowCommandFallsThroughToClarify() async {
+        let classifier = FirstStageRouteClassifier()
+        let event = TranscriptEvent(
+            text: "close Jellybeans",
+            range: nil,
+            isFinal: true,
+            stability: .final,
+            source: .fixture
+        )
+
+        let match = await classifier.classify(event)
+
+        #expect(match.decision.route == .clarify)
+        #expect(match.decision.domain == .unknown)
+        #expect(match.command == nil)
+        #expect(match.target == nil)
+    }
 }

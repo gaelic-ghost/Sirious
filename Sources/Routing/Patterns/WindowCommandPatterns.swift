@@ -1,18 +1,24 @@
 import Foundation
 
 struct WindowCommandPatterns {
-    private let resolver: WindowTargetResolver
+    init() {}
 
-    init(resolver: WindowTargetResolver = WindowTargetResolver()) {
-        self.resolver = resolver
-    }
+    func match(
+        _ command: NormalizedCommand,
+        event: TranscriptEvent,
+        context: SystemContextSnapshot = .empty
+    ) -> PatternRouteMatch? {
+        let resolver = WindowTargetResolver(workspace: context.workspace)
 
-    func match(_ command: NormalizedCommand, event: TranscriptEvent) -> PatternRouteMatch? {
         if let targetPhrase = parseTarget(command.original, verbs: ["close"]) {
+            guard let target = resolver.target(named: targetPhrase) else {
+                return nil
+            }
+
             return match(
                 event: event,
                 command: .closeWindow,
-                target: resolver.target(named: targetPhrase),
+                target: target,
                 risk: .confirm,
                 confidence: 0.82,
                 reason: "scanner matched window-close command"
@@ -20,25 +26,46 @@ struct WindowCommandPatterns {
         }
 
         if let targetPhrase = parseTarget(command.original, verbs: ["minimize"]) {
+            guard let target = resolver.target(named: targetPhrase) else {
+                return nil
+            }
+
             return match(
                 event: event,
                 command: .minimizeWindow,
-                target: resolver.target(named: targetPhrase),
+                target: target,
                 risk: .safe,
                 confidence: 0.82,
                 reason: "scanner matched window-minimize command"
             )
         }
 
-        if let targetPhrase = parseTarget(command.original, verbs: ["focus", "switch to", "show"]) {
-            guard targetPhrase.lowercased().contains("window") else {
+        if let targetPhrase = parseTarget(command.original, verbs: ["focus"]) {
+            guard let target = resolver.target(named: targetPhrase) else {
                 return nil
             }
 
             return match(
                 event: event,
                 command: .focusWindow,
-                target: resolver.target(named: targetPhrase),
+                target: target,
+                risk: .safe,
+                confidence: 0.78,
+                reason: "scanner matched window-focus command"
+            )
+        }
+
+        if let targetPhrase = parseTarget(command.original, verbs: ["switch to", "show"]) {
+            guard targetPhrase.lowercased().contains("window"),
+                  let target = resolver.target(named: targetPhrase)
+            else {
+                return nil
+            }
+
+            return match(
+                event: event,
+                command: .focusWindow,
+                target: target,
                 risk: .safe,
                 confidence: 0.78,
                 reason: "scanner matched window-focus command"
@@ -85,10 +112,6 @@ struct WindowCommandPatterns {
 
         if remainder.isEmpty {
             return "focused window"
-        }
-
-        guard remainder.lowercased().contains("window") else {
-            return nil
         }
 
         return remainder

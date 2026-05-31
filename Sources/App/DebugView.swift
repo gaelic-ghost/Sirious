@@ -371,6 +371,8 @@ struct DebugView: View {
                 "Next Window"
             case .previousWindow:
                 "Previous Window"
+            case let .applicationMainWindow(application):
+                "\(application.displayName) Main Window"
         }
     }
 }

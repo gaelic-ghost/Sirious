@@ -26,7 +26,7 @@ struct PatternCommandRouter {
     ) -> PatternRouteMatch? {
         textPatterns.match(command, event: event, context: context)
             ?? dictionaryPatterns.match(command, event: event)
-            ?? windowPatterns.match(command, event: event)
+            ?? windowPatterns.match(command, event: event, context: context)
             ?? AppCommandPatterns(
                 workspace: context.workspace,
                 installedApplications: installedApplications

@@ -81,13 +81,13 @@ In Progress
 - [ ] Add deterministic allowlisted Services commands for examples like `summarize selection`, `search with Spotlight`, and `show map` after Debug can explain Service eligibility.
 - [ ] Add Shortcuts import as an opt-in custom-command source, starting with exact phrase matching against shortcut names and identifiers.
 - [ ] Add Spotlight-backed app and content search providers for command target enrichment without treating Spotlight as an implicit executor.
-- [x] Add no-op-to-real executor transitions for focused-window control after Accessibility permission is trusted.
+- [x] Add no-op-to-real executor transitions for focused-window and running-app main-window control after Accessibility permission is trusted.
 - [ ] Add media command execution through the safest available now-playing or media-control surface.
 - [ ] Add app-specific default text field focus strategies for predictable compose or search targets.
 
 ### Exit Criteria
 
-- [ ] App, text, dictionary, and focused-window commands have typed execution requests and useful operator-facing failures; media is still pending real execution.
+- [ ] App, text, dictionary, focused-window, and running-app main-window commands have typed execution requests and useful operator-facing failures; media is still pending real execution.
 - [ ] Secure or permission-gated contexts refuse execution clearly instead of silently falling back.
 - [ ] Common text-entry targets have been manually checked before relying on pasteboard fallback heavily.
 
@@ -133,7 +133,7 @@ Planned
 - [ ] Add onboarding for Accessibility, home folder access, Login Item setup, microphone access, speech recognition, and future input-monitoring permissions.
 - [ ] Add a trained classifier or model fallback after deterministic routing has stable evaluation cases.
 - [ ] Add a benchmark suite for string checks, `Scanner`, `NSRegularExpression`, and Swift Regex.
-- [ ] Add broad natural-language window targeting after focused-window commands work reliably.
+- [ ] Add broad natural-language window targeting after focused-window and running-app main-window commands work reliably.
 
 ## History
 
