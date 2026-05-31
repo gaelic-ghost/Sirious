@@ -77,6 +77,10 @@ In Progress
 - [x] Harden pasteboard fallback by preserving and restoring richer pasteboard contents.
 - [ ] Manually validate pasteboard fallback against common native and Electron text fields.
 - [ ] Add deterministic dictionary commands for examples like `define apple`, `define well-being`, and `define fast local routing` using [CoreServices Dictionary Services](https://developer.apple.com/documentation/coreservices/dictionary_services), starting with `DCSCopyTextDefinition` and `DCSGetTermRangeInString`.
+- [ ] Add a catalog-only discovery spike for macOS Services, Shortcuts, App Intent surfaces mediated through Shortcuts or Spotlight, and Spotlight search results; see [System Command Surfaces Plan](./Docs/Architecture/SystemCommandSurfacesPlan.md).
+- [ ] Add deterministic allowlisted Services commands for examples like `summarize selection`, `search with Spotlight`, and `show map` after Debug can explain Service eligibility.
+- [ ] Add Shortcuts import as an opt-in custom-command source, starting with exact phrase matching against shortcut names and identifiers.
+- [ ] Add Spotlight-backed app and content search providers for command target enrichment without treating Spotlight as an implicit executor.
 - [ ] Add no-op-to-real executor transitions for focused-window control after Accessibility permission is trusted.
 - [ ] Add media command execution through the safest available now-playing or media-control surface.
 - [ ] Add app-specific default text field focus strategies for predictable compose or search targets.
@@ -120,6 +124,8 @@ Planned
 
 - [ ] Add custom-command definitions with trigger phrases, aliases, required context, ordered steps, and risk metadata.
 - [ ] Add Core Data persistence for custom command definitions and multi-step command recipes after the in-memory catalog protocol settles.
+- [ ] Add Sirious-owned App Intents for high-value app actions after the internal command model stabilizes.
+- [ ] Investigate user-reviewed enablement for imported Services and Shortcuts before they can route from speech.
 - [ ] Add dictation pause cleanup and text post-processing profiles so ordinary voice typing can be corrected during pauses without a large editing-command grammar.
 - [ ] Add real text-editing execution only where post-processing cannot handle the job naturally.
 - [ ] Evaluate FunctionGemma after deterministic narrowing as a constrained function-call formatter, not as the raw first-stage classifier.
@@ -133,3 +139,4 @@ Planned
 
 - Migrated the roadmap to the canonical checklist schema and grouped existing work into milestone sections.
 - Added deterministic dictionary commands as planned local command-execution work.
+- Added the system command surfaces plan for Services, Shortcuts, App Intents, and Spotlight-backed command discovery.
