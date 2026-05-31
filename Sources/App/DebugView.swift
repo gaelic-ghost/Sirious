@@ -84,30 +84,46 @@ struct DebugView: View {
                 }
                 .disabled(runtime.systemCommandCatalog.isRefreshing)
 
-                ForEach(runtime.systemCommandCatalog.issues.prefix(3)) { issue in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(issueSummary(issue))
-                            .monospaced()
+                if runtime.systemCommandCatalog.issues.isEmpty == false {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Catalog Issues")
+                            .font(.headline)
 
-                        if let recoveryHint = issue.recoveryHint {
-                            Text(recoveryHint)
-                                .foregroundStyle(.secondary)
+                        ForEach(runtime.systemCommandCatalog.issues.prefix(3)) { issue in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(issueSummary(issue))
+                                    .monospaced()
+
+                                if let recoveryHint = issue.recoveryHint {
+                                    Text(recoveryHint)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                         }
                     }
                 }
 
-                ForEach(runtime.systemCommandCatalog.candidates.prefix(12)) { candidate in
+                ForEach(SystemCommandSource.catalogDisplayOrder, id: \.self) { source in
+                    let candidates = systemCommandCandidates(from: source)
+
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(candidate.displayName)
+                        Text("\(source.displayName): \(candidates.count)")
                             .font(.headline)
 
-                        Text(systemCommandSummary(candidate))
-                            .foregroundStyle(.secondary)
-                            .monospaced()
+                        ForEach(candidates.prefix(4)) { candidate in
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(candidate.displayName)
+                                    .font(.subheadline)
 
-                        if let detail = candidate.detail {
-                            Text(detail)
-                                .foregroundStyle(.secondary)
+                                Text(systemCommandSummary(candidate))
+                                    .foregroundStyle(.secondary)
+                                    .monospaced()
+
+                                if let detail = candidate.detail {
+                                    Text(detail)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                         }
                     }
                 }
@@ -280,10 +296,15 @@ struct DebugView: View {
 
     private func systemCommandSummary(_ candidate: SystemCommandCandidate) -> String {
         [
-            candidate.source.displayName,
             "risk \(candidate.risk.rawValue)",
             "context \(candidate.requiredContext.displayName)",
         ].joined(separator: " / ")
+    }
+
+    private func systemCommandCandidates(from source: SystemCommandSource) -> [SystemCommandCandidate] {
+        runtime.systemCommandCatalog.candidates.filter { candidate in
+            candidate.source == source
+        }
     }
 
     private func transcriptionStateDescription(_ state: TranscriptionRuntimeState) -> String {

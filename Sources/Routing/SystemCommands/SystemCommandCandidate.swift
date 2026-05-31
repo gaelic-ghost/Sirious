@@ -1,6 +1,6 @@
 import Foundation
 
-enum SystemCommandSource: String, Equatable {
+enum SystemCommandSource: String, CaseIterable, Equatable {
     case service
     case shortcut
     case spotlightResult = "spotlight_result"
@@ -17,6 +17,10 @@ enum SystemCommandSource: String, Equatable {
             case .appIntentViaShortcut:
                 "App Intent via Shortcut"
         }
+    }
+
+    static var catalogDisplayOrder: [SystemCommandSource] {
+        [.service, .shortcut, .spotlightResult, .appIntentViaShortcut]
     }
 }
 
