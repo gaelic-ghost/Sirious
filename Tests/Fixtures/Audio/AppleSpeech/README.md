@@ -10,16 +10,17 @@ This directory is reserved for curated Sirious audio fixtures that are safe to c
 - Keep scratch audio generated during local experimentation outside the repository.
 - Keep real Apple Speech recognition against these files behind `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1` so normal validation does not depend on local speech-recognition permission or recognizer availability.
 
-## Planned Manifest Shape
+## Manifest Shape
 
-The checked-in manifest should be JSON and should live beside the fixtures. Each entry should include:
+The checked-in manifest is JSON and lives beside the fixtures. Each entry includes:
 
 - `id`: stable fixture identifier.
 - `file`: relative audio file path.
 - `expectedPhrase`: phrase the recognizer should produce or contain.
 - `locale`: recognition locale, starting with `en_US`.
 - `format`: audio container or codec, starting with `mp3`.
-- `durationSeconds`: approximate fixture duration.
+- `durationSeconds`: fixture duration.
+- `byteCount`: fixture size in bytes.
 - `sha256`: checksum for drift detection.
 - `source`: generator name, voice identifier, and generation notes.
 - `intendedRoute`: route family the phrase should exercise.

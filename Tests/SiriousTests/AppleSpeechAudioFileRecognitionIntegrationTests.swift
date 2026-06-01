@@ -4,6 +4,13 @@ import Testing
 
 @MainActor
 struct AppleSpeechAudioFileRecognitionIntegrationTests {
+    private static var checkedInFixtureRoot: URL {
+        URL(filePath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appending(path: "Fixtures/Audio/AppleSpeech")
+    }
+
     @Test("Apple Speech recognizes generated audio fixtures when provided")
     func appleSpeechRecognizesGeneratedAudioFixturesWhenProvided() async throws {
         let fixtures = audioFixturesFromEnvironment()
@@ -25,10 +32,24 @@ struct AppleSpeechAudioFileRecognitionIntegrationTests {
     }
 
     private func audioFixturesFromEnvironment() -> [AudioFixture] {
-        let specification = ProcessInfo.processInfo.environment["SIRIOUS_AUDIO_FIXTURES"]
+        let environment = ProcessInfo.processInfo.environment
+        let specification = environment["SIRIOUS_AUDIO_FIXTURES"]
             ?? audioFixturesFromTemporaryManifest()
 
-        return specification
+        let explicitFixtures = fixtures(from: specification)
+        if !explicitFixtures.isEmpty {
+            return explicitFixtures
+        }
+
+        guard environment["SIRIOUS_RUN_APPLE_SPEECH_FIXTURES"] == "1" else {
+            return []
+        }
+
+        return audioFixturesFromCheckedInManifest()
+    }
+
+    private func fixtures(from specification: String) -> [AudioFixture] {
+        specification
             .split(separator: "\n")
             .compactMap { entry in
                 let parts = entry.split(separator: "|", maxSplits: 2).map(String.init)
@@ -42,6 +63,23 @@ struct AppleSpeechAudioFileRecognitionIntegrationTests {
                     url: URL(filePath: parts[2])
                 )
             }
+    }
+
+    private func audioFixturesFromCheckedInManifest() -> [AudioFixture] {
+        guard let manifest = try? JSONDecoder().decode(
+            CheckedInAudioFixtureManifest.self,
+            from: Data(contentsOf: Self.checkedInFixtureRoot.appending(path: "fixtures.json"))
+        ) else {
+            return []
+        }
+
+        return manifest.fixtures.map { fixture in
+            AudioFixture(
+                name: fixture.id,
+                expectedPhrase: fixture.expectedPhrase,
+                url: Self.checkedInFixtureRoot.appending(path: fixture.file)
+            )
+        }
     }
 
     private func audioFixturesFromTemporaryManifest() -> String {
@@ -59,4 +97,14 @@ private struct AudioFixture: Equatable {
     var name: String
     var expectedPhrase: String
     var url: URL
+}
+
+private struct CheckedInAudioFixtureManifest: Decodable {
+    var fixtures: [CheckedInAudioFixture]
+}
+
+private struct CheckedInAudioFixture: Decodable {
+    var id: String
+    var file: String
+    var expectedPhrase: String
 }

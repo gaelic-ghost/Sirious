@@ -168,9 +168,10 @@ Planned
 ### Tickets
 
 - [x] Document the real-app and routed-audio test strategy in [Real App Testing Plan](./Docs/Architecture/RealAppTestingPlan.md).
-- [ ] Add `Tests/Fixtures/Audio/AppleSpeech`, a checked-in JSON fixture manifest, and a local fixture-catalog reader.
-- [ ] Promote a tiny first MP3 fixture corpus into the repository and keep Apple Speech recognition gated behind `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1`.
-- [ ] Add metadata-only fixture tests that validate manifest parsing, file paths, checksums, expected phrases, locales, and intended routes without invoking Apple Speech.
+- [x] Add `Tests/Fixtures/Audio/AppleSpeech`, a checked-in JSON fixture manifest, and the first local fixture-catalog reader.
+- [x] Promote a tiny first MP3 fixture corpus into the repository and keep Apple Speech recognition gated behind `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1`.
+- [x] Add metadata-only fixture tests that validate manifest parsing, file paths, checksums, expected phrases, locales, and intended routes without invoking Apple Speech.
+- [ ] Add a versioned `.xctestplan` with an ordinary configuration and a local Apple Speech fixture-recognition configuration.
 - [ ] Add a local-only real-app scenario model with explicit opt-in gating, setup, expectations, cleanup, and artifact reporting.
 - [ ] Add TextEdit scenarios for native text insertion, selected-text replacement, and pasteboard restoration.
 - [ ] Add Safari and Zed scenarios after the TextEdit driver proves the scenario shape.
@@ -211,3 +212,4 @@ Planned
 - Added a planned milestone for custom command recipes and Stage Manager-friendly saved window layouts.
 - Added deterministic allowlisted Services routing and execution for selected-text commands.
 - Added the real-app testing lab plan for generated audio, routed audio, real app targets, and supervised desktop recovery.
+- Added the first checked-in paired MP3 fixture corpus for Apple Speech recognition checks.

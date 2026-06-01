@@ -1,4 +1,175 @@
 {
   "version": 1,
-  "fixtures": []
+  "description": "Curated Sirious Apple Speech audio fixtures generated with SpeakSwiftlyServer for local recognition regression checks.",
+  "generatedAt": "2026-06-01T00:21:00Z",
+  "generator": {
+    "service": "SpeakSwiftlyServer",
+    "backend": "qwen3_big_8bit",
+    "sampleRate": 24000,
+    "sourceFormat": "wav",
+    "checkedInFormat": "mp3",
+    "mp3BitrateKbps": 64
+  },
+  "fixtures": [
+    {
+      "id": "open-safari-swift-signal",
+      "file": "open-safari-swift-signal.mp3",
+      "expectedPhrase": "open Safari",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.176,
+      "byteCount": 9600,
+      "sha256": "9b52534c29f405f04e53cc7f13bcdadb2df14de1a867e89e79fc684a851661a4",
+      "source": {
+        "voiceProfile": "swift-signal",
+        "artifactId": "sirious-open-safari-swift-signal",
+        "text": "open Safari"
+      },
+      "intendedRoute": "app.open"
+    },
+    {
+      "id": "open-safari-swift-anchor",
+      "file": "open-safari-swift-anchor.mp3",
+      "expectedPhrase": "open Safari",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.176,
+      "byteCount": 9600,
+      "sha256": "bfd55d4e7af148b9f0214f21257080b5850d86e8b937100bf706344b0017c6e8",
+      "source": {
+        "voiceProfile": "swift-anchor",
+        "artifactId": "sirious-open-safari-swift-anchor",
+        "text": "open Safari"
+      },
+      "intendedRoute": "app.open"
+    },
+    {
+      "id": "pause-swift-signal",
+      "file": "pause-swift-signal.mp3",
+      "expectedPhrase": "pause",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.008,
+      "byteCount": 8256,
+      "sha256": "d403e2b291c40de741869dc4588d62aa111cb08f29120cffd5e8f8cb28fa6106",
+      "source": {
+        "voiceProfile": "swift-signal",
+        "artifactId": "sirious-pause-swift-signal",
+        "text": "pause"
+      },
+      "intendedRoute": "media.pause"
+    },
+    {
+      "id": "pause-swift-anchor",
+      "file": "pause-swift-anchor.mp3",
+      "expectedPhrase": "pause",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 0.696,
+      "byteCount": 5760,
+      "sha256": "bfdee5bd5d25353bf7008f5a98d33939b2329f97657b3fac2f2633856abd768d",
+      "source": {
+        "voiceProfile": "swift-anchor",
+        "artifactId": "sirious-pause-swift-anchor",
+        "text": "pause"
+      },
+      "intendedRoute": "media.pause"
+    },
+    {
+      "id": "type-hello-world-swift-signal",
+      "file": "type-hello-world-swift-signal.mp3",
+      "expectedPhrase": "type hello world",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.344,
+      "byteCount": 10944,
+      "sha256": "bcef3037d564d8ed997b9ceec1b50383b122cc27d38a14effc0008612459371e",
+      "source": {
+        "voiceProfile": "swift-signal",
+        "artifactId": "sirious-type-hello-world-swift-signal",
+        "text": "type hello world"
+      },
+      "intendedRoute": "text.insert"
+    },
+    {
+      "id": "type-hello-world-swift-anchor",
+      "file": "type-hello-world-swift-anchor.mp3",
+      "expectedPhrase": "type hello world",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.584,
+      "byteCount": 12864,
+      "sha256": "4b4f854efd63bee942cffe8b004404bb9b91f93b46decaf78746e58412fc7f26",
+      "source": {
+        "voiceProfile": "swift-anchor",
+        "artifactId": "sirious-type-hello-world-swift-anchor",
+        "text": "type hello world"
+      },
+      "intendedRoute": "text.insert"
+    },
+    {
+      "id": "define-apple-swift-signal",
+      "file": "define-apple-swift-signal.mp3",
+      "expectedPhrase": "define apple",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.248,
+      "byteCount": 10176,
+      "sha256": "ba743959b1bddf8d4243ebcd029dd5c455cca122be1fd7f43ceb5e0587efed8f",
+      "source": {
+        "voiceProfile": "swift-signal",
+        "artifactId": "sirious-define-apple-swift-signal",
+        "text": "define apple"
+      },
+      "intendedRoute": "dictionary.define"
+    },
+    {
+      "id": "define-apple-swift-anchor",
+      "file": "define-apple-swift-anchor.mp3",
+      "expectedPhrase": "define apple",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.584,
+      "byteCount": 12864,
+      "sha256": "ece4c0608e198f4b4b531ca1c6a6aeda73e3fc672eb2bbf14f4de2be895a55da",
+      "source": {
+        "voiceProfile": "swift-anchor",
+        "artifactId": "sirious-define-apple-swift-anchor",
+        "text": "define apple"
+      },
+      "intendedRoute": "dictionary.define"
+    },
+    {
+      "id": "summarize-selection-swift-signal",
+      "file": "summarize-selection-swift-signal.mp3",
+      "expectedPhrase": "summarize selection",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.584,
+      "byteCount": 12864,
+      "sha256": "c6375d144ee1aac881baf6fe44ac31ca316bc8ef5f8cd24dd6f643abf51bd96d",
+      "source": {
+        "voiceProfile": "swift-signal",
+        "artifactId": "sirious-summarize-selection-swift-signal",
+        "text": "summarize selection"
+      },
+      "intendedRoute": "systemService.summarizeSelection"
+    },
+    {
+      "id": "summarize-selection-swift-anchor",
+      "file": "summarize-selection-swift-anchor.mp3",
+      "expectedPhrase": "summarize selection",
+      "locale": "en_US",
+      "format": "mp3",
+      "durationSeconds": 1.656,
+      "byteCount": 13440,
+      "sha256": "e5b6dbdb084a125999afb9bf0245552e68ce341b4e82fff20144f5fb64db6c5b",
+      "source": {
+        "voiceProfile": "swift-anchor",
+        "artifactId": "sirious-summarize-selection-swift-anchor",
+        "text": "summarize selection"
+      },
+      "intendedRoute": "systemService.summarizeSelection"
+    }
+  ]
 }

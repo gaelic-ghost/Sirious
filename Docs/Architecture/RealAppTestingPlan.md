@@ -139,6 +139,8 @@ Initial gate names:
 - `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` enables local-only target-app scenarios.
 - `SIRIOUS_RUN_ROUTED_AUDIO_SCENARIOS=1` enables local-only virtual microphone routing scenarios.
 
+Command-line `xcodebuild` runs do not reliably pass shell environment variables into the hosted test process in this project shape. Until a versioned `.xctestplan` exists, the `/tmp/sirious-audio-fixtures.txt` scratch manifest remains the practical command-line gate for local Apple Speech smoke checks.
+
 ## Initial Scenario Matrix
 
 | Scenario | Layer | Target | Expected Result | Automation Level |
@@ -173,15 +175,16 @@ Cleanup failures should be reported as first-class test diagnostics. They should
 
 1. Add `Tests/Fixtures/Audio/AppleSpeech`, a checked-in JSON manifest, and a fixture-catalog reader.
 2. Add a metadata-only test that validates fixture paths, checksums, expected phrases, locales, and intended routes without invoking Apple Speech.
-3. Promote a tiny first MP3 fixture set into the repository and validate it once with `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1`.
+3. Promote a tiny first MP3 fixture set into the repository and validate it once with the explicit local Apple Speech manifest path.
 4. Replace the temporary pipe-delimited manifest parser with the typed fixture catalog while preserving local manifest support for scratch files.
-5. Add a local-only `TargetAppScenario` model with explicit gating and cleanup reporting.
-6. Add the first TextEdit scenario for native text insertion and selected-text replacement.
-7. Add Safari, Zed, and one Electron-style scenario after TextEdit proves the shape.
-8. Add generated-audio fixture production through Gale's TTS service once that service is loaded for this work.
-9. Add audio-route detection for Loopback and Audio Hijack before attempting automatic route setup.
-10. Add supervised routed-audio scenarios that play generated command audio through the virtual microphone path.
-11. Add Computer Use notes and recovery hooks only for scenarios where app automation or audio tooling leaves a real gap.
+5. Add a versioned `.xctestplan` with named configurations for ordinary tests and local Apple Speech fixture recognition.
+6. Add a local-only `TargetAppScenario` model with explicit gating and cleanup reporting.
+7. Add the first TextEdit scenario for native text insertion and selected-text replacement.
+8. Add Safari, Zed, and one Electron-style scenario after TextEdit proves the shape.
+9. Add generated-audio fixture production through Gale's TTS service once that service is loaded for this work.
+10. Add audio-route detection for Loopback and Audio Hijack before attempting automatic route setup.
+11. Add supervised routed-audio scenarios that play generated command audio through the virtual microphone path.
+12. Add Computer Use notes and recovery hooks only for scenarios where app automation or audio tooling leaves a real gap.
 
 ## Non-Goals
 
