@@ -11,6 +11,7 @@ Sirious is currently focused on fast, local-first voice-command routing for macO
 - [Milestone 1: Local Command Execution](#milestone-1-local-command-execution)
 - [Milestone 2: Speech Activation And ASR](#milestone-2-speech-activation-and-asr)
 - [Milestone 3: Custom Commands And Window Layouts](#milestone-3-custom-commands-and-window-layouts)
+- [Milestone 4: Real App Testing Lab](#milestone-4-real-app-testing-lab)
 - [Backlog Candidates](#backlog-candidates)
 - [History](#history)
 
@@ -34,6 +35,7 @@ Sirious is currently focused on fast, local-first voice-command routing for macO
 - Milestone 1: Local Command Execution - In Progress
 - Milestone 2: Speech Activation And ASR - Planned
 - Milestone 3: Custom Commands And Window Layouts - Planned
+- Milestone 4: Real App Testing Lab - Planned
 
 ## Milestone 0: Routing Foundation
 
@@ -153,6 +155,38 @@ Planned
 - [ ] Layout restoration handles missing apps, missing windows, permission failures, and Stage Manager limitations with clear runtime issues instead of silent partial success.
 - [ ] The same recipe model can support ordinary custom multi-step commands, not only window layouts.
 
+## Milestone 4: Real App Testing Lab
+
+### Status
+
+Planned
+
+### Scope
+
+- [ ] Build a local-only validation harness for real app targets, generated speech fixtures, routed audio, and supervised desktop recovery while keeping normal validation deterministic and safe.
+
+### Tickets
+
+- [x] Document the real-app and routed-audio test strategy in [Real App Testing Plan](./Docs/Architecture/RealAppTestingPlan.md).
+- [ ] Add a checked-in audio-fixture manifest description and a local fixture-catalog reader.
+- [ ] Add a local-only real-app scenario model with explicit opt-in gating, setup, expectations, cleanup, and artifact reporting.
+- [ ] Add TextEdit scenarios for native text insertion, selected-text replacement, and pasteboard restoration.
+- [ ] Add Safari and Zed scenarios after the TextEdit driver proves the scenario shape.
+- [ ] Add one Electron-style pasteboard fallback scenario for common chat or compose fields.
+- [ ] Add a selected-text Services scenario that validates allowlisted Services against real app selection state.
+- [ ] Add generated-audio fixture production through Gale's TTS service when that service is loaded for this work.
+- [ ] Add Loopback and Audio Hijack route detection before attempting any automatic audio setup.
+- [ ] Add supervised routed-audio scenarios that play generated command audio through a virtual microphone into Sirious.
+- [ ] Add Computer Use setup, observation, and recovery notes for scenarios where Accessibility or app automation leaves a real gap.
+- [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
+
+### Exit Criteria
+
+- [ ] At least one native target and one Electron-style target validate text execution against a real focused field.
+- [ ] Audio-file recognition and routed microphone-like audio both cover a small stable command set.
+- [ ] Local-only tests can be skipped safely by ordinary validation without failing or controlling live apps.
+- [ ] Failures record app, focus, route, transcript, execution, cleanup, and audio-route context clearly enough to diagnose the broken step.
+
 ## Backlog Candidates
 
 - [ ] Add Sirious-owned App Intents for high-value app actions after the internal command model stabilizes.
@@ -174,3 +208,4 @@ Planned
 - Added the first catalog-only system command discovery slice with Debug visibility and no execution.
 - Added a planned milestone for custom command recipes and Stage Manager-friendly saved window layouts.
 - Added deterministic allowlisted Services routing and execution for selected-text commands.
+- Added the real-app testing lab plan for generated audio, routed audio, real app targets, and supervised desktop recovery.

@@ -71,6 +71,8 @@ xcodebuild -project Sirious.xcodeproj -scheme Sirious -configuration Debug -dest
 
 Run local Apple Speech audio-fixture recognition by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`, then running the normal test command. Without that manifest, the integration test exits without touching Apple Speech.
 
+Real-app and routed-audio testing is planned in [Real App Testing Plan](./Docs/Architecture/RealAppTestingPlan.md). Those scenarios are intended to stay local-only and explicitly gated because they can touch live apps, Accessibility focus, microphone state, and user-configured audio routes.
+
 Install the local SwiftFormat pre-commit hook:
 
 ```sh
@@ -84,7 +86,7 @@ Project planning lives in [ROADMAP.md](./ROADMAP.md). Architecture notes live un
 ```text
 .
 ├── Config/                 # Shared Xcode build settings
-├── Docs/Architecture/      # Routing and architecture notes
+├── Docs/Architecture/      # Routing, command surface, and testing architecture notes
 ├── Sources/
 │   ├── App/                # SwiftUI app, settings, debug, and menu bar views
 │   ├── Permissions/        # Sandbox, Accessibility, and file-access helpers
