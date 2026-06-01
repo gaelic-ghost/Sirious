@@ -133,13 +133,12 @@ Records the selected scenarios, local gates, app versions when discoverable, foc
 
 Keeps local-only tests opt-in. The gate should require an environment variable, test-plan configuration, or explicit local manifest so regular validation never tries to control Gale's live apps, invoke Apple Speech permissions, or change audio routes by accident.
 
-Initial gate names:
+Initial gate names and test plans:
 
-- `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1` enables real Apple Speech recognition against checked-in audio files.
+- `Sirious.xctestplan` is the default ordinary test plan and does not invoke Apple Speech recognition unless an explicit scratch manifest exists.
+- `SiriousAppleSpeechFixtures.xctestplan` enables `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1` and runs the checked-in Apple Speech audio fixture recognition test.
 - `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` enables local-only target-app scenarios.
 - `SIRIOUS_RUN_ROUTED_AUDIO_SCENARIOS=1` enables local-only virtual microphone routing scenarios.
-
-Command-line `xcodebuild` runs do not reliably pass shell environment variables into the hosted test process in this project shape. Until a versioned `.xctestplan` exists, the `/tmp/sirious-audio-fixtures.txt` scratch manifest remains the practical command-line gate for local Apple Speech smoke checks.
 
 ## Initial Scenario Matrix
 
@@ -177,7 +176,7 @@ Cleanup failures should be reported as first-class test diagnostics. They should
 2. Add a metadata-only test that validates fixture paths, checksums, expected phrases, locales, and intended routes without invoking Apple Speech.
 3. Promote a tiny first MP3 fixture set into the repository and validate it once with the explicit local Apple Speech manifest path.
 4. Replace the temporary pipe-delimited manifest parser with the typed fixture catalog while preserving local manifest support for scratch files.
-5. Add a versioned `.xctestplan` with named configurations for ordinary tests and local Apple Speech fixture recognition.
+5. Add versioned `.xctestplan` files for ordinary tests and local Apple Speech fixture recognition.
 6. Add a local-only `TargetAppScenario` model with explicit gating and cleanup reporting.
 7. Add the first TextEdit scenario for native text insertion and selected-text replacement.
 8. Add Safari, Zed, and one Electron-style scenario after TextEdit proves the shape.

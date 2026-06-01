@@ -51,6 +51,10 @@ targets:
       testTargets:
         - SiriousTests
         - SiriousUITests
+      testPlans:
+        - path: Sirious.xctestplan
+          defaultPlan: true
+        - path: SiriousAppleSpeechFixtures.xctestplan
   SiriousTests:
     type: bundle.unit-test
     platform: macOS

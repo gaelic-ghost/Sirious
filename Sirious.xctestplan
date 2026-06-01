@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "8F285035-6F47-40F4-8FF2-8CE1C2E69242",
+      "name" : "Ordinary",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Sirious.xcodeproj",
+      "identifier" : "C4B92D384B30AFDB8362F542",
+      "name" : "Sirious"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sirious.xcodeproj",
+        "identifier" : "817F011D0ED9512A5DABBD66",
+        "name" : "SiriousTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sirious.xcodeproj",
+        "identifier" : "90ACFC5E40EA89E225D48F63",
+        "name" : "SiriousUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "4879B4B6-B697-4D2C-99A4-10D72CC40C02",
+      "name" : "Apple Speech Fixtures",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "SIRIOUS_RUN_APPLE_SPEECH_FIXTURES",
+        "value" : "1"
+      }
+    ],
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Sirious.xcodeproj",
+      "identifier" : "C4B92D384B30AFDB8362F542",
+      "name" : "Sirious"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sirious.xcodeproj",
+        "identifier" : "817F011D0ED9512A5DABBD66",
+        "name" : "SiriousTests"
+      }
+    }
+  ],
+  "version" : 1
+}

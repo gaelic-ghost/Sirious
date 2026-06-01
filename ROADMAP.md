@@ -171,7 +171,7 @@ Planned
 - [x] Add `Tests/Fixtures/Audio/AppleSpeech`, a checked-in JSON fixture manifest, and the first local fixture-catalog reader.
 - [x] Promote a tiny first MP3 fixture corpus into the repository and keep Apple Speech recognition gated behind `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1`.
 - [x] Add metadata-only fixture tests that validate manifest parsing, file paths, checksums, expected phrases, locales, and intended routes without invoking Apple Speech.
-- [ ] Add a versioned `.xctestplan` with an ordinary configuration and a local Apple Speech fixture-recognition configuration.
+- [x] Add versioned `.xctestplan` files for ordinary validation and local Apple Speech fixture recognition.
 - [ ] Add a local-only real-app scenario model with explicit opt-in gating, setup, expectations, cleanup, and artifact reporting.
 - [ ] Add TextEdit scenarios for native text insertion, selected-text replacement, and pasteboard restoration.
 - [ ] Add Safari and Zed scenarios after the TextEdit driver proves the scenario shape.
@@ -213,3 +213,4 @@ Planned
 - Added deterministic allowlisted Services routing and execution for selected-text commands.
 - Added the real-app testing lab plan for generated audio, routed audio, real app targets, and supervised desktop recovery.
 - Added the first checked-in paired MP3 fixture corpus for Apple Speech recognition checks.
+- Added versioned test plans for ordinary validation and explicit Apple Speech fixture recognition.
