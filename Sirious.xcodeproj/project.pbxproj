@@ -59,6 +59,7 @@
 		5F44A44679C79B514CFC7801 /* AudioPlaybackSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFB4F379B6EF6D4C1A363E3 /* AudioPlaybackSnapshot.swift */; };
 		60AB98565AB694F1EA8D79B0 /* TranscriptEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CAA83A0445A76839B6BF09 /* TranscriptEvent.swift */; };
 		623B54DD8830B8BC41656F4E /* FirstStageSystemServiceRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6DCBF7F828816D64EAD66E /* FirstStageSystemServiceRoutingTests.swift */; };
+		64C7296F0F49A5CCF8127A1F /* RealAppScenarioSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00D0CD50E437AA7F923C8C5 /* RealAppScenarioSupportTests.swift */; };
 		65042A5AA4D0C75E3B4B6CFA /* InstalledApplicationResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA288069DE0BBA3CCFF577B6 /* InstalledApplicationResolverTests.swift */; };
 		67C10C1068431945EBE67930 /* FirstStageDictionaryRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A028A1B23C7956A50665315F /* FirstStageDictionaryRoutingTests.swift */; };
 		6854E210E8979F7E87B013F0 /* SystemCommandCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92B42F8B22ED5FEB646DB3C /* SystemCommandCatalog.swift */; };
@@ -102,6 +103,7 @@
 		C9B6138F64ECDBF4A3BB0245 /* WindowCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946A3334258A628FE8C767EF /* WindowCommandPatterns.swift */; };
 		CA0E871BC79B92B10294CA0E /* AudioStateProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD82DDD5D3CDB656996BA9A /* AudioStateProviding.swift */; };
 		CAD55E951954CBE84E6ACF2E /* AppleSpeechAudioFileRecognitionIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF4E63D2E0BE00322E86CB8 /* AppleSpeechAudioFileRecognitionIntegrationTests.swift */; };
+		CC99CF1629264479E011D7BD /* RealAppScenarioSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF4921E05DB2A2857989A7CE /* RealAppScenarioSupport.swift */; };
 		CDC9F991C89AC1913C3BB606 /* CommandExecution.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86D8C436A675858E635E570 /* CommandExecution.swift */; };
 		CEF210D1AF46499AB42B3F7E /* SiriousRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F1634F0993DB7160D620AA /* SiriousRuntimeTests.swift */; };
 		D10AE22E8E44D0202D92A187 /* TextCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1002FF2227CD2B83D1C57EC /* TextCommandPatterns.swift */; };
@@ -227,6 +229,7 @@
 		ABD82DDD5D3CDB656996BA9A /* AudioStateProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioStateProviding.swift; sourceTree = "<group>"; };
 		AD8E901C5407AC4703A24F0A /* ApplicationResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationResolver.swift; sourceTree = "<group>"; };
 		AE363D7A7D65FEB09108B6DC /* AppleSpeechTranscriptSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechTranscriptSource.swift; sourceTree = "<group>"; };
+		AF4921E05DB2A2857989A7CE /* RealAppScenarioSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealAppScenarioSupport.swift; sourceTree = "<group>"; };
 		AF7910EC6772BABC35F0EE68 /* RouteModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteModels.swift; sourceTree = "<group>"; };
 		B1002FF2227CD2B83D1C57EC /* TextCommandPatterns.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCommandPatterns.swift; sourceTree = "<group>"; };
 		B14750F7FE0195F9CDBDCBB6 /* AccessibilityPermissionProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityPermissionProviding.swift; sourceTree = "<group>"; };
@@ -260,6 +263,7 @@
 		E4410EA38B83FDAD99CF8966 /* MenuBarWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarWindow.swift; sourceTree = "<group>"; };
 		E7C0893178AF969E824CAE01 /* RuntimeIssueStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeIssueStore.swift; sourceTree = "<group>"; };
 		E89E3B4176377A1619E1285C /* WorkspaceSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSnapshot.swift; sourceTree = "<group>"; };
+		F00D0CD50E437AA7F923C8C5 /* RealAppScenarioSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealAppScenarioSupportTests.swift; sourceTree = "<group>"; };
 		F2C31AE6FEE71D6568492925 /* ShortcutCatalogProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutCatalogProvider.swift; sourceTree = "<group>"; };
 		F7C2F02651E753A83ACD4080 /* DictionaryCommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryCommandExecutor.swift; sourceTree = "<group>"; };
 		FB4F9D0CEB18279D1874CB15 /* TextCommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCommandExecutor.swift; sourceTree = "<group>"; };
@@ -295,6 +299,8 @@
 				281872B3C5288D7329D40535 /* OptionKeyActivationMonitorTests.swift */,
 				074A953F40F3FF4973ABA035 /* PasteboardSnapshotTests.swift */,
 				E05E138F193219DA51029322 /* PendingCommandStoreTests.swift */,
+				AF4921E05DB2A2857989A7CE /* RealAppScenarioSupport.swift */,
+				F00D0CD50E437AA7F923C8C5 /* RealAppScenarioSupportTests.swift */,
 				876A188D0D863DBF4B79B06C /* RiskAndContextGateTests.swift */,
 				C864F5CDBCF47104400EFAE8 /* RoutingModeContextTests.swift */,
 				0F75A68D6FF541076392CE47 /* RuntimeIssueStoreTests.swift */,
@@ -831,6 +837,8 @@
 				D94D212F9AC2423CFB5E1391 /* OptionKeyActivationMonitorTests.swift in Sources */,
 				D44E8582DD3E02AC472D4F17 /* PasteboardSnapshotTests.swift in Sources */,
 				A33F5A97251A2149BFC7FF0F /* PendingCommandStoreTests.swift in Sources */,
+				CC99CF1629264479E011D7BD /* RealAppScenarioSupport.swift in Sources */,
+				64C7296F0F49A5CCF8127A1F /* RealAppScenarioSupportTests.swift in Sources */,
 				8CA5C4EDD9302B89D26A57CD /* RiskAndContextGateTests.swift in Sources */,
 				E67750A7E95BF1758335D916 /* RoutingModeContextTests.swift in Sources */,
 				C67EFA3CCD3187A66E6E90A1 /* RuntimeIssueStoreTests.swift in Sources */,

@@ -8,6 +8,7 @@ This plan keeps those two tracks separate. Normal Xcode tests should remain repe
 
 - Canonical audio fixtures should live in the repository so command-recognition behavior can be reviewed, versioned, and reproduced without requiring Gale's live TTS service to be running.
 - Start with a small checked-in MP3 fixture set. MP3 keeps the repository light and is close to the generated-audio path likely to be used for local test data.
+- SpeakSwiftlyServer can generate M4A/AAC audio going forward. Keep the checked-in corpus on MP3 until a deliberate codec comparison slice promotes an additional format into the manifest.
 - Do not use Git LFS for the first fixture set. Revisit that only if the fixture corpus grows large enough to make normal clones noticeably heavier.
 - Keep generated local scratch audio outside the repository by default. Promote only curated, intentionally named, license-safe fixtures into the repo.
 - Regenerate the curated checked-in MP3 corpus through `scripts/fixtures/generate-apple-speech-fixtures.sh` when SpeakSwiftlyServer is loaded and the fixture phrases should be refreshed.
@@ -117,6 +118,13 @@ The checked-in manifest should be the canonical source for curated fixtures. A l
 ### `TargetAppScenario`
 
 Describes one real-app scenario. It should carry setup, command, expectation, cleanup, and local-only gating metadata without knowing how Sirious routes commands internally.
+
+Current starting point:
+
+- `TargetAppScenario` lives in the Sirious test target as the local scenario contract.
+- `ManualTestGate` records the opt-in environment variable and the operator-facing disabled or enabled reason.
+- `RealAppTestRunReport` records gate status, setup, command, expectation, cleanup phase outcomes, and artifacts.
+- Cleanup failures make the run fail even when the main expectation passed.
 
 ### `TargetAppDriver`
 
