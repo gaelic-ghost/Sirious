@@ -4,6 +4,15 @@ Sirious needs two kinds of confidence before voice-command execution can feel tr
 
 This plan keeps those two tracks separate. Normal Xcode tests should remain repeatable on any developer machine. Real-app and audio-route checks should run only when explicitly enabled on a local Mac with the required apps, permissions, and audio routing state.
 
+## Current Decisions
+
+- Canonical audio fixtures should live in the repository so command-recognition behavior can be reviewed, versioned, and reproduced without requiring Gale's live TTS service to be running.
+- Start with a small checked-in MP3 fixture set. MP3 keeps the repository light and is close to the generated-audio path likely to be used for local test data.
+- Do not use Git LFS for the first fixture set. Revisit that only if the fixture corpus grows large enough to make normal clones noticeably heavier.
+- Keep generated local scratch audio outside the repository by default. Promote only curated, intentionally named, license-safe fixtures into the repo.
+- Keep Apple Speech recognition against real audio files explicitly gated, even when the fixtures are checked in, because speech recognition permission and recognizer availability are machine state.
+- Let normal tests validate fixture metadata, manifest parsing, and routing expectations without invoking Apple Speech unless the local gate is enabled.
+
 ## Goals
 
 - Validate command execution against real text fields, selected text, browser fields, editor fields, and Electron-style app fields.
@@ -35,9 +44,11 @@ Current starting point:
 
 Planned additions:
 
-- Add a checked-in manifest format description and local sample generator.
-- Add a small fixture catalog type that can report fixture name, source voice, expected phrase, language, duration, and intended route.
-- Keep generated audio outside the repository by default, with only reproducible metadata checked in.
+- Add a checked-in fixture directory at `Tests/Fixtures/Audio/AppleSpeech`.
+- Add a checked-in JSON manifest for curated fixtures.
+- Add a small fixture catalog type that can report fixture identifier, source voice, expected phrase, locale, duration, file format, file path, checksum, and intended route.
+- Keep generated scratch audio outside the repository by default, then explicitly promote curated fixtures into the checked-in fixture directory.
+- Prefer MP3 for the first curated corpus, but keep the manifest format explicit enough to add WAV, CAF, or M4A fixtures if Apple Speech behavior differs by codec.
 - Record recognition output and mismatch details in test attachments or logs.
 
 ### Layer 2: Real App Accessibility Scenarios
@@ -98,7 +109,9 @@ The harness should use small, explicit pieces rather than one broad end-to-end t
 
 ### `AudioFixtureCatalog`
 
-Owns generated-audio fixture metadata. It should read local manifests, validate referenced files, and expose expected transcript phrases and intended routes.
+Owns generated-audio fixture metadata. It should read the checked-in JSON manifest plus optional local manifests, validate referenced files and checksums, and expose expected transcript phrases and intended routes.
+
+The checked-in manifest should be the canonical source for curated fixtures. A local manifest can add temporary generated files without modifying the repository.
 
 ### `TargetAppScenario`
 
@@ -118,7 +131,13 @@ Records the selected scenarios, local gates, app versions when discoverable, foc
 
 ### `ManualGate`
 
-Keeps local-only tests opt-in. The gate should require an environment variable, test-plan configuration, or explicit local manifest so regular validation never tries to control Gale's live apps or audio routes by accident.
+Keeps local-only tests opt-in. The gate should require an environment variable, test-plan configuration, or explicit local manifest so regular validation never tries to control Gale's live apps, invoke Apple Speech permissions, or change audio routes by accident.
+
+Initial gate names:
+
+- `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1` enables real Apple Speech recognition against checked-in audio files.
+- `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` enables local-only target-app scenarios.
+- `SIRIOUS_RUN_ROUTED_AUDIO_SCENARIOS=1` enables local-only virtual microphone routing scenarios.
 
 ## Initial Scenario Matrix
 
@@ -152,14 +171,17 @@ Cleanup failures should be reported as first-class test diagnostics. They should
 
 ## Implementation Slices
 
-1. Add checked-in documentation for the audio-fixture manifest and a local fixture-catalog reader.
-2. Add a local-only `TargetAppScenario` model with explicit gating and cleanup reporting.
-3. Add the first TextEdit scenario for native text insertion and selected-text replacement.
-4. Add Safari, Zed, and one Electron-style scenario after TextEdit proves the shape.
-5. Add generated-audio fixture production through Gale's TTS service once that service is loaded for this work.
-6. Add audio-route detection for Loopback and Audio Hijack before attempting automatic route setup.
-7. Add supervised routed-audio scenarios that play generated command audio through the virtual microphone path.
-8. Add Computer Use notes and recovery hooks only for scenarios where app automation or audio tooling leaves a real gap.
+1. Add `Tests/Fixtures/Audio/AppleSpeech`, a checked-in JSON manifest, and a fixture-catalog reader.
+2. Add a metadata-only test that validates fixture paths, checksums, expected phrases, locales, and intended routes without invoking Apple Speech.
+3. Promote a tiny first MP3 fixture set into the repository and validate it once with `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1`.
+4. Replace the temporary pipe-delimited manifest parser with the typed fixture catalog while preserving local manifest support for scratch files.
+5. Add a local-only `TargetAppScenario` model with explicit gating and cleanup reporting.
+6. Add the first TextEdit scenario for native text insertion and selected-text replacement.
+7. Add Safari, Zed, and one Electron-style scenario after TextEdit proves the shape.
+8. Add generated-audio fixture production through Gale's TTS service once that service is loaded for this work.
+9. Add audio-route detection for Loopback and Audio Hijack before attempting automatic route setup.
+10. Add supervised routed-audio scenarios that play generated command audio through the virtual microphone path.
+11. Add Computer Use notes and recovery hooks only for scenarios where app automation or audio tooling leaves a real gap.
 
 ## Non-Goals
 
@@ -171,8 +193,8 @@ Cleanup failures should be reported as first-class test diagnostics. They should
 
 ## Open Questions
 
-- Should local-only scenarios be controlled through an `.xctestplan`, an environment variable, a manifest path, or a combination of those?
-- Which generated audio fixtures are stable enough to keep as reproducible metadata, and which should remain disposable local artifacts?
+- Should the initial gated runs use only environment variables, or should a local `.xctestplan` become the operator-friendly entry point once more scenarios exist?
+- Which first MP3 fixtures should define the canonical smoke corpus: app commands, text commands, dictionary commands, Services commands, or a small mix of each?
 - Which app versions and target apps should be treated as required for the first real-app validation pass?
 - How much audio-route setup should Sirious automate versus only detect and document?
 - Should routed-audio runs produce a local report artifact separate from `.xcresult` so route, app, and permission state can be inspected outside Xcode?

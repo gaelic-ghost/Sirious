@@ -92,6 +92,7 @@ Project planning lives in [ROADMAP.md](./ROADMAP.md). Architecture notes live un
 │   ├── Permissions/        # Sandbox, Accessibility, and file-access helpers
 │   └── Routing/            # Transcripts, context, routing, execution, and runtime state
 ├── Tests/
+│   ├── Fixtures/           # Curated local test fixtures
 │   ├── SiriousTests/       # Swift Testing coverage
 │   └── SiriousUITests/     # Minimal XCUITest coverage
 ├── scripts/repo-maintenance/
