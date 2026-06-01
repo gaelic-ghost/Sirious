@@ -1,7 +1,7 @@
 {
   "version": 1,
   "description": "Curated Sirious Apple Speech audio fixtures generated with SpeakSwiftlyServer for local recognition regression checks.",
-  "generatedAt": "2026-06-01T00:21:00Z",
+  "generatedAt": "2026-06-01T14:59:39Z",
   "generator": {
     "service": "SpeakSwiftlyServer",
     "backend": "qwen3_big_8bit",
@@ -17,12 +17,12 @@
       "expectedPhrase": "open Safari",
       "locale": "en_US",
       "format": "mp3",
-      "durationSeconds": 1.176,
-      "byteCount": 9600,
-      "sha256": "9b52534c29f405f04e53cc7f13bcdadb2df14de1a867e89e79fc684a851661a4",
+      "durationSeconds": 0.936,
+      "byteCount": 7680,
+      "sha256": "31fae906b720e76e49f9dd8e050ac145f7ecbc96a92a799922c5bfdb2a6f84ac",
       "source": {
         "voiceProfile": "swift-signal",
-        "artifactId": "sirious-open-safari-swift-signal",
+        "artifactId": "sirious-open-safari-swift-signal-20260601T145939Z",
         "text": "open Safari"
       },
       "intendedRoute": "app.open"
@@ -33,12 +33,12 @@
       "expectedPhrase": "open Safari",
       "locale": "en_US",
       "format": "mp3",
-      "durationSeconds": 1.176,
-      "byteCount": 9600,
-      "sha256": "bfd55d4e7af148b9f0214f21257080b5850d86e8b937100bf706344b0017c6e8",
+      "durationSeconds": 1.728,
+      "byteCount": 14016,
+      "sha256": "3be03ab2e203d63a82dc7b29e21f913b0345d3c058b2036a0ae5f49ce05fc6a1",
       "source": {
         "voiceProfile": "swift-anchor",
-        "artifactId": "sirious-open-safari-swift-anchor",
+        "artifactId": "sirious-open-safari-swift-anchor-20260601T145939Z",
         "text": "open Safari"
       },
       "intendedRoute": "app.open"
@@ -51,10 +51,10 @@
       "format": "mp3",
       "durationSeconds": 1.008,
       "byteCount": 8256,
-      "sha256": "d403e2b291c40de741869dc4588d62aa111cb08f29120cffd5e8f8cb28fa6106",
+      "sha256": "24c51d87b33dde4f8c0363562976a2c8d2769bebd6715f7b05df59a2781b602e",
       "source": {
         "voiceProfile": "swift-signal",
-        "artifactId": "sirious-pause-swift-signal",
+        "artifactId": "sirious-pause-swift-signal-20260601T145939Z",
         "text": "pause"
       },
       "intendedRoute": "media.pause"
@@ -65,12 +65,12 @@
       "expectedPhrase": "pause",
       "locale": "en_US",
       "format": "mp3",
-      "durationSeconds": 0.696,
-      "byteCount": 5760,
-      "sha256": "bfdee5bd5d25353bf7008f5a98d33939b2329f97657b3fac2f2633856abd768d",
+      "durationSeconds": 0.864,
+      "byteCount": 7104,
+      "sha256": "2947b6df80aa72f50fddaed760715926b3ea63a345e1185584693a6f978d797c",
       "source": {
         "voiceProfile": "swift-anchor",
-        "artifactId": "sirious-pause-swift-anchor",
+        "artifactId": "sirious-pause-swift-anchor-20260601T145939Z",
         "text": "pause"
       },
       "intendedRoute": "media.pause"
@@ -81,12 +81,12 @@
       "expectedPhrase": "type hello world",
       "locale": "en_US",
       "format": "mp3",
-      "durationSeconds": 1.344,
-      "byteCount": 10944,
-      "sha256": "bcef3037d564d8ed997b9ceec1b50383b122cc27d38a14effc0008612459371e",
+      "durationSeconds": 1.416,
+      "byteCount": 11520,
+      "sha256": "5004020879a63d0a93183748aece54dea8969ebff15cfb1fca99b87cbc169348",
       "source": {
         "voiceProfile": "swift-signal",
-        "artifactId": "sirious-type-hello-world-swift-signal",
+        "artifactId": "sirious-type-hello-world-swift-signal-20260601T145939Z",
         "text": "type hello world"
       },
       "intendedRoute": "text.insert"
@@ -97,12 +97,12 @@
       "expectedPhrase": "type hello world",
       "locale": "en_US",
       "format": "mp3",
-      "durationSeconds": 1.584,
-      "byteCount": 12864,
-      "sha256": "4b4f854efd63bee942cffe8b004404bb9b91f93b46decaf78746e58412fc7f26",
+      "durationSeconds": 1.728,
+      "byteCount": 14016,
+      "sha256": "4adde46ceed90930e4157e00e4d0609cee8959ea06cb9985441054d051c374a8",
       "source": {
         "voiceProfile": "swift-anchor",
-        "artifactId": "sirious-type-hello-world-swift-anchor",
+        "artifactId": "sirious-type-hello-world-swift-anchor-20260601T145939Z",
         "text": "type hello world"
       },
       "intendedRoute": "text.insert"
@@ -115,10 +115,10 @@
       "format": "mp3",
       "durationSeconds": 1.248,
       "byteCount": 10176,
-      "sha256": "ba743959b1bddf8d4243ebcd029dd5c455cca122be1fd7f43ceb5e0587efed8f",
+      "sha256": "60c8e630e45b385d19f7eb34a859f30c9c2b4d2168b90f1a930066d8cf151476",
       "source": {
         "voiceProfile": "swift-signal",
-        "artifactId": "sirious-define-apple-swift-signal",
+        "artifactId": "sirious-define-apple-swift-signal-20260601T145939Z",
         "text": "define apple"
       },
       "intendedRoute": "dictionary.define"
@@ -131,10 +131,10 @@
       "format": "mp3",
       "durationSeconds": 1.584,
       "byteCount": 12864,
-      "sha256": "ece4c0608e198f4b4b531ca1c6a6aeda73e3fc672eb2bbf14f4de2be895a55da",
+      "sha256": "17a8cab99531fca295a5088e6842b21107743afdff2cb6900238bf92689ac388",
       "source": {
         "voiceProfile": "swift-anchor",
-        "artifactId": "sirious-define-apple-swift-anchor",
+        "artifactId": "sirious-define-apple-swift-anchor-20260601T145939Z",
         "text": "define apple"
       },
       "intendedRoute": "dictionary.define"
@@ -145,12 +145,12 @@
       "expectedPhrase": "summarize selection",
       "locale": "en_US",
       "format": "mp3",
-      "durationSeconds": 1.584,
-      "byteCount": 12864,
-      "sha256": "c6375d144ee1aac881baf6fe44ac31ca316bc8ef5f8cd24dd6f643abf51bd96d",
+      "durationSeconds": 1.416,
+      "byteCount": 11520,
+      "sha256": "ed399197a829e28685419e8aefa1a81979e27f20660038d7a40bf5875f979c72",
       "source": {
         "voiceProfile": "swift-signal",
-        "artifactId": "sirious-summarize-selection-swift-signal",
+        "artifactId": "sirious-summarize-selection-swift-signal-20260601T145939Z",
         "text": "summarize selection"
       },
       "intendedRoute": "systemService.summarizeSelection"
@@ -161,12 +161,12 @@
       "expectedPhrase": "summarize selection",
       "locale": "en_US",
       "format": "mp3",
-      "durationSeconds": 1.656,
-      "byteCount": 13440,
-      "sha256": "e5b6dbdb084a125999afb9bf0245552e68ce341b4e82fff20144f5fb64db6c5b",
+      "durationSeconds": 1.824,
+      "byteCount": 14784,
+      "sha256": "6ad2a21622014e89cda2c0f55e28e18765b93f2fb89ec2809e525425046291aa",
       "source": {
         "voiceProfile": "swift-anchor",
-        "artifactId": "sirious-summarize-selection-swift-anchor",
+        "artifactId": "sirious-summarize-selection-swift-anchor-20260601T145939Z",
         "text": "summarize selection"
       },
       "intendedRoute": "systemService.summarizeSelection"

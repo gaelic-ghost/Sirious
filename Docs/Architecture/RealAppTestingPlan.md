@@ -10,6 +10,7 @@ This plan keeps those two tracks separate. Normal Xcode tests should remain repe
 - Start with a small checked-in MP3 fixture set. MP3 keeps the repository light and is close to the generated-audio path likely to be used for local test data.
 - Do not use Git LFS for the first fixture set. Revisit that only if the fixture corpus grows large enough to make normal clones noticeably heavier.
 - Keep generated local scratch audio outside the repository by default. Promote only curated, intentionally named, license-safe fixtures into the repo.
+- Regenerate the curated checked-in MP3 corpus through `scripts/fixtures/generate-apple-speech-fixtures.sh` when SpeakSwiftlyServer is loaded and the fixture phrases should be refreshed.
 - Keep Apple Speech recognition against real audio files explicitly gated, even when the fixtures are checked in, because speech recognition permission and recognizer availability are machine state.
 - Let normal tests validate fixture metadata, manifest parsing, and routing expectations without invoking Apple Speech unless the local gate is enabled.
 
@@ -47,7 +48,7 @@ Planned additions:
 - Add a checked-in fixture directory at `Tests/Fixtures/Audio/AppleSpeech`.
 - Add a checked-in JSON manifest for curated fixtures.
 - Add a small fixture catalog type that can report fixture identifier, source voice, expected phrase, locale, duration, file format, file path, checksum, and intended route.
-- Keep generated scratch audio outside the repository by default, then explicitly promote curated fixtures into the checked-in fixture directory.
+- Keep generated scratch audio outside the repository by default, then explicitly promote curated fixtures into the checked-in fixture directory through the repo script.
 - Prefer MP3 for the first curated corpus, but keep the manifest format explicit enough to add WAV, CAF, or M4A fixtures if Apple Speech behavior differs by codec.
 - Record recognition output and mismatch details in test attachments or logs.
 

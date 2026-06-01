@@ -177,7 +177,7 @@ Planned
 - [ ] Add Safari and Zed scenarios after the TextEdit driver proves the scenario shape.
 - [ ] Add one Electron-style pasteboard fallback scenario for common chat or compose fields.
 - [ ] Add a selected-text Services scenario that validates allowlisted Services against real app selection state.
-- [ ] Add generated-audio fixture production through Gale's TTS service when that service is loaded for this work.
+- [x] Add generated-audio fixture production through Gale's TTS service when that service is loaded for this work.
 - [ ] Add Loopback and Audio Hijack route detection before attempting any automatic audio setup.
 - [ ] Add supervised routed-audio scenarios that play generated command audio through a virtual microphone into Sirious.
 - [ ] Add Computer Use setup, observation, and recovery notes for scenarios where Accessibility or app automation leaves a real gap.
@@ -214,3 +214,4 @@ Planned
 - Added the real-app testing lab plan for generated audio, routed audio, real app targets, and supervised desktop recovery.
 - Added the first checked-in paired MP3 fixture corpus for Apple Speech recognition checks.
 - Added versioned test plans for ordinary validation and explicit Apple Speech fixture recognition.
+- Added a repo-local SpeakSwiftlyServer fixture generation command and refreshed the paired MP3 corpus through the live service.

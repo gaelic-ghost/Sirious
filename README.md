@@ -75,6 +75,12 @@ Run local Apple Speech audio-fixture recognition with the dedicated test plan:
 xcodebuild -project Sirious.xcodeproj -scheme Sirious -configuration Debug -destination platform=macOS -testPlan SiriousAppleSpeechFixtures test
 ```
 
+Regenerate the checked-in Apple Speech MP3 corpus from the live SpeakSwiftlyServer service:
+
+```sh
+scripts/fixtures/generate-apple-speech-fixtures.sh
+```
+
 The checked-in fixtures live under `Tests/Fixtures/Audio/AppleSpeech`. Scratch audio can still be tested from command-line `xcodebuild` runs by writing newline-separated `name|expected phrase|audio path` rows to `/tmp/sirious-audio-fixtures.txt`; without the dedicated test plan gate or an explicit scratch manifest, the integration test exits without touching Apple Speech.
 
 Real-app and routed-audio testing is planned in [Real App Testing Plan](./Docs/Architecture/RealAppTestingPlan.md). Those scenarios are intended to stay local-only and explicitly gated because they can touch live apps, Accessibility focus, microphone state, and user-configured audio routes.

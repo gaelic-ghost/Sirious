@@ -26,3 +26,20 @@ The checked-in manifest is JSON and lives beside the fixtures. Each entry includ
 - `intendedRoute`: route family the phrase should exercise.
 
 The manifest format should stay readable enough to edit by hand while still being decoded with `JSONDecoder` in tests.
+
+## Generation Command
+
+Regenerate the curated corpus from the live SpeakSwiftlyServer service:
+
+```sh
+scripts/fixtures/generate-apple-speech-fixtures.sh
+```
+
+The script reads `fixtures.json` as the source of truth, groups entries by `source.voiceProfile`, queues retained audio batches through the local HTTP service, converts generated WAV artifacts to 64 kbps MP3 with `lame`, and refreshes `generatedAt`, generator metadata, durations, byte counts, SHA-256 checksums, and retained artifact IDs.
+
+Configuration:
+
+- `SIRIOUS_SPEAK_SWIFTLY_BASE_URL`: local service base URL, defaulting to `http://127.0.0.1:7337`.
+- `SIRIOUS_FIXTURE_MP3_BITRATE_KBPS`: checked-in MP3 bitrate, defaulting to `64`.
+- `SIRIOUS_FIXTURE_POLL_LIMIT`: request polling attempts, defaulting to `120`.
+- `SIRIOUS_FIXTURE_POLL_SECONDS`: seconds between polling attempts, defaulting to `1`.
