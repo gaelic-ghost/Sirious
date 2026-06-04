@@ -155,6 +155,15 @@ Accessibility permission note:
 
 `SiriousRealAppScenarios.xctestplan` runs inside Xcode's hosted test process. When Accessibility trust is missing, the TextEdit scenario calls the same `AXIsProcessTrustedWithOptions` prompt path used by the app settings UI and waits briefly for approval. The item macOS records can vary by host and signing state, so it may appear as Sirious, Xcode, `xcodebuild`, or a generated test runner. The failure diagnostic includes the active bundle identifier and bundle path so the operator can approve the right entry.
 
+Sandbox and helper direction:
+
+- Apple identifies assistive Accessibility API use as restricted under App Sandbox, so real app text insertion and window automation should not be forced through the sandboxed main app.
+- Apple recommends diagnosing sandbox issues from the concrete sandbox violation log before adding capabilities or temporary exceptions.
+- Keep the main app sandboxed for ordinary app behavior. Put assistive automation behind a separate helper boundary so the permissioned process is narrow and operator-visible.
+- Prefer a bundled LaunchAgent registered with `SMAppService.agent(plistName:)` before considering a LaunchDaemon, because these automation flows run in the logged-in user session and need user-facing Accessibility context.
+- Use an XPC surface only when the main app needs a durable request/reply channel to the helper; keep the first helper contract small enough to validate TextEdit insertion and selected-text replacement.
+- Gale's local Apple Development team ID is `AMRC3N39SQ`, but enabling it in XcodeGen currently makes Xcode require a matching `Mac Development` signing certificate before the project can build. Keep the checked-in project buildable until that certificate exists, then set `DEVELOPMENT_TEAM` in `project.yml` so macOS TCC can associate prompts with a stable development identity during real-app testing.
+
 ## Initial Scenario Matrix
 
 | Scenario | Layer | Target | Expected Result | Automation Level |
