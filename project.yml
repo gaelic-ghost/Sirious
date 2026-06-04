@@ -9,7 +9,7 @@ settings:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
     MACOSX_DEPLOYMENT_TARGET: "26.0"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: BC73766F69
     CODE_SIGN_STYLE: Automatic
   configs:
     Debug:

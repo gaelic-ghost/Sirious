@@ -162,7 +162,7 @@ Sandbox and helper direction:
 - Keep the main app sandboxed for ordinary app behavior. Put assistive automation behind a separate helper boundary so the permissioned process is narrow and operator-visible.
 - Prefer a bundled LaunchAgent registered with `SMAppService.agent(plistName:)` before considering a LaunchDaemon, because these automation flows run in the logged-in user session and need user-facing Accessibility context.
 - Use an XPC surface only when the main app needs a durable request/reply channel to the helper; keep the first helper contract small enough to validate TextEdit insertion and selected-text replacement.
-- Gale's local Apple Development team ID is `AMRC3N39SQ`, but enabling it in XcodeGen currently makes Xcode require a matching `Mac Development` signing certificate before the project can build. Keep the checked-in project buildable until that certificate exists, then set `DEVELOPMENT_TEAM` in `project.yml` so macOS TCC can associate prompts with a stable development identity during real-app testing.
+- Gale's local Apple signing team identifier is `BC73766F69`. Some certificate common names include `AMRC3N39SQ`, but the certificate subject's organizational unit is the Team ID Xcode uses for `DEVELOPMENT_TEAM`. Keep `DEVELOPMENT_TEAM` aligned with `BC73766F69` in `project.yml` so macOS TCC can associate prompts with a stable development identity during real-app testing.
 
 ## Initial Scenario Matrix
 
