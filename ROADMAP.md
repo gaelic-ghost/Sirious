@@ -173,7 +173,7 @@ Planned
 - [x] Add metadata-only fixture tests that validate manifest parsing, file paths, checksums, expected phrases, locales, and intended routes without invoking Apple Speech.
 - [x] Add versioned `.xctestplan` files for ordinary validation and local Apple Speech fixture recognition.
 - [x] Add a local-only real-app scenario model with explicit opt-in gating, setup, expectations, cleanup, and artifact reporting.
-- [ ] Add TextEdit scenarios for native text insertion, selected-text replacement, and pasteboard restoration.
+- [x] Add TextEdit scenarios for native text insertion, selected-text replacement, and pasteboard restoration.
 - [ ] Add Safari and Zed scenarios after the TextEdit driver proves the scenario shape.
 - [ ] Add one Electron-style pasteboard fallback scenario for common chat or compose fields.
 - [ ] Add a selected-text Services scenario that validates allowlisted Services against real app selection state.

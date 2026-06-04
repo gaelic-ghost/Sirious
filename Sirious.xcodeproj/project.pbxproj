@@ -56,6 +56,7 @@
 		50099EFFB3EE7D840F7A8CC9 /* ServiceCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12033D743AA63617DB2BDF13 /* ServiceCommandPatterns.swift */; };
 		503C1750160303D31E21CF8D /* SystemCommandCatalogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34655C94BCA8FC645CA13F5F /* SystemCommandCatalogStore.swift */; };
 		5370E15E36C6FEC55401BBDD /* TextEntrySessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 333E9B9AC52B4D4FC419117F /* TextEntrySessionState.swift */; };
+		5B1FEBCD7143DE259604B8F4 /* TextEditRealAppScenarioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB5E57A53EA757180BFAA70 /* TextEditRealAppScenarioTests.swift */; };
 		5F44A44679C79B514CFC7801 /* AudioPlaybackSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFB4F379B6EF6D4C1A363E3 /* AudioPlaybackSnapshot.swift */; };
 		60AB98565AB694F1EA8D79B0 /* TranscriptEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CAA83A0445A76839B6BF09 /* TranscriptEvent.swift */; };
 		623B54DD8830B8BC41656F4E /* FirstStageSystemServiceRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6DCBF7F828816D64EAD66E /* FirstStageSystemServiceRoutingTests.swift */; };
@@ -201,6 +202,7 @@
 		5CBD4EBE52C0BFB14673B01E /* CommandCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandCenterView.swift; sourceTree = "<group>"; };
 		601B712F4A4F30B8E987A12C /* PatternCommandRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatternCommandRouter.swift; sourceTree = "<group>"; };
 		651F0FD88128DF3A97143425 /* TranscriptStability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptStability.swift; sourceTree = "<group>"; };
+		6DB5E57A53EA757180BFAA70 /* TextEditRealAppScenarioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditRealAppScenarioTests.swift; sourceTree = "<group>"; };
 		6E1B748F913BB9BC0AF5E0A2 /* TranscriptEventSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEventSource.swift; sourceTree = "<group>"; };
 		6ECC7318FCFCBFE73A48DDD6 /* ApplicationExecutionClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExecutionClient.swift; sourceTree = "<group>"; };
 		6F25AD60A1982BAEEEC94A25 /* AlwaysOnTopWindowModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlwaysOnTopWindowModifier.swift; sourceTree = "<group>"; };
@@ -306,6 +308,7 @@
 				0F75A68D6FF541076392CE47 /* RuntimeIssueStoreTests.swift */,
 				13F1634F0993DB7160D620AA /* SiriousRuntimeTests.swift */,
 				DC77FA0E320BE0AA59B7CC17 /* SystemCommandCatalogTests.swift */,
+				6DB5E57A53EA757180BFAA70 /* TextEditRealAppScenarioTests.swift */,
 				B88467FAB03647417E8DFD44 /* TextEntrySessionStoreTests.swift */,
 			);
 			name = SiriousTests;
@@ -844,6 +847,7 @@
 				C67EFA3CCD3187A66E6E90A1 /* RuntimeIssueStoreTests.swift in Sources */,
 				CEF210D1AF46499AB42B3F7E /* SiriousRuntimeTests.swift in Sources */,
 				88FF2D487F8241A0D275C587 /* SystemCommandCatalogTests.swift in Sources */,
+				5B1FEBCD7143DE259604B8F4 /* TextEditRealAppScenarioTests.swift in Sources */,
 				AC6A8B6ADDD22F217EDCBA01 /* TextEntrySessionStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

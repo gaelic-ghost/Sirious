@@ -146,7 +146,8 @@ Initial gate names and test plans:
 
 - `Sirious.xctestplan` is the default ordinary test plan and does not invoke Apple Speech recognition unless an explicit scratch manifest exists.
 - `SiriousAppleSpeechFixtures.xctestplan` enables `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1` and runs the checked-in Apple Speech audio fixture recognition test.
-- `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` enables local-only target-app scenarios.
+- `SiriousRealAppScenarios.xctestplan` enables `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` and runs local-only target-app scenarios.
+- `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` remains the lower-level gate that real-app scenario drivers must check before controlling apps.
 - `SIRIOUS_RUN_ROUTED_AUDIO_SCENARIOS=1` enables local-only virtual microphone routing scenarios.
 
 ## Initial Scenario Matrix
@@ -187,7 +188,7 @@ Cleanup failures should be reported as first-class test diagnostics. They should
 4. Replace the temporary pipe-delimited manifest parser with the typed fixture catalog while preserving local manifest support for scratch files.
 5. Add versioned `.xctestplan` files for ordinary tests and local Apple Speech fixture recognition.
 6. Add a local-only `TargetAppScenario` model with explicit gating and cleanup reporting.
-7. Add the first TextEdit scenario for native text insertion and selected-text replacement.
+7. Add the first TextEdit scenario for native text insertion, selected-text replacement, and pasteboard restoration.
 8. Add Safari, Zed, and one Electron-style scenario after TextEdit proves the shape.
 9. Add generated-audio fixture production through Gale's TTS service once that service is loaded for this work.
 10. Add audio-route detection for Loopback and Audio Hijack before attempting automatic route setup.

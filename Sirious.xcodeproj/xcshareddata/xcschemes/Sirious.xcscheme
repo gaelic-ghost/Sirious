@@ -37,6 +37,9 @@
          <TestPlanReference
             reference = "container:SiriousAppleSpeechFixtures.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:SiriousRealAppScenarios.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <MacroExpansion>
          <BuildableReference

@@ -135,6 +135,10 @@ struct RealAppTestRunReport: Equatable {
             return .failed
         }
 
+        if phases.contains(where: { $0.outcome == .skipped }) {
+            return .skipped
+        }
+
         return .passed
     }
 
@@ -174,4 +178,123 @@ struct RealAppTestRunArtifact: Equatable {
     var name: String
     var path: String?
     var summary: String
+}
+
+extension TargetAppScenario {
+    static var textEditInsertHelloWorld: TargetAppScenario {
+        TargetAppScenario(
+            id: "textedit-insert-hello-world",
+            title: "Insert text into a TextEdit document",
+            target: textEditTarget,
+            gate: realAppScenarioGate,
+            command: TargetAppScenarioCommand(
+                spokenPhrase: "type hello world",
+                intendedRoute: "text.insert"
+            ),
+            setup: [
+                TargetAppScenarioStep(
+                    id: "launch-textedit",
+                    description: "Launch TextEdit with a temporary plain-text document."
+                ),
+                TargetAppScenarioStep(
+                    id: "focus-editable-document",
+                    description: "Wait for a TextEdit-owned focused editable Accessibility text target."
+                ),
+            ],
+            expectations: [
+                TargetAppScenarioExpectation(
+                    id: "document-contains-requested-text",
+                    description: "The focused TextEdit document contains the text requested by Sirious."
+                ),
+            ],
+            cleanup: textEditCleanupSteps,
+            requestedArtifacts: textEditArtifactRequests,
+            isSafeForUnattendedLocalRun: true
+        )
+    }
+
+    static var textEditReplaceSelectedText: TargetAppScenario {
+        TargetAppScenario(
+            id: "textedit-replace-selected-text",
+            title: "Replace selected text in a TextEdit document",
+            target: textEditTarget,
+            gate: realAppScenarioGate,
+            command: TargetAppScenarioCommand(
+                spokenPhrase: "type small",
+                intendedRoute: "text.insert"
+            ),
+            setup: [
+                TargetAppScenarioStep(
+                    id: "launch-textedit",
+                    description: "Launch TextEdit with a temporary plain-text document containing a known selected range."
+                ),
+                TargetAppScenarioStep(
+                    id: "select-target-text",
+                    description: "Select the target word through the focused Accessibility text range."
+                ),
+            ],
+            expectations: [
+                TargetAppScenarioExpectation(
+                    id: "document-replaces-selected-text",
+                    description: "The focused TextEdit document replaces only the selected text."
+                ),
+            ],
+            cleanup: textEditCleanupSteps,
+            requestedArtifacts: textEditArtifactRequests,
+            isSafeForUnattendedLocalRun: true
+        )
+    }
+
+    private static var realAppScenarioGate: ManualTestGate {
+        ManualTestGate(
+            environmentVariable: "SIRIOUS_RUN_REAL_APP_SCENARIOS",
+            purpose: "Real app scenarios"
+        )
+    }
+
+    private static var textEditTarget: TargetAppScenarioTarget {
+        TargetAppScenarioTarget(
+            displayName: "TextEdit",
+            bundleIdentifier: "com.apple.TextEdit",
+            requiredVersion: nil
+        )
+    }
+
+    private static var textEditCleanupSteps: [TargetAppScenarioStep] {
+        [
+            TargetAppScenarioStep(
+                id: "restore-pasteboard",
+                description: "Restore the pasteboard snapshot captured before command execution."
+            ),
+            TargetAppScenarioStep(
+                id: "close-temporary-document",
+                description: "Terminate the TextEdit process created for the temporary document and delete the temporary file."
+            ),
+        ]
+    }
+
+    private static var textEditArtifactRequests: [TargetAppScenarioArtifactRequest] {
+        [
+            TargetAppScenarioArtifactRequest(
+                kind: .appSnapshot,
+                description: "TextEdit process and temporary document state before and after execution."
+            ),
+            TargetAppScenarioArtifactRequest(
+                kind: .focusedControlSnapshot,
+                description: "Focused Accessibility control role, value summary, and selected range."
+            ),
+            TargetAppScenarioArtifactRequest(
+                kind: .pasteboardSnapshot,
+                description: "Pasteboard state before execution and cleanup restoration outcome."
+            ),
+            TargetAppScenarioArtifactRequest(
+                kind: .routeDecision,
+                description: "Sirious route domain, command, confidence, and execution result."
+            ),
+            TargetAppScenarioArtifactRequest(
+                kind: .cleanupReport,
+                description: "Every cleanup step outcome, including failures after successful assertions."
+            ),
+        ]
+    }
 }

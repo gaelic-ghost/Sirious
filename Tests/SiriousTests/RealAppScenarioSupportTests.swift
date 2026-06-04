@@ -15,16 +15,16 @@ struct RealAppScenarioSupportTests {
 
     @Test("target app scenario carries the setup command expectation cleanup and artifact contract")
     func targetAppScenarioCarriesScenarioContract() {
-        let scenario = TargetAppScenario.textEditInsertFixture
+        let scenario = TargetAppScenario.textEditInsertHelloWorld
 
         #expect(scenario.id == "textedit-insert-hello-world")
         #expect(scenario.target.displayName == "TextEdit")
         #expect(scenario.target.bundleIdentifier == "com.apple.TextEdit")
         #expect(scenario.command.spokenPhrase == "type hello world")
         #expect(scenario.command.intendedRoute == "text.insert")
-        #expect(scenario.setup.map(\.id) == ["launch-textedit", "focus-empty-document"])
+        #expect(scenario.setup.map(\.id) == ["launch-textedit", "focus-editable-document"])
         #expect(scenario.expectations.map(\.id) == ["document-contains-requested-text"])
-        #expect(scenario.cleanup.map(\.id) == ["close-unsaved-document", "restore-pasteboard"])
+        #expect(scenario.cleanup.map(\.id) == ["restore-pasteboard", "close-temporary-document"])
         #expect(scenario.requestedArtifacts.map(\.kind) == [
             .appSnapshot,
             .focusedControlSnapshot,
@@ -98,75 +98,36 @@ struct RealAppScenarioSupportTests {
         #expect(report.outcome == .failed)
         #expect(report.cleanupFailures.map(\.stepID) == ["restore-pasteboard"])
     }
-}
 
-private extension TargetAppScenario {
-    static var textEditInsertFixture: TargetAppScenario {
-        TargetAppScenario(
-            id: "textedit-insert-hello-world",
-            title: "Insert text into a TextEdit document",
-            target: TargetAppScenarioTarget(
-                displayName: "TextEdit",
-                bundleIdentifier: "com.apple.TextEdit",
-                requiredVersion: nil
+    @Test("skipped phases keep enabled real app reports from passing")
+    func skippedPhasesSkipRunReport() {
+        let report = RealAppTestRunReport(
+            scenarioID: "textedit-insert-hello-world",
+            gate: ManualTestGateEvaluation(
+                status: .enabled,
+                message: "Real app scenarios are enabled."
             ),
-            gate: ManualTestGate(
-                environmentVariable: "SIRIOUS_RUN_REAL_APP_SCENARIOS",
-                purpose: "Real app scenarios"
-            ),
-            command: TargetAppScenarioCommand(
-                spokenPhrase: "type hello world",
-                intendedRoute: "text.insert"
-            ),
-            setup: [
-                TargetAppScenarioStep(
-                    id: "launch-textedit",
-                    description: "Launch TextEdit without assuming it is already running."
-                ),
-                TargetAppScenarioStep(
-                    id: "focus-empty-document",
-                    description: "Create and focus an empty editable document."
+            phases: [
+                RealAppTestRunPhaseReport(
+                    phase: .command,
+                    stepID: "execute-text-command",
+                    outcome: .skipped,
+                    message: "Text command execution skipped."
                 ),
             ],
-            expectations: [
-                TargetAppScenarioExpectation(
-                    id: "document-contains-requested-text",
-                    description: "The focused document contains the text requested by Sirious."
-                ),
-            ],
-            cleanup: [
-                TargetAppScenarioStep(
-                    id: "close-unsaved-document",
-                    description: "Close the temporary unsaved TextEdit document without saving it."
-                ),
-                TargetAppScenarioStep(
-                    id: "restore-pasteboard",
-                    description: "Restore the pasteboard snapshot captured before command execution."
-                ),
-            ],
-            requestedArtifacts: [
-                TargetAppScenarioArtifactRequest(
-                    kind: .appSnapshot,
-                    description: "TextEdit process and window state before and after execution."
-                ),
-                TargetAppScenarioArtifactRequest(
-                    kind: .focusedControlSnapshot,
-                    description: "Focused Accessibility control role, value summary, and selected range."
-                ),
-                TargetAppScenarioArtifactRequest(
-                    kind: .pasteboardSnapshot,
-                    description: "Pasteboard state before execution and cleanup restoration outcome."
-                ),
-                TargetAppScenarioArtifactRequest(
-                    kind: .routeDecision,
-                    description: "Sirious route domain, command, confidence, and execution result."
-                ),
-                TargetAppScenarioArtifactRequest(
-                    kind: .cleanupReport,
-                    description: "Every cleanup step outcome, including failures after successful assertions."
-                ),
-            ],
-            isSafeForUnattendedLocalRun: true
+            artifacts: []
         )
+
+        #expect(report.outcome == .skipped)
+    }
+
+    @Test("selected-text TextEdit scenario carries the replacement contract")
+    func selectedTextScenarioCarriesReplacementContract() {
+        let scenario = TargetAppScenario.textEditReplaceSelectedText
+
+        #expect(scenario.id == "textedit-replace-selected-text")
+        #expect(scenario.command.spokenPhrase == "type small")
+        #expect(scenario.expectations.map(\.id) == ["document-replaces-selected-text"])
+        #expect(scenario.setup.map(\.id) == ["launch-textedit", "select-target-text"])
     }
 }
