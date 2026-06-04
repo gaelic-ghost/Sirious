@@ -79,16 +79,25 @@ private struct TextEditRealAppScenarioDriver {
             ),
         ]
 
-        guard AXIsProcessTrusted() else {
+        guard try await waitForAccessibilityTrust() else {
             phases.append(
                 .failed(
                     .setup,
                     stepID: "accessibility-permission",
-                    message: "TextEdit real-app scenario cannot run because the test process is not trusted for Accessibility. Enable Accessibility for Xcode or the test runner before setting SIRIOUS_RUN_REAL_APP_SCENARIOS=1."
+                    message: """
+                    TextEdit real-app scenario cannot run because macOS still reports the active Xcode test host as untrusted for Accessibility after Sirious requested the system prompt. Approve the newly prompted item in System Settings > Privacy & Security > Accessibility, then rerun the SiriousRealAppScenarios test plan. Depending on Xcode hosting, the item may appear as Sirious, Xcode, xcodebuild, or a generated test runner. Current host: \(Bundle.main.bundleIdentifier ?? "unknown bundle identifier") at \(Bundle.main.bundleURL.path).
+                    """
                 )
             )
             return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
         }
+        phases.append(
+            .completed(
+                .setup,
+                stepID: "accessibility-permission",
+                message: "macOS reports the active Xcode test host is trusted for Accessibility."
+            )
+        )
 
         let preexistingTextEditApps = NSRunningApplication.runningApplications(
             withBundleIdentifier: textEditBundleIdentifier
@@ -276,6 +285,25 @@ private struct TextEditRealAppScenarioDriver {
         )
 
         return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
+    }
+
+    private func waitForAccessibilityTrust() async throws -> Bool {
+        if AXIsProcessTrusted() {
+            return true
+        }
+
+        _ = AccessibilityPermissionClient().requestTrustPrompt()
+
+        let deadline = Date().addingTimeInterval(20)
+        while Date() < deadline {
+            if AXIsProcessTrusted() {
+                return true
+            }
+
+            try await Task.sleep(for: .milliseconds(250))
+        }
+
+        return AXIsProcessTrusted()
     }
 
     private func makeTemporaryScenarioDirectory(scenarioID: String) throws -> URL {

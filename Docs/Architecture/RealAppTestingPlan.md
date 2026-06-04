@@ -125,6 +125,7 @@ Current starting point:
 - `ManualTestGate` records the opt-in environment variable and the operator-facing disabled or enabled reason.
 - `RealAppTestRunReport` records gate status, setup, command, expectation, cleanup phase outcomes, and artifacts.
 - Cleanup failures make the run fail even when the main expectation passed.
+- The TextEdit driver requests the macOS Accessibility trust prompt and reports the active Xcode test host bundle and path when TCC still denies access.
 
 ### `TargetAppDriver`
 
@@ -149,6 +150,10 @@ Initial gate names and test plans:
 - `SiriousRealAppScenarios.xctestplan` enables `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` and runs local-only target-app scenarios.
 - `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` remains the lower-level gate that real-app scenario drivers must check before controlling apps.
 - `SIRIOUS_RUN_ROUTED_AUDIO_SCENARIOS=1` enables local-only virtual microphone routing scenarios.
+
+Accessibility permission note:
+
+`SiriousRealAppScenarios.xctestplan` runs inside Xcode's hosted test process. When Accessibility trust is missing, the TextEdit scenario calls the same `AXIsProcessTrustedWithOptions` prompt path used by the app settings UI and waits briefly for approval. The item macOS records can vary by host and signing state, so it may appear as Sirious, Xcode, `xcodebuild`, or a generated test runner. The failure diagnostic includes the active bundle identifier and bundle path so the operator can approve the right entry.
 
 ## Initial Scenario Matrix
 
