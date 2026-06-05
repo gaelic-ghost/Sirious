@@ -1,6 +1,7 @@
 import Foundation
 
 enum AutomationHelperXPC {
+    static let launchAgentPlistName = "com.galewilliams.Sirious.AutomationHelper.plist"
     static let machServiceName = "com.galewilliams.Sirious.AutomationHelper"
     static let terminationStatusKey = "terminationStatus"
     static let standardOutputKey = "standardOutput"

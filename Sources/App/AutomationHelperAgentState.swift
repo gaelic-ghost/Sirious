@@ -33,7 +33,7 @@ protocol AutomationHelperAgentServiceProviding {
 }
 
 struct AutomationHelperAgentService: AutomationHelperAgentServiceProviding {
-    static let plistName = "com.galewilliams.Sirious.AutomationHelper.plist"
+    static let plistName = AutomationHelperXPC.launchAgentPlistName
 
     private var service: SMAppService {
         SMAppService.agent(plistName: Self.plistName)

@@ -44,7 +44,7 @@ targets:
       - target: SiriousAutomationHelper
         embed: true
         copy:
-          destination: executables
+          destination: resources
     info:
       path: Sources/Support/Info.plist
       properties:
