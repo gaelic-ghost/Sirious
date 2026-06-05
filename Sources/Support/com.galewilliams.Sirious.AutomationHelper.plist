@@ -3,7 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>AssociatedBundleIdentifiers</key>
-	<string>com.galewilliams.Sirious</string>
+	<array>
+		<string>com.galewilliams.Sirious</string>
+	</array>
 	<key>BundleProgram</key>
 	<string>Contents/MacOS/SiriousAutomationHelper</string>
 	<key>Label</key>

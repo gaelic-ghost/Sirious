@@ -1,8 +1,27 @@
 @testable import Sirious
+import Foundation
 import Testing
 
 @MainActor
 struct AutomationHelperAgentStateTests {
+    @Test("automation helper launch agent plist keeps SMAppService shape")
+    func automationHelperLaunchAgentPlistKeepsServiceManagementShape() throws {
+        let sourceURL = URL(filePath: #filePath)
+        let repositoryRoot = sourceURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let plistURL = repositoryRoot
+            .appending(path: "Sources/Support")
+            .appending(path: "com.galewilliams.Sirious.AutomationHelper.plist")
+        let data = try Data(contentsOf: plistURL)
+        let plist = try #require(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+
+        #expect(plist["Label"] as? String == "com.galewilliams.Sirious.AutomationHelper")
+        #expect(plist["BundleProgram"] as? String == "Contents/MacOS/SiriousAutomationHelper")
+        #expect(plist["AssociatedBundleIdentifiers"] as? [String] == ["com.galewilliams.Sirious"])
+    }
+
     @Test("automation helper state registers launch agent when enabled")
     func automationHelperStateRegistersLaunchAgentWhenEnabled() {
         let service = FakeAutomationHelperAgentService(status: .notRegistered)
