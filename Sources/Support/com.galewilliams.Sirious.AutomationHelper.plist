@@ -10,5 +10,10 @@
 	<string>Contents/MacOS/SiriousAutomationHelper</string>
 	<key>Label</key>
 	<string>com.galewilliams.Sirious.AutomationHelper</string>
+	<key>MachServices</key>
+	<dict>
+		<key>com.galewilliams.Sirious.AutomationHelper</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

@@ -20,6 +20,9 @@ struct AutomationHelperAgentStateTests {
         #expect(plist["Label"] as? String == "com.galewilliams.Sirious.AutomationHelper")
         #expect(plist["BundleProgram"] as? String == "Contents/MacOS/SiriousAutomationHelper")
         #expect(plist["AssociatedBundleIdentifiers"] as? [String] == ["com.galewilliams.Sirious"])
+        #expect(plist["MachServices"] as? [String: Bool] == [
+            "com.galewilliams.Sirious.AutomationHelper": true,
+        ])
     }
 
     @Test("automation helper state registers launch agent when enabled")

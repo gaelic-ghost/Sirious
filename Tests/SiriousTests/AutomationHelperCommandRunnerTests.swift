@@ -1,4 +1,5 @@
 @testable import Sirious
+import Foundation
 import Testing
 
 @MainActor
@@ -33,6 +34,19 @@ struct AutomationHelperCommandRunnerTests {
 
         #expect(result.succeeded == false)
         #expect(result.trimmedMessage == "launch failed")
+    }
+
+    @Test("automation helper command result decodes XPC reply dictionaries")
+    func automationHelperCommandResultDecodesXPCReplyDictionaries() {
+        let result = AutomationHelperCommandResult(xpcReply: [
+            AutomationHelperXPC.terminationStatusKey: NSNumber(value: 10),
+            AutomationHelperXPC.standardOutputKey: "not trusted\n",
+            AutomationHelperXPC.standardErrorKey: "",
+        ])
+
+        #expect(result.terminationStatus == 10)
+        #expect(result.succeeded == false)
+        #expect(result.trimmedMessage == "not trusted")
     }
 
     @Test("automation helper text inserter maps successful helper result")

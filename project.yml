@@ -28,6 +28,8 @@ targets:
     sources:
       - path: Sources/App
         group: App
+      - path: Sources/AutomationHelperSupport
+        group: Automation Helper Support
       - path: Sources/Permissions
         group: Permissions
       - path: Sources/Routing
@@ -75,6 +77,8 @@ targets:
     type: tool
     platform: macOS
     sources:
+      - path: Sources/AutomationHelperSupport
+        group: Automation Helper Support
       - path: Sources/AutomationHelper
         group: Automation Helper
     settings:

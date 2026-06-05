@@ -25,6 +25,22 @@ struct AutomationHelperCommandResult: Equatable {
     var standardOutput: String
     var standardError: String
 
+    init(
+        terminationStatus: Int32,
+        standardOutput: String,
+        standardError: String
+    ) {
+        self.terminationStatus = terminationStatus
+        self.standardOutput = standardOutput
+        self.standardError = standardError
+    }
+
+    init(xpcReply reply: NSDictionary) {
+        terminationStatus = Self.terminationStatus(from: reply)
+        standardOutput = reply[AutomationHelperXPC.standardOutputKey] as? String ?? ""
+        standardError = reply[AutomationHelperXPC.standardErrorKey] as? String ?? ""
+    }
+
     var succeeded: Bool {
         terminationStatus == 0
     }
@@ -42,6 +58,22 @@ struct AutomationHelperCommandResult: Equatable {
 
         return "SiriousAutomationHelper exited with status \(terminationStatus) without writing output."
     }
+
+    private static func terminationStatus(from reply: NSDictionary) -> Int32 {
+        let value = reply[AutomationHelperXPC.terminationStatusKey]
+
+        if let status = value as? Int32 {
+            return status
+        }
+        if let status = value as? Int {
+            return Int32(status)
+        }
+        if let number = value as? NSNumber {
+            return number.int32Value
+        }
+
+        return 126
+    }
 }
 
 @MainActor
@@ -52,7 +84,7 @@ protocol AutomationHelperTextInserting {
 struct AutomationHelperTextInserter: AutomationHelperTextInserting {
     var commandRunner: any AutomationHelperCommandRunning
 
-    init(commandRunner: any AutomationHelperCommandRunning = BundledAutomationHelperCommandRunner()) {
+    init(commandRunner: any AutomationHelperCommandRunning = LaunchAgentAutomationHelperCommandRunner()) {
         self.commandRunner = commandRunner
     }
 
@@ -71,54 +103,90 @@ protocol AutomationHelperCommandRunning {
     func run(_ command: AutomationHelperCommand) async -> AutomationHelperCommandResult
 }
 
-struct BundledAutomationHelperCommandRunner: AutomationHelperCommandRunning {
-    private static let helperExecutableName = "SiriousAutomationHelper"
-
+struct LaunchAgentAutomationHelperCommandRunner: AutomationHelperCommandRunning {
     func run(_ command: AutomationHelperCommand) async -> AutomationHelperCommandResult {
-        guard let helperURL = Bundle.main.url(forAuxiliaryExecutable: Self.helperExecutableName) else {
-            return AutomationHelperCommandResult(
-                terminationStatus: 127,
-                standardOutput: "",
-                standardError: "Sirious could not find the bundled automation helper executable named \(Self.helperExecutableName)."
+        await withCheckedContinuation { continuation in
+            let completion = AutomationHelperXPCCommandCompletion(
+                command: command,
+                continuation: continuation
             )
-        }
+            let connection = NSXPCConnection(
+                machServiceName: AutomationHelperXPC.machServiceName,
+                options: []
+            )
+            connection.remoteObjectInterface = NSXPCInterface(with: AutomationHelperXPCProtocol.self)
+            connection.invalidationHandler = {
+                completion.finishWithConnectionError(
+                    "Sirious lost its XPC connection to the automation helper before the helper returned a response."
+                )
+            }
+            connection.interruptionHandler = {
+                completion.finishWithConnectionError(
+                    "Sirious had its XPC connection to the automation helper interrupted before the helper returned a response."
+                )
+            }
+            connection.resume()
 
-        return await run(command.arguments, executableURL: helperURL)
+            let proxy = connection.remoteObjectProxyWithErrorHandler { error in
+                completion.finishWithConnectionError(
+                    "Sirious could not connect to the automation helper XPC service named \(AutomationHelperXPC.machServiceName). macOS reported: \(error.localizedDescription)"
+                )
+                connection.invalidate()
+            }
+
+            guard let helper = proxy as? AutomationHelperXPCProtocol else {
+                completion.finishWithConnectionError(
+                    "Sirious could not create an XPC proxy for the automation helper command protocol."
+                )
+                connection.invalidate()
+                return
+            }
+
+            helper.runCommand(command.arguments) { reply in
+                completion.finish(with: reply)
+                connection.invalidate()
+            }
+        }
+    }
+}
+
+private final class AutomationHelperXPCCommandCompletion: @unchecked Sendable {
+    private let command: AutomationHelperCommand
+    private let continuation: CheckedContinuation<AutomationHelperCommandResult, Never>
+    private let lock = NSLock()
+    private var didFinish = false
+
+    init(
+        command: AutomationHelperCommand,
+        continuation: CheckedContinuation<AutomationHelperCommandResult, Never>
+    ) {
+        self.command = command
+        self.continuation = continuation
     }
 
-    private func run(_ arguments: [String], executableURL: URL) async -> AutomationHelperCommandResult {
-        await withCheckedContinuation { continuation in
-            let process = Process()
-            let standardOutput = Pipe()
-            let standardError = Pipe()
+    func finish(with reply: NSDictionary) {
+        finish(AutomationHelperCommandResult(xpcReply: reply))
+    }
 
-            process.executableURL = executableURL
-            process.arguments = arguments
-            process.standardOutput = standardOutput
-            process.standardError = standardError
+    func finishWithConnectionError(_ message: String) {
+        finish(AutomationHelperCommandResult(
+            terminationStatus: 126,
+            standardOutput: "",
+            standardError: "\(message) Command: \(command.arguments.joined(separator: " "))."
+        ))
+    }
 
-            process.terminationHandler = { process in
-                let outputData = standardOutput.fileHandleForReading.readDataToEndOfFile()
-                let errorData = standardError.fileHandleForReading.readDataToEndOfFile()
-                let output = String(data: outputData, encoding: .utf8) ?? ""
-                let errorOutput = String(data: errorData, encoding: .utf8) ?? ""
-
-                continuation.resume(returning: AutomationHelperCommandResult(
-                    terminationStatus: process.terminationStatus,
-                    standardOutput: output,
-                    standardError: errorOutput
-                ))
-            }
-
-            do {
-                try process.run()
-            } catch {
-                continuation.resume(returning: AutomationHelperCommandResult(
-                    terminationStatus: 126,
-                    standardOutput: "",
-                    standardError: "Sirious could not launch the bundled automation helper at \(executableURL.path). macOS reported: \(error.localizedDescription)"
-                ))
-            }
+    private func finish(_ result: AutomationHelperCommandResult) {
+        lock.lock()
+        defer {
+            lock.unlock()
         }
+
+        guard didFinish == false else {
+            return
+        }
+
+        didFinish = true
+        continuation.resume(returning: result)
     }
 }

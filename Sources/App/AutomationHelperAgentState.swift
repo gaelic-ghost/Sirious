@@ -90,7 +90,7 @@ final class AutomationHelperAgentState {
 
     init(
         service: any AutomationHelperAgentServiceProviding = AutomationHelperAgentService(),
-        commandRunner: any AutomationHelperCommandRunning = BundledAutomationHelperCommandRunner()
+        commandRunner: any AutomationHelperCommandRunning = LaunchAgentAutomationHelperCommandRunner()
     ) {
         self.service = service
         self.commandRunner = commandRunner

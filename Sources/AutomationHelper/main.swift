@@ -16,57 +16,104 @@ private enum ExitCode {
 
 private let helperName = "SiriousAutomationHelper"
 private let promptOptionKey = "AXTrustedCheckOptionPrompt"
-private let arguments = Array(CommandLine.arguments.dropFirst())
 
-guard let firstArgument = arguments.first else {
-    print("\(helperName) is installed. No automation command was requested.")
-    Foundation.exit(ExitCode.success)
+private final class AutomationHelperXPCService: NSObject, AutomationHelperXPCProtocol {
+    func runCommand(_ arguments: [String], withReply reply: @escaping (NSDictionary) -> Void) {
+        reply(executeCommand(arguments).reply)
+    }
 }
 
-guard let command = Command(rawValue: firstArgument) else {
-    let supportedCommands = [
-        Command.status.rawValue,
-        Command.accessibilityStatus.rawValue,
-        Command.requestAccessibility.rawValue,
-        Command.insertText.rawValue,
-    ].joined(separator: ", ")
-    print("\(helperName) received unsupported command '\(firstArgument)'. Supported commands: \(supportedCommands).")
-    Foundation.exit(ExitCode.usage)
-}
+private final class AutomationHelperXPCListenerDelegate: NSObject, NSXPCListenerDelegate {
+    private let service = AutomationHelperXPCService()
 
-switch command {
-    case .status:
-        print("\(helperName) is available.")
-        Foundation.exit(ExitCode.success)
+    func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
+        connection.exportedInterface = NSXPCInterface(with: AutomationHelperXPCProtocol.self)
+        connection.exportedObject = service
+        connection.resume()
 
-    case .accessibilityStatus:
-        let isTrusted = AXIsProcessTrusted()
-        print("\(helperName) accessibility trust is \(isTrusted ? "enabled" : "not enabled").")
-        Foundation.exit(isTrusted ? ExitCode.success : ExitCode.accessibilityNotTrusted)
-
-    case .requestAccessibility:
-        let options = [
-            promptOptionKey: true,
-        ] as CFDictionary
-        let isTrusted = AXIsProcessTrustedWithOptions(options)
-        print("\(helperName) accessibility trust is \(isTrusted ? "enabled" : "not enabled after prompting").")
-        Foundation.exit(isTrusted ? ExitCode.success : ExitCode.accessibilityNotTrusted)
-
-    case .insertText:
-        guard arguments.count >= 2 else {
-            print("\(helperName) cannot insert text because the --insert-text command requires one text argument.")
-            Foundation.exit(ExitCode.usage)
-        }
-
-        let text = arguments.dropFirst().joined(separator: " ")
-        let result = insertTextIntoFocusedElement(text)
-        print(result.message)
-        Foundation.exit(result.exitCode)
+        return true
+    }
 }
 
 private struct HelperCommandResult {
     var exitCode: Int32
     var message: String
+
+    var reply: NSDictionary {
+        [
+            AutomationHelperXPC.terminationStatusKey: exitCode,
+            AutomationHelperXPC.standardOutputKey: "\(message)\n",
+            AutomationHelperXPC.standardErrorKey: "",
+        ]
+    }
+}
+
+private func runXPCService() {
+    let listener = NSXPCListener(machServiceName: AutomationHelperXPC.machServiceName)
+    let delegate = AutomationHelperXPCListenerDelegate()
+
+    listener.delegate = delegate
+    listener.resume()
+    RunLoop.main.run()
+}
+
+private func executeCommand(_ arguments: [String]) -> HelperCommandResult {
+    guard let firstArgument = arguments.first else {
+        return HelperCommandResult(
+            exitCode: ExitCode.success,
+            message: "\(helperName) is running as a launchd-managed XPC service."
+        )
+    }
+
+    guard let command = Command(rawValue: firstArgument) else {
+        let supportedCommands = [
+            Command.status.rawValue,
+            Command.accessibilityStatus.rawValue,
+            Command.requestAccessibility.rawValue,
+            Command.insertText.rawValue,
+        ].joined(separator: ", ")
+
+        return HelperCommandResult(
+            exitCode: ExitCode.usage,
+            message: "\(helperName) received unsupported command '\(firstArgument)'. Supported commands: \(supportedCommands)."
+        )
+    }
+
+    switch command {
+        case .status:
+            return HelperCommandResult(
+                exitCode: ExitCode.success,
+                message: "\(helperName) is available."
+            )
+
+        case .accessibilityStatus:
+            let isTrusted = AXIsProcessTrusted()
+            return HelperCommandResult(
+                exitCode: isTrusted ? ExitCode.success : ExitCode.accessibilityNotTrusted,
+                message: "\(helperName) accessibility trust is \(isTrusted ? "enabled" : "not enabled")."
+            )
+
+        case .requestAccessibility:
+            let options = [
+                promptOptionKey: true,
+            ] as CFDictionary
+            let isTrusted = AXIsProcessTrustedWithOptions(options)
+            return HelperCommandResult(
+                exitCode: isTrusted ? ExitCode.success : ExitCode.accessibilityNotTrusted,
+                message: "\(helperName) accessibility trust is \(isTrusted ? "enabled" : "not enabled after prompting")."
+            )
+
+        case .insertText:
+            guard arguments.count >= 2 else {
+                return HelperCommandResult(
+                    exitCode: ExitCode.usage,
+                    message: "\(helperName) cannot insert text because the --insert-text command requires one text argument."
+                )
+            }
+
+            let text = arguments.dropFirst().joined(separator: " ")
+            return insertTextIntoFocusedElement(text)
+    }
 }
 
 private func insertTextIntoFocusedElement(_ text: String) -> HelperCommandResult {
@@ -234,3 +281,18 @@ private func setSelectedTextRange(_ range: CFRange, on element: AXUIElement) {
         rangeValue
     )
 }
+
+private func runHelper() -> Never {
+    let arguments = Array(CommandLine.arguments.dropFirst())
+
+    if arguments.isEmpty {
+        runXPCService()
+        Foundation.exit(ExitCode.success)
+    }
+
+    let result = executeCommand(arguments)
+    print(result.message)
+    Foundation.exit(result.exitCode)
+}
+
+runHelper()

@@ -77,6 +77,7 @@
 		81647A83B3CE3859E8C8745F /* WindowTargetResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD7E262EF07909BE05DD6A9 /* WindowTargetResolver.swift */; };
 		8188CD23E26A064BC4E0178B /* TranscriptSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB8BC6C6D119281537D52C8 /* TranscriptSource.swift */; };
 		8315DA30FD65517F9BC0D94C /* SiriousAutomationHelper in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = E334B2CD8EF5D6FEED14723F /* SiriousAutomationHelper */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		87710B2712D729F4D6DD8447 /* AutomationHelperXPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E9BFD6ED449FBB8CA4C292 /* AutomationHelperXPC.swift */; };
 		88FF2D487F8241A0D275C587 /* SystemCommandCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC77FA0E320BE0AA59B7CC17 /* SystemCommandCatalogTests.swift */; };
 		8941237FA8A7DF39C0536E6A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770FFC9D71DE20E52C64834 /* main.swift */; };
 		8B2AAF57F1664ECDEDE60C36 /* MenuBarWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4410EA38B83FDAD99CF8966 /* MenuBarWindow.swift */; };
@@ -134,6 +135,7 @@
 		EE79534A405C54AC8658DA0F /* PatternCommandRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 601B712F4A4F30B8E987A12C /* PatternCommandRouter.swift */; };
 		F1A6D1E463CEEFB167170751 /* AppWindowID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D6E1313CFACB95E4771C6 /* AppWindowID.swift */; };
 		F327516745842436F36F535E /* CommandToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 790864528DEDE51E0C382016 /* CommandToken.swift */; };
+		F3E1F8592991E11B1AD792E1 /* AutomationHelperXPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E9BFD6ED449FBB8CA4C292 /* AutomationHelperXPC.swift */; };
 		F4FDD4C1E5EEB975DEB7E995 /* DictionaryCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3413676491CAB35A1A297A97 /* DictionaryCommandPatterns.swift */; };
 		F592A53823F7C0938C1CD1D1 /* MPNowPlayingAudioStateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A97FF1725B12BF14B040F6 /* MPNowPlayingAudioStateProvider.swift */; };
 /* End PBXBuildFile section */
@@ -279,6 +281,7 @@
 		B54A7393D86AF7BB9BF5AF29 /* FirstStageAppWindowRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstStageAppWindowRoutingTests.swift; sourceTree = "<group>"; };
 		B6A97FF1725B12BF14B040F6 /* MPNowPlayingAudioStateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MPNowPlayingAudioStateProvider.swift; sourceTree = "<group>"; };
 		B88467FAB03647417E8DFD44 /* TextEntrySessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEntrySessionStoreTests.swift; sourceTree = "<group>"; };
+		B8E9BFD6ED449FBB8CA4C292 /* AutomationHelperXPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomationHelperXPC.swift; sourceTree = "<group>"; };
 		B8EA67D9801A1BF625CB20F1 /* StaticSystemContextProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticSystemContextProvider.swift; sourceTree = "<group>"; };
 		B92B42F8B22ED5FEB646DB3C /* SystemCommandCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemCommandCatalog.swift; sourceTree = "<group>"; };
 		BF632DE15C3368A00F28A886 /* TranscriptionRuntimeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRuntimeState.swift; sourceTree = "<group>"; };
@@ -458,6 +461,14 @@
 			name = "UI Tests";
 			sourceTree = "<group>";
 		};
+		63CBC2A3630DFF0F54AB716C /* Automation Helper Support */ = {
+			isa = PBXGroup;
+			children = (
+				A3C993BA8795898FAF3E18ED /* AutomationHelperSupport */,
+			);
+			name = "Automation Helper Support";
+			sourceTree = "<group>";
+		};
 		702E9622F33424786D055805 /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -565,11 +576,21 @@
 			path = Sources/Routing;
 			sourceTree = "<group>";
 		};
+		A3C993BA8795898FAF3E18ED /* AutomationHelperSupport */ = {
+			isa = PBXGroup;
+			children = (
+				B8E9BFD6ED449FBB8CA4C292 /* AutomationHelperXPC.swift */,
+			);
+			name = AutomationHelperSupport;
+			path = Sources/AutomationHelperSupport;
+			sourceTree = "<group>";
+		};
 		A8B6E21AE66AA194BE888523 = {
 			isa = PBXGroup;
 			children = (
 				2289C5578D44AA11F9D865AD /* App */,
 				59179663817A3498DD73062C /* Automation Helper */,
+				63CBC2A3630DFF0F54AB716C /* Automation Helper Support */,
 				702E9622F33424786D055805 /* Config */,
 				17A2C7DDB9F78ECCCAD57A6D /* Permissions */,
 				2E67BE6B59361C660BFD951D /* Routing */,
@@ -844,6 +865,7 @@
 				CA0E871BC79B92B10294CA0E /* AudioStateProviding.swift in Sources */,
 				ABF7C1C2A441CADB7693A35E /* AutomationHelperAgentState.swift in Sources */,
 				E8C146D6F028BAE2B009778F /* AutomationHelperCommandRunner.swift in Sources */,
+				87710B2712D729F4D6DD8447 /* AutomationHelperXPC.swift in Sources */,
 				4E34D5CB0D601B3CDC02BF1E /* CommandCenterView.swift in Sources */,
 				9EAC0DD3373858B219B00E86 /* CommandComplexity.swift in Sources */,
 				CDC9F991C89AC1913C3BB606 /* CommandExecution.swift in Sources */,
@@ -970,6 +992,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3E1F8592991E11B1AD792E1 /* AutomationHelperXPC.swift in Sources */,
 				8941237FA8A7DF39C0536E6A /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
