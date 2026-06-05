@@ -39,12 +39,16 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.utilities
+        NSAppleEventsUsageDescription: Sirious uses Apple Events to run user-approved automation commands in other Mac apps.
         NSMicrophoneUsageDescription: Sirious uses microphone audio to transcribe spoken commands and dictation.
         NSSpeechRecognitionUsageDescription: Sirious uses speech recognition to turn spoken commands and dictation into text.
     settings:
       base:
+        AUTOMATION_APPLE_EVENTS: YES
         CODE_SIGN_ENTITLEMENTS: Sources/Support/Sirious.entitlements
         CURRENT_PROJECT_VERSION: 1
+        ENABLE_APP_SANDBOX: YES
+        ENABLE_HARDENED_RUNTIME: YES
         MARKETING_VERSION: 0.0.1
         PRODUCT_BUNDLE_IDENTIFIER: com.galewilliams.Sirious
     scheme:

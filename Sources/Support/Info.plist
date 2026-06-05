@@ -22,6 +22,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Sirious uses Apple Events to run user-approved automation commands in other Mac apps.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Sirious uses microphone audio to transcribe spoken commands and dictation.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

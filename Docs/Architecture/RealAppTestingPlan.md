@@ -157,6 +157,7 @@ Accessibility permission note:
 
 Sandbox and helper direction:
 
+- Apple Events automation is configured on the main app through `NSAppleEventsUsageDescription`, `com.apple.security.automation.apple-events`, hardened runtime, and the App Sandbox build setting. That enables user-approved Apple Events prompts; it is not the Accessibility permission path.
 - Apple identifies assistive Accessibility API use as restricted under App Sandbox, so real app text insertion and window automation should not be forced through the sandboxed main app.
 - Apple recommends diagnosing sandbox issues from the concrete sandbox violation log before adding capabilities or temporary exceptions.
 - Keep the main app sandboxed for ordinary app behavior. Put assistive automation behind a separate helper boundary so the permissioned process is narrow and operator-visible.
