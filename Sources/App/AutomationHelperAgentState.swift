@@ -61,9 +61,13 @@ struct AutomationHelperAgentService: AutomationHelperAgentServiceProviding {
 final class AutomationHelperAgentState {
     private(set) var status: AutomationHelperAgentServiceStatus
     private(set) var errorMessage: String?
+    private(set) var accessibilityStatusDescription = "Helper Accessibility trust has not been checked."
 
     @ObservationIgnored
     private let service: any AutomationHelperAgentServiceProviding
+
+    @ObservationIgnored
+    private let commandRunner: any AutomationHelperCommandRunning
 
     var isEnabledRequested: Bool {
         status == .enabled || status == .requiresApproval
@@ -84,8 +88,12 @@ final class AutomationHelperAgentState {
         }
     }
 
-    init(service: any AutomationHelperAgentServiceProviding = AutomationHelperAgentService()) {
+    init(
+        service: any AutomationHelperAgentServiceProviding = AutomationHelperAgentService(),
+        commandRunner: any AutomationHelperCommandRunning = BundledAutomationHelperCommandRunner()
+    ) {
         self.service = service
+        self.commandRunner = commandRunner
         status = service.status
     }
 
@@ -111,5 +119,15 @@ final class AutomationHelperAgentState {
 
     func openSystemSettingsLoginItems() {
         service.openSystemSettingsLoginItems()
+    }
+
+    func checkAccessibilityStatus() async {
+        let result = await commandRunner.run(.accessibilityStatus)
+        accessibilityStatusDescription = result.trimmedMessage
+    }
+
+    func requestAccessibilityTrust() async {
+        let result = await commandRunner.run(.requestAccessibility)
+        accessibilityStatusDescription = result.trimmedMessage
     }
 }

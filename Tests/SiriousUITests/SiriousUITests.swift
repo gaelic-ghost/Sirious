@@ -30,6 +30,8 @@ final class SiriousUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Open at Login"].exists)
         XCTAssertTrue(app.staticTexts["Automation"].exists)
         XCTAssertTrue(app.staticTexts["Automation Helper"].exists)
+        XCTAssertTrue(app.buttons["Check Helper Accessibility"].exists)
+        XCTAssertTrue(app.buttons["Request Helper Accessibility"].exists)
         XCTAssertTrue(app.staticTexts["Dictation"].exists)
         XCTAssertTrue(app.staticTexts["Pause Before Exit"].exists)
         XCTAssertTrue(app.buttons["Open Debug Window"].exists)

@@ -111,6 +111,23 @@ struct SettingsView: View {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
+
+                Text(automationHelper.accessibilityStatusDescription)
+                    .foregroundStyle(.secondary)
+
+                HStack {
+                    Button("Check Helper Accessibility") {
+                        Task {
+                            await automationHelper.checkAccessibilityStatus()
+                        }
+                    }
+
+                    Button("Request Helper Accessibility") {
+                        Task {
+                            await automationHelper.requestAccessibilityTrust()
+                        }
+                    }
+                }
             }
 
             Section("Dictation") {

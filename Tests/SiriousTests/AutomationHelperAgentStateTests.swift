@@ -56,6 +56,42 @@ struct AutomationHelperAgentStateTests {
 
         #expect(service.didOpenSettings == true)
     }
+
+    @Test("automation helper state checks helper accessibility status")
+    func automationHelperStateChecksHelperAccessibilityStatus() async {
+        let runner = FakeAutomationHelperCommandRunner(result: AutomationHelperCommandResult(
+            terminationStatus: 10,
+            standardOutput: "SiriousAutomationHelper accessibility trust is not enabled.\n",
+            standardError: ""
+        ))
+        let state = AutomationHelperAgentState(
+            service: FakeAutomationHelperAgentService(status: .enabled),
+            commandRunner: runner
+        )
+
+        await state.checkAccessibilityStatus()
+
+        #expect(runner.commands == [.accessibilityStatus])
+        #expect(state.accessibilityStatusDescription == "SiriousAutomationHelper accessibility trust is not enabled.")
+    }
+
+    @Test("automation helper state requests helper accessibility trust")
+    func automationHelperStateRequestsHelperAccessibilityTrust() async {
+        let runner = FakeAutomationHelperCommandRunner(result: AutomationHelperCommandResult(
+            terminationStatus: 0,
+            standardOutput: "SiriousAutomationHelper accessibility trust is enabled.\n",
+            standardError: ""
+        ))
+        let state = AutomationHelperAgentState(
+            service: FakeAutomationHelperAgentService(status: .enabled),
+            commandRunner: runner
+        )
+
+        await state.requestAccessibilityTrust()
+
+        #expect(runner.commands == [.requestAccessibility])
+        #expect(state.accessibilityStatusDescription == "SiriousAutomationHelper accessibility trust is enabled.")
+    }
 }
 
 @MainActor
@@ -98,4 +134,19 @@ private final class FakeAutomationHelperAgentService: AutomationHelperAgentServi
 
 private enum FakeAutomationHelperAgentError: Error {
     case denied
+}
+
+@MainActor
+private final class FakeAutomationHelperCommandRunner: AutomationHelperCommandRunning {
+    private(set) var commands: [AutomationHelperCommand] = []
+    var result: AutomationHelperCommandResult
+
+    init(result: AutomationHelperCommandResult) {
+        self.result = result
+    }
+
+    func run(_ command: AutomationHelperCommand) async -> AutomationHelperCommandResult {
+        commands.append(command)
+        return result
+    }
 }
