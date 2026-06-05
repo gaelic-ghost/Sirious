@@ -85,6 +85,8 @@ The checked-in fixtures live under `Tests/Fixtures/Audio/AppleSpeech`. Scratch a
 
 Real-app and routed-audio testing is planned in [Real App Testing Plan](./Docs/Architecture/RealAppTestingPlan.md). Those scenarios are intended to stay local-only and explicitly gated because they can touch live apps, Accessibility focus, microphone state, and user-configured audio routes.
 
+Automation-helper testing is part of that local-only path. Sirious bundles `SiriousAutomationHelper` as a LaunchAgent-backed helper with an XPC command channel for Accessibility-owned text insertion. The current code validates the built bundle shape, but Service Management registration should be checked from a stable local app install rather than only the DerivedData build product.
+
 Install the local SwiftFormat pre-commit hook:
 
 ```sh
@@ -101,6 +103,8 @@ Project planning lives in [ROADMAP.md](./ROADMAP.md). Architecture notes live un
 ├── Docs/Architecture/      # Routing, command surface, and testing architecture notes
 ├── Sources/
 │   ├── App/                # SwiftUI app, settings, debug, and menu bar views
+│   ├── AutomationHelper/   # LaunchAgent helper entry point for Accessibility commands
+│   ├── AutomationHelperSupport/ # Shared app/helper XPC contract
 │   ├── Permissions/        # Sandbox, Accessibility, and file-access helpers
 │   └── Routing/            # Transcripts, context, routing, execution, and runtime state
 ├── Tests/

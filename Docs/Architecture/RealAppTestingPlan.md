@@ -14,6 +14,7 @@ This plan keeps those two tracks separate. Normal Xcode tests should remain repe
 - Regenerate the curated checked-in MP3 corpus through `scripts/fixtures/generate-apple-speech-fixtures.sh` when SpeakSwiftlyServer is loaded and the fixture phrases should be refreshed.
 - Keep Apple Speech recognition against real audio files explicitly gated, even when the fixtures are checked in, because speech recognition permission and recognizer availability are machine state.
 - Let normal tests validate fixture metadata, manifest parsing, and routing expectations without invoking Apple Speech unless the local gate is enabled.
+- Keep the automation helper registered and exercised through a local installed-app workflow, not only the DerivedData build product. `SMAppService.agent(plistName:)` can still report `.notFound` from the Xcode build location even when the app bundle contains the expected helper executable and LaunchAgent plist.
 
 ## Goals
 
@@ -162,8 +163,14 @@ Sandbox and helper direction:
 - Apple recommends diagnosing sandbox issues from the concrete sandbox violation log before adding capabilities or temporary exceptions.
 - Keep the main app sandboxed for ordinary app behavior. Put assistive automation behind a separate helper boundary so the permissioned process is narrow and operator-visible.
 - Prefer a bundled LaunchAgent registered with `SMAppService.agent(plistName:)` before considering a LaunchDaemon, because these automation flows run in the logged-in user session and need user-facing Accessibility context. The first checked-in helper is `SiriousAutomationHelper`, a hardened-runtime command-line tool copied into the app bundle with its LaunchAgent plist at `Contents/Library/LaunchAgents/com.galewilliams.Sirious.AutomationHelper.plist`.
-- Use an XPC surface only when the main app needs a durable request/reply channel to the helper; keep the first helper contract small enough to validate TextEdit insertion and selected-text replacement.
+- `SiriousAutomationHelper` now embeds generated Info.plist metadata into the executable with `CREATE_INFOPLIST_SECTION_IN_BINARY` and `GENERATE_INFOPLIST_FILE`, keeping the helper identity visible to codesigning and Service Management.
+- The helper LaunchAgent plist declares `BundleProgram` as `Contents/MacOS/SiriousAutomationHelper` and advertises `MachServices` for `com.galewilliams.Sirious.AutomationHelper`.
+- Use the XPC command channel as the normal app-to-helper path. The app sends command arguments to the helper's Mach service, and the helper returns termination status plus output/error strings over a small shared protocol. The helper still accepts direct CLI commands such as `--status` for diagnostics.
 - Gale's local Apple signing team identifier is `BC73766F69`. Some certificate common names include `AMRC3N39SQ`, but the certificate subject's organizational unit is the Team ID Xcode uses for `DEVELOPMENT_TEAM`. Keep `DEVELOPMENT_TEAM` aligned with `BC73766F69` in `project.yml` so macOS TCC can associate prompts with a stable development identity during real-app testing.
+
+Installed-app validation note:
+
+The next helper slice should install or copy the built app into a stable local app location before treating Service Management status as authoritative. The validated bundle checks so far are: the LaunchAgent plist is copied to `Contents/Library/LaunchAgents`, the helper direct CLI answers `--status`, and the helper binary contains an embedded `__TEXT,__info_plist` section. The remaining check is whether `SMAppService.agent(plistName:)` moves from `.notFound` to `.notRegistered`, `.requiresApproval`, or `.enabled` after running from that stable installed location.
 
 ## Initial Scenario Matrix
 
@@ -209,6 +216,7 @@ Cleanup failures should be reported as first-class test diagnostics. They should
 10. Add audio-route detection for Loopback and Audio Hijack before attempting automatic route setup.
 11. Add supervised routed-audio scenarios that play generated command audio through the virtual microphone path.
 12. Add Computer Use notes and recovery hooks only for scenarios where app automation or audio tooling leaves a real gap.
+13. Add a local installed-app helper validation script or manual runbook that copies the built app into a stable test location, checks `SMAppService.agent(plistName:)` status, registers the LaunchAgent, verifies the XPC `--status` equivalent path, prompts for helper Accessibility trust, and unregisters or removes the test install cleanly.
 
 ## Non-Goals
 
@@ -225,3 +233,4 @@ Cleanup failures should be reported as first-class test diagnostics. They should
 - Which app versions and target apps should be treated as required for the first real-app validation pass?
 - How much audio-route setup should Sirious automate versus only detect and document?
 - Should routed-audio runs produce a local report artifact separate from `.xcresult` so route, app, and permission state can be inspected outside Xcode?
+- Should the first installed-app helper validation use a plain copied `.app` under a local build-products or Applications-style directory, or should it use a `.pkg` path matching Apple's Service Management sample before broader real-app automation depends on it?

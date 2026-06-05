@@ -89,6 +89,8 @@ In Progress
 - [x] Add typed media command execution for play/pause/resume and track navigation through a Now Playing-aware controller with generic system media-key fallback, with unsupported stop commands skipped clearly.
 - [ ] Decide whether a safer or richer now-playing/media-control surface can support exact play, exact pause, stop, and app-specific media behavior.
 - [ ] Add app-specific default text field focus strategies for predictable compose or search targets.
+- [x] Add a bundled `SiriousAutomationHelper` LaunchAgent with embedded Info.plist metadata, a launchd `MachServices` entry, and an XPC command channel for Accessibility-owned text insertion.
+- [ ] Validate `SiriousAutomationHelper` registration from an installed app bundle outside DerivedData, then document the local install/update/uninstall workflow for helper testing.
 
 ### Exit Criteria
 
@@ -181,6 +183,7 @@ Planned
 - [ ] Add Loopback and Audio Hijack route detection before attempting any automatic audio setup.
 - [ ] Add supervised routed-audio scenarios that play generated command audio through a virtual microphone into Sirious.
 - [ ] Add Computer Use setup, observation, and recovery notes for scenarios where Accessibility or app automation leaves a real gap.
+- [ ] Add an installed-app helper validation slice that copies or packages Sirious into a stable local app location before checking `SMAppService.agent(plistName:)` status, registration, XPC connection, and helper Accessibility prompting.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
 ### Exit Criteria
@@ -216,3 +219,4 @@ Planned
 - Added versioned test plans for ordinary validation and explicit Apple Speech fixture recognition.
 - Added a repo-local SpeakSwiftlyServer fixture generation command and refreshed the paired MP3 corpus through the live service.
 - Added the local-only real-app scenario model for gated setup, expectations, cleanup, and artifact reporting.
+- Added a bundled automation helper LaunchAgent with embedded helper Info.plist metadata, a `MachServices` plist entry, and an XPC command channel for helper-owned Accessibility commands.
