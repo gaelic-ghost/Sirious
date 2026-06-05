@@ -18,7 +18,7 @@ struct CommandExecutionDispatcher: CommandExecutionDispatching {
         applicationExecutor: any ApplicationCommandExecuting = AppCommandExecutor(),
         windowExecutor: any WindowCommandExecuting = WindowCommandExecutor(),
         mediaExecutor: any MediaCommandExecuting = MediaCommandExecutor(),
-        textExecutor: any TextCommandExecuting = TextCommandExecutor(),
+        textExecutor: any TextCommandExecuting = TextCommandExecutor(helperInserter: AutomationHelperTextInserter()),
         dictionaryExecutor: any DictionaryCommandExecuting = DictionaryCommandExecutor(),
         systemServiceExecutor: any SystemServiceCommandExecuting = SystemServiceCommandExecutor()
     ) {

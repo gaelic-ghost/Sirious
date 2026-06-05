@@ -524,6 +524,40 @@ struct CommandExecutionDispatcherTests {
         #expect(fallbackPaster.pastedText.isEmpty)
     }
 
+    @Test("text executor uses automation helper before app-side accessibility insertion")
+    func textExecutorUsesAutomationHelperBeforeAppSideAccessibilityInsertion() async {
+        let helperInserter = RecordingAutomationHelperTextInserter(
+            result: TextInsertionAttemptResult(outcome: .completed, message: "Helper inserted.")
+        )
+        let accessibilityInserter = RecordingAccessibilityTextInserter(
+            result: TextInsertionAttemptResult(outcome: .failed, message: "App-side insertion should not run.")
+        )
+        let fallbackPaster = RecordingTextPasteboardPaster(
+            result: TextInsertionAttemptResult(outcome: .failed, message: "Fallback should not run.")
+        )
+        let target = TextCommandTarget(text: "hello", mode: .text)
+        let executor = TextCommandExecutor(
+            helperInserter: helperInserter,
+            targetReader: StaticFocusedTextTargetReader(target: focusedTextTarget()),
+            accessibilityInserter: accessibilityInserter,
+            fallbackPaster: fallbackPaster
+        )
+
+        let result = await executor.execute(
+            TextCommandExecutionRequest(
+                match: routeMatch(command: .typeText, target: .text(target), domain: .textAction),
+                command: .typeText,
+                target: target
+            )
+        )
+
+        #expect(result.outcome == .completed)
+        #expect(result.message == "Sirious inserted text through the automation helper.")
+        #expect(helperInserter.insertedText == ["hello"])
+        #expect(accessibilityInserter.insertedText.isEmpty)
+        #expect(fallbackPaster.pastedText.isEmpty)
+    }
+
     @Test("text executor uses pasteboard fallback when accessibility insertion is unavailable")
     func textExecutorUsesPasteboardFallbackWhenAccessibilityInsertionIsUnavailable() async {
         let accessibilityInserter = RecordingAccessibilityTextInserter(
@@ -833,6 +867,21 @@ private final class RecordingAccessibilityTextInserter: AccessibilityTextInserti
     }
 
     func insert(_ text: String, into target: FocusedTextTarget) -> TextInsertionAttemptResult {
+        insertedText.append(text)
+        return result
+    }
+}
+
+@MainActor
+private final class RecordingAutomationHelperTextInserter: AutomationHelperTextInserting {
+    private(set) var insertedText: [String] = []
+    var result: TextInsertionAttemptResult
+
+    init(result: TextInsertionAttemptResult) {
+        self.result = result
+    }
+
+    func insert(_ text: String) async -> TextInsertionAttemptResult {
         insertedText.append(text)
         return result
     }

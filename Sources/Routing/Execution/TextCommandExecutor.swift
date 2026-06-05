@@ -4,15 +4,18 @@ import Foundation
 
 @MainActor
 struct TextCommandExecutor: TextCommandExecuting {
+    var helperInserter: (any AutomationHelperTextInserting)?
     var targetReader: any FocusedTextTargetReading
     var accessibilityInserter: any AccessibilityTextInserting
     var fallbackPaster: any TextPasteboardPasting
 
     init(
+        helperInserter: (any AutomationHelperTextInserting)? = nil,
         targetReader: any FocusedTextTargetReading = AXFocusedTextTargetReader(),
         accessibilityInserter: any AccessibilityTextInserting = AXValueTextInserter(),
         fallbackPaster: any TextPasteboardPasting = SystemTextPasteboardPaster()
     ) {
+        self.helperInserter = helperInserter
         self.targetReader = targetReader
         self.accessibilityInserter = accessibilityInserter
         self.fallbackPaster = fallbackPaster
@@ -24,6 +27,14 @@ struct TextCommandExecutor: TextCommandExecuting {
                 outcome: .skipped,
                 message: "Sirious refused to insert text because the routed target is a secure text field."
             )
+        }
+        if let helperInserter {
+            let helperResult = await helperInserter.insert(request.target.text)
+            if helperResult.outcome == .completed {
+                return helperResult.commandResult(
+                    successMessage: "Sirious inserted text through the automation helper."
+                )
+            }
         }
         guard let target = targetReader.focusedTextTarget() else {
             return CommandExecutionResult(

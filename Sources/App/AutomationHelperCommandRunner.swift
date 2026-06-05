@@ -4,6 +4,7 @@ enum AutomationHelperCommand: Equatable {
     case status
     case accessibilityStatus
     case requestAccessibility
+    case insertText(String)
 
     var arguments: [String] {
         switch self {
@@ -13,6 +14,8 @@ enum AutomationHelperCommand: Equatable {
                 ["--accessibility-status"]
             case .requestAccessibility:
                 ["--request-accessibility"]
+            case let .insertText(text):
+                ["--insert-text", text]
         }
     }
 }
@@ -38,6 +41,28 @@ struct AutomationHelperCommandResult: Equatable {
         }
 
         return "SiriousAutomationHelper exited with status \(terminationStatus) without writing output."
+    }
+}
+
+@MainActor
+protocol AutomationHelperTextInserting {
+    func insert(_ text: String) async -> TextInsertionAttemptResult
+}
+
+struct AutomationHelperTextInserter: AutomationHelperTextInserting {
+    var commandRunner: any AutomationHelperCommandRunning
+
+    init(commandRunner: any AutomationHelperCommandRunning = BundledAutomationHelperCommandRunner()) {
+        self.commandRunner = commandRunner
+    }
+
+    func insert(_ text: String) async -> TextInsertionAttemptResult {
+        let result = await commandRunner.run(.insertText(text))
+
+        return TextInsertionAttemptResult(
+            outcome: result.succeeded ? .completed : .failed,
+            message: result.trimmedMessage
+        )
     }
 }
 

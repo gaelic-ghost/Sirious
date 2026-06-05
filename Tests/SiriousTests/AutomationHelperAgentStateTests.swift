@@ -59,7 +59,7 @@ struct AutomationHelperAgentStateTests {
 
     @Test("automation helper state checks helper accessibility status")
     func automationHelperStateChecksHelperAccessibilityStatus() async {
-        let runner = FakeAutomationHelperCommandRunner(result: AutomationHelperCommandResult(
+        let runner = FakeAutomationHelperAgentCommandRunner(result: AutomationHelperCommandResult(
             terminationStatus: 10,
             standardOutput: "SiriousAutomationHelper accessibility trust is not enabled.\n",
             standardError: ""
@@ -77,7 +77,7 @@ struct AutomationHelperAgentStateTests {
 
     @Test("automation helper state requests helper accessibility trust")
     func automationHelperStateRequestsHelperAccessibilityTrust() async {
-        let runner = FakeAutomationHelperCommandRunner(result: AutomationHelperCommandResult(
+        let runner = FakeAutomationHelperAgentCommandRunner(result: AutomationHelperCommandResult(
             terminationStatus: 0,
             standardOutput: "SiriousAutomationHelper accessibility trust is enabled.\n",
             standardError: ""
@@ -137,7 +137,7 @@ private enum FakeAutomationHelperAgentError: Error {
 }
 
 @MainActor
-private final class FakeAutomationHelperCommandRunner: AutomationHelperCommandRunning {
+private final class FakeAutomationHelperAgentCommandRunner: AutomationHelperCommandRunning {
     private(set) var commands: [AutomationHelperCommand] = []
     var result: AutomationHelperCommandResult
 
