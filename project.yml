@@ -32,6 +32,17 @@ targets:
         group: Permissions
       - path: Sources/Routing
         group: Routing
+      - path: Sources/Support/com.galewilliams.Sirious.AutomationHelper.plist
+        group: Support
+        buildPhase:
+          copyFiles:
+            destination: wrapper
+            subpath: Contents/Library/LaunchAgents
+    dependencies:
+      - target: SiriousAutomationHelper
+        embed: true
+        copy:
+          destination: executables
     info:
       path: Sources/Support/Info.plist
       properties:
@@ -60,6 +71,21 @@ targets:
           defaultPlan: true
         - path: SiriousAppleSpeechFixtures.xctestplan
         - path: SiriousRealAppScenarios.xctestplan
+  SiriousAutomationHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Sources/AutomationHelper
+        group: Automation Helper
+    settings:
+      base:
+        CODE_SIGN_IDENTITY: Apple Development
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+        ENABLE_HARDENED_RUNTIME: YES
+        MACH_O_TYPE: mh_execute
+        OTHER_CODE_SIGN_FLAGS: $(inherited) -i $(PRODUCT_BUNDLE_IDENTIFIER)
+        PRODUCT_BUNDLE_IDENTIFIER: com.galewilliams.Sirious.AutomationHelper
+        SKIP_INSTALL: YES
   SiriousTests:
     type: bundle.unit-test
     platform: macOS

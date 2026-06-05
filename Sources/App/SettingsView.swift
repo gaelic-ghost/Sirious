@@ -4,6 +4,7 @@ struct SettingsView: View {
     @Environment(\.openWindow) private var openWindow
 
     @State private var accessibilityPermission = AccessibilityPermissionState()
+    @State private var automationHelper = AutomationHelperAgentState()
     @State private var loginItem = LoginItemState()
 
     var homeDirectoryAccess: HomeDirectoryAccessState
@@ -80,6 +81,38 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Automation") {
+                Toggle(
+                    isOn: Binding(
+                        get: {
+                            automationHelper.isEnabledRequested
+                        },
+                        set: { isEnabled in
+                            automationHelper.setEnabled(isEnabled)
+                        }
+                    )
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Automation Helper")
+                            .font(.headline)
+
+                        Text(automationHelper.statusDescription)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                if automationHelper.status == .requiresApproval {
+                    Button("Open Login Items Settings") {
+                        automationHelper.openSystemSettingsLoginItems()
+                    }
+                }
+
+                if let errorMessage = automationHelper.errorMessage {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                }
+            }
+
             Section("Dictation") {
                 Picker(
                     "Pause Before Exit",
@@ -112,6 +145,7 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings.form")
         .onAppear {
             accessibilityPermission.refresh()
+            automationHelper.refresh()
             homeDirectoryAccess.refresh()
             loginItem.refresh()
         }
