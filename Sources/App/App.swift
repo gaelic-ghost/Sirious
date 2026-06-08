@@ -4,6 +4,10 @@ import SwiftUI
 struct SiriousApp: App {
     @State private var runtime = SiriousRuntime()
 
+    init() {
+        AutomationHelperDiagnostics.exitIfRequested()
+    }
+
     var body: some Scene {
         WindowGroup {
             CommandCenterView()

@@ -18,7 +18,7 @@ struct AutomationHelperAgentStateTests {
         let plist = try #require(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
 
         #expect(plist["Label"] as? String == "com.galewilliams.Sirious.AutomationHelper")
-        #expect(plist["BundleProgram"] as? String == "Contents/MacOS/SiriousAutomationHelper")
+        #expect(plist["BundleProgram"] as? String == "Contents/Resources/SiriousAutomationHelper")
         #expect(plist["AssociatedBundleIdentifiers"] as? [String] == ["com.galewilliams.Sirious"])
         #expect(plist["MachServices"] as? [String: Bool] == [
             "com.galewilliams.Sirious.AutomationHelper": true,

@@ -183,7 +183,8 @@ Planned
 - [ ] Add Loopback and Audio Hijack route detection before attempting any automatic audio setup.
 - [ ] Add supervised routed-audio scenarios that play generated command audio through a virtual microphone into Sirious.
 - [ ] Add Computer Use setup, observation, and recovery notes for scenarios where Accessibility or app automation leaves a real gap.
-- [ ] Add an installed-app helper validation slice that copies or packages Sirious into a stable local app location before checking `SMAppService.agent(plistName:)` status, registration, XPC connection, and helper Accessibility prompting.
+- [x] Add an installed-app helper validation slice that copies Sirious into a stable local app location before checking bundle shape, signatures, direct helper status, and `SMAppService.agent(plistName:)` status.
+- [ ] Add a package-style installed-helper probe to determine whether Apple's Application Support install shape moves Service Management out of `.notFound` before registration, XPC connection, and helper Accessibility prompting.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
 ### Exit Criteria
@@ -220,3 +221,4 @@ Planned
 - Added a repo-local SpeakSwiftlyServer fixture generation command and refreshed the paired MP3 corpus through the live service.
 - Added the local-only real-app scenario model for gated setup, expectations, cleanup, and artifact reporting.
 - Added a bundled automation helper LaunchAgent with embedded helper Info.plist metadata, a `MachServices` plist entry, and an XPC command channel for helper-owned Accessibility commands.
+- Added an installed-app helper validation script and captured that copied app installs still report `.notFound` from Service Management despite valid bundle shape and signatures.

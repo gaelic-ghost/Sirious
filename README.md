@@ -87,6 +87,14 @@ Real-app and routed-audio testing is planned in [Real App Testing Plan](./Docs/A
 
 Automation-helper testing is part of that local-only path. Sirious bundles `SiriousAutomationHelper` as a LaunchAgent-backed helper with an XPC command channel for Accessibility-owned text insertion. The current code validates the built bundle shape, but Service Management registration should be checked from a stable local app install rather than only the DerivedData build product.
 
+Run the installed-app helper validation probe with:
+
+```sh
+scripts/validate-installed-automation-helper.sh --install-app "$HOME/Applications/SiriousInstalledAppValidation/Sirious.app" --keep-installed
+```
+
+The script builds Sirious, installs a temporary app copy, verifies the app and helper signatures, checks the bundled LaunchAgent plist, runs the helper directly, and asks the installed app for `SMAppService.agent(plistName:)` status. Add `--register` only when that status is no longer `notFound`; registration can add a Login Items entry and may require local macOS approval.
+
 Install the local SwiftFormat pre-commit hook:
 
 ```sh
