@@ -8,8 +8,10 @@ CONFIGURATION=Debug
 DERIVED_DATA_PATH="$REPO_ROOT/.build/InstalledAppValidation/DerivedData"
 INSTALL_APP_PATH="$REPO_ROOT/.build/InstalledAppValidation/Sirious.app"
 RUN_REGISTRATION=0
+REQUIRE_SERVICE_FOUND=0
 KEEP_INSTALLED=0
 SKIP_BUILD=0
+UNINSTALL_ONLY=0
 
 usage() {
     cat <<'USAGE'
@@ -23,14 +25,21 @@ Options:
   --derived-data PATH      DerivedData path for the validation build.
   --install-app PATH       Destination .app path for the test install.
   --register               Register, XPC-check, and unregister the LaunchAgent.
+  --require-service-found  Fail when Service Management reports notFound.
   --skip-build             Reuse the app already built under the DerivedData path.
   --keep-installed         Leave the copied .app in place after validation.
+  --uninstall              Remove the validation .app at --install-app and exit.
   -h, --help               Show this help.
 
-The default install path stays inside the repository's .build directory. For a
-closer local install test, pass a stable user location such as:
+The default install path stays inside the repository's .build directory. Passing
+--keep-installed keeps the validation copy so the next run updates it in place.
+For a closer local install test, pass a stable user location such as:
 
   --install-app "$HOME/Applications/SiriousInstalledAppValidation/Sirious.app"
+
+Remove a retained validation copy with:
+
+  --install-app "$HOME/Applications/SiriousInstalledAppValidation/Sirious.app" --uninstall
 USAGE
 }
 
@@ -64,12 +73,20 @@ while [ "$#" -gt 0 ]; do
             RUN_REGISTRATION=1
             shift
             ;;
+        --require-service-found)
+            REQUIRE_SERVICE_FOUND=1
+            shift
+            ;;
         --skip-build)
             SKIP_BUILD=1
             shift
             ;;
         --keep-installed)
             KEEP_INSTALLED=1
+            shift
+            ;;
+        --uninstall)
+            UNINSTALL_ONLY=1
             shift
             ;;
         -h|--help)
@@ -87,11 +104,25 @@ INSTALLED_HELPER_PATH="$INSTALL_APP_PATH/Contents/Resources/SiriousAutomationHel
 INSTALLED_AGENT_PLIST="$INSTALL_APP_PATH/Contents/Library/LaunchAgents/com.galewilliams.Sirious.AutomationHelper.plist"
 INSTALLED_APP_EXECUTABLE="$INSTALL_APP_PATH/Contents/MacOS/Sirious"
 
-cleanup() {
-    if [ "$KEEP_INSTALLED" -eq 0 ]; then
+remove_installed_app() {
+    if [ -e "$INSTALL_APP_PATH" ]; then
+        log "Removing validation app copy at $INSTALL_APP_PATH."
         rm -rf "$INSTALL_APP_PATH"
+    else
+        log "No validation app copy exists at $INSTALL_APP_PATH."
     fi
 }
+
+cleanup() {
+    if [ "$KEEP_INSTALLED" -eq 0 ]; then
+        remove_installed_app
+    fi
+}
+
+if [ "$UNINSTALL_ONLY" -eq 1 ]; then
+    remove_installed_app
+    exit 0
+fi
 
 trap cleanup EXIT
 
@@ -136,7 +167,13 @@ printf '%s\n' "$STATUS_OUTPUT"
 
 case "$STATUS_OUTPUT" in
     *notFound*)
-        fail "ServiceManagement still reports the automation helper as notFound from the installed app at $INSTALL_APP_PATH."
+        if [ "$RUN_REGISTRATION" -eq 1 ] || [ "$REQUIRE_SERVICE_FOUND" -eq 1 ]; then
+            fail "ServiceManagement reports the automation helper as notFound from the installed app at $INSTALL_APP_PATH, so registration and XPC validation cannot continue. This usually means macOS does not recognize the copied validation app as an installed Service Management container; run the next package-style install probe before treating the helper plist or executable layout as broken."
+        fi
+
+        log "ServiceManagement reports the automation helper as notFound from the installed app at $INSTALL_APP_PATH."
+        log "Bundle-shape validation passed, but registration remains blocked until the package-style install probe moves this status to notRegistered, requiresApproval, or enabled."
+        exit 0
         ;;
 esac
 

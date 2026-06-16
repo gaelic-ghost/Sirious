@@ -90,7 +90,8 @@ In Progress
 - [ ] Decide whether a safer or richer now-playing/media-control surface can support exact play, exact pause, stop, and app-specific media behavior.
 - [ ] Add app-specific default text field focus strategies for predictable compose or search targets.
 - [x] Add a bundled `SiriousAutomationHelper` LaunchAgent with embedded Info.plist metadata, a launchd `MachServices` entry, and an XPC command channel for Accessibility-owned text insertion.
-- [ ] Validate `SiriousAutomationHelper` registration from an installed app bundle outside DerivedData, then document the local install/update/uninstall workflow for helper testing.
+- [x] Document the copied-app install/update/uninstall workflow for local `SiriousAutomationHelper` validation.
+- [ ] Validate `SiriousAutomationHelper` registration from a package-style installed app outside DerivedData.
 
 ### Exit Criteria
 
@@ -222,3 +223,4 @@ Planned
 - Added the local-only real-app scenario model for gated setup, expectations, cleanup, and artifact reporting.
 - Added a bundled automation helper LaunchAgent with embedded helper Info.plist metadata, a `MachServices` plist entry, and an XPC command channel for helper-owned Accessibility commands.
 - Added an installed-app helper validation script and captured that copied app installs still report `.notFound` from Service Management despite valid bundle shape and signatures.
+- Documented the local automation-helper validation install/update/uninstall loop while keeping package-style Service Management registration as the next open probe.

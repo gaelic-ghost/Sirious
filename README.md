@@ -93,7 +93,13 @@ Run the installed-app helper validation probe with:
 scripts/validate-installed-automation-helper.sh --install-app "$HOME/Applications/SiriousInstalledAppValidation/Sirious.app" --keep-installed
 ```
 
-The script builds Sirious, installs a temporary app copy, verifies the app and helper signatures, checks the bundled LaunchAgent plist, runs the helper directly, and asks the installed app for `SMAppService.agent(plistName:)` status. Add `--register` only when that status is no longer `notFound`; registration can add a Login Items entry and may require local macOS approval.
+The script builds Sirious, installs or updates a validation app copy, verifies the app and helper signatures, checks the bundled LaunchAgent plist, runs the helper directly, and asks the installed app for `SMAppService.agent(plistName:)` status. A copied validation app can still report `notFound`; that means the bundle-shape checks passed, but Service Management registration remains blocked until the package-style install probe changes the status to `notRegistered`, `requiresApproval`, or `enabled`. Add `--register` only when that status is no longer `notFound`; registration can add a Login Items entry and may require local macOS approval.
+
+Remove a retained validation copy with:
+
+```sh
+scripts/validate-installed-automation-helper.sh --install-app "$HOME/Applications/SiriousInstalledAppValidation/Sirious.app" --uninstall
+```
 
 Install the local SwiftFormat pre-commit hook:
 
