@@ -94,6 +94,7 @@ private enum AutomationHelperXPCDiagnostics {
         )
 
         connection.remoteObjectInterface = NSXPCInterface(with: AutomationHelperXPCProtocol.self)
+        connection.setCodeSigningRequirement(AutomationHelperXPC.helperCodeSigningRequirement)
         connection.invalidationHandler = {
             completion.finishWithConnectionError(
                 "Sirious lost its XPC connection to the automation helper before the helper returned a response."
@@ -104,11 +105,13 @@ private enum AutomationHelperXPCDiagnostics {
                 "Sirious had its XPC connection to the automation helper interrupted before the helper returned a response."
             )
         }
-        connection.resume()
 
         let proxy = connection.remoteObjectProxyWithErrorHandler { error in
-            completion.finishWithConnectionError(
-                "Sirious could not connect to the automation helper XPC service named \(AutomationHelperXPC.machServiceName). macOS reported: \(error.localizedDescription)"
+            completion.finishWithConnectionErrorMessage(
+                AutomationHelperXPC.connectionErrorMessage(
+                    for: error,
+                    commandArguments: arguments
+                )
             )
             connection.invalidate()
         }
@@ -121,6 +124,8 @@ private enum AutomationHelperXPCDiagnostics {
                 standardError: "Sirious could not create an XPC proxy for the automation helper command protocol."
             )
         }
+
+        connection.activate()
 
         helper.runCommand(arguments) { reply in
             completion.finish(with: reply)
@@ -146,10 +151,14 @@ private final class AutomationHelperXPCDiagnosticCompletion: @unchecked Sendable
     }
 
     func finishWithConnectionError(_ message: String) {
+        finishWithConnectionErrorMessage("\(message) Command: \(arguments.joined(separator: " ")).")
+    }
+
+    func finishWithConnectionErrorMessage(_ message: String) {
         finish(AutomationHelperCommandResult(
             terminationStatus: 126,
             standardOutput: "",
-            standardError: "\(message) Command: \(arguments.joined(separator: " "))."
+            standardError: message
         ))
     }
 
