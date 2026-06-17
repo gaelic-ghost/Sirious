@@ -93,7 +93,15 @@ Run the installed-app helper validation probe with:
 scripts/validate-installed-automation-helper.sh --install-app "$HOME/Applications/SiriousInstalledAppValidation/Sirious.app" --keep-installed
 ```
 
-The script builds Sirious, installs or updates a validation app copy, verifies the app and helper signatures, checks the bundled LaunchAgent plist, runs the helper directly, and asks the installed app for `SMAppService.agent(plistName:)` status. A copied validation app can still report `notFound`; that means the bundle-shape checks passed, but Service Management registration remains blocked until the package-style install probe changes the status to `notRegistered`, `requiresApproval`, or `enabled`. Add `--register` only when that status is no longer `notFound`; registration can add a Login Items entry and may require local macOS approval.
+The script builds Sirious, installs or updates a validation app copy, verifies the app and helper signatures, checks the bundled LaunchAgent plist, runs the helper directly, and asks the installed app for `SMAppService.agent(plistName:)` status. A copied validation app can still report `notFound`; that means the bundle-shape checks passed, but Service Management registration remains blocked.
+
+Run the package-style helper validation probe with:
+
+```sh
+scripts/validate-installed-automation-helper.sh --package-style --keep-installed
+```
+
+The package-style probe installs the validation app through a local macOS Installer package into the current user's Application Support directory before checking the same helper shape and Service Management status. If either probe still reports `notFound`, do not add `--register`; registration can add a Login Items entry and may require local macOS approval. Add `--register` only when status moves to `notRegistered`, `requiresApproval`, or `enabled`.
 
 Remove a retained validation copy with:
 
