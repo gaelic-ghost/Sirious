@@ -153,7 +153,7 @@ if [ "$PACKAGE_STYLE" -eq 1 ]; then
 fi
 
 BUILT_APP_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/Sirious.app"
-INSTALLED_HELPER_PATH="$INSTALL_APP_PATH/Contents/Resources/SiriousAutomationHelper"
+INSTALLED_HELPER_PATH="$INSTALL_APP_PATH/Contents/Library/HelperTools/SiriousAutomationHelper"
 INSTALLED_AGENT_PLIST="$INSTALL_APP_PATH/Contents/Library/LaunchAgents/com.galewilliams.Sirious.AutomationHelper.plist"
 INSTALLED_APP_EXECUTABLE="$INSTALL_APP_PATH/Contents/MacOS/Sirious"
 

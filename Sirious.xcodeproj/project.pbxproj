@@ -170,8 +170,8 @@
 		9AB0A85719BD262239B4AA20 /* Embed Dependencies */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
+			dstPath = Contents/Library/HelperTools;
+			dstSubfolderSpec = 1;
 			files = (
 				8315DA30FD65517F9BC0D94C /* SiriousAutomationHelper in Embed Dependencies */,
 			);

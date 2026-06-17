@@ -92,7 +92,7 @@ In Progress
 - [x] Add a bundled `SiriousAutomationHelper` LaunchAgent with embedded Info.plist metadata, a launchd `MachServices` entry, and an XPC command channel for Accessibility-owned text insertion.
 - [x] Document the copied-app install/update/uninstall workflow for local `SiriousAutomationHelper` validation.
 - [x] Validate `SiriousAutomationHelper` status from a package-style installed app outside DerivedData.
-- [ ] Determine what remaining app identity or installation condition keeps `SMAppService.agent(plistName:)` at `.notFound` after copied-app and package-style validation both pass bundle-shape checks.
+- [ ] Determine what remaining app identity, entitlement, or installation condition keeps `SMAppService.agent(plistName:)` at `.notFound` after HelperTools copied-app and package-style validation both pass bundle-shape checks.
 
 ### Exit Criteria
 
@@ -187,7 +187,7 @@ Planned
 - [ ] Add Computer Use setup, observation, and recovery notes for scenarios where Accessibility or app automation leaves a real gap.
 - [x] Add an installed-app helper validation slice that copies Sirious into a stable local app location before checking bundle shape, signatures, direct helper status, and `SMAppService.agent(plistName:)` status.
 - [x] Add a package-style installed-helper probe to determine whether Apple's Application Support install shape moves Service Management out of `.notFound` before registration, XPC connection, and helper Accessibility prompting.
-- [ ] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, helper signature, LaunchAgent plist, and direct helper status.
+- [ ] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, HelperTools helper signature, LaunchAgent plist, and direct helper status.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
 ### Exit Criteria

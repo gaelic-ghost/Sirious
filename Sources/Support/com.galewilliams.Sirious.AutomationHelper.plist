@@ -7,7 +7,7 @@
 		<string>com.galewilliams.Sirious</string>
 	</array>
 	<key>BundleProgram</key>
-	<string>Contents/Resources/SiriousAutomationHelper</string>
+	<string>Contents/Library/HelperTools/SiriousAutomationHelper</string>
 	<key>Label</key>
 	<string>com.galewilliams.Sirious.AutomationHelper</string>
 	<key>MachServices</key>

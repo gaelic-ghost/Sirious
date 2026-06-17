@@ -44,7 +44,8 @@ targets:
       - target: SiriousAutomationHelper
         embed: true
         copy:
-          destination: resources
+          destination: wrapper
+          subpath: Contents/Library/HelperTools
     info:
       path: Sources/Support/Info.plist
       properties:
