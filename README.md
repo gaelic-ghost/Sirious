@@ -103,6 +103,14 @@ scripts/validate-installed-automation-helper.sh --package-style --keep-installed
 
 The package-style probe installs the validation app through a local macOS Installer package into the current user's Application Support directory before checking the same helper shape and Service Management status. If either probe still reports `notFound`, do not add `--register`; registration can add a Login Items entry and may require local macOS approval. Add `--register` only when status moves to `notRegistered`, `requiresApproval`, or `enabled`.
 
+For the currently working local external-helper lane, use:
+
+```sh
+scripts/manage-external-automation-helper.sh install --check-xpc
+```
+
+That script installs the non-sandboxed helper as a user LaunchAgent, verifies the helper is loaded, and asks the sandboxed app to reach it over XPC. The app needs the narrow Mach lookup temporary exception for `com.galewilliams.Sirious.AutomationHelper`; `network.client` is only relevant if a future fallback replaces Mach XPC with a localhost socket transport.
+
 Remove a retained validation copy with:
 
 ```sh

@@ -95,6 +95,7 @@ In Progress
 - [x] Align the helper LaunchAgent plist with GUI-session launchd guidance by adding `LimitLoadToSessionType=Aqua` and explicit `ProgramArguments`, and capture that Service Management still reports `.notFound`.
 - [x] Add an article-shaped inherited sandbox helper probe and verify it works when spawned by the app, confirming that recipe is sandbox-inheriting rather than the unsandboxed Accessibility path.
 - [x] Add an external user LaunchAgent install path for the non-sandboxed automation helper and verify the sandboxed app can reach it over XPC with a narrow Mach lookup exception.
+- [x] Capture a localhost socket fallback plan in repo docs in case the Mach lookup entitlement becomes unacceptable for a later distribution lane.
 - [ ] Decide whether the external user LaunchAgent helper becomes the local power-user lane, and what distribution/update/install UI should own it.
 
 ### Exit Criteria
@@ -192,6 +193,7 @@ Planned
 - [x] Add a package-style installed-helper probe to determine whether Apple's Application Support install shape moves Service Management out of `.notFound` before registration, XPC connection, and helper Accessibility prompting.
 - [x] Add launchd GUI-agent compatibility keys to the bundled helper plist and verify that copied-app and package-style installed probes still report `.notFound`.
 - [x] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, HelperTools helper signature, LaunchAgent plist, and direct helper status; external LaunchAgent install works, while the bundled ServiceManagement path remains blocked.
+- [x] Document the localhost socket backup transport and its extra authentication, endpoint discovery, and recovery costs.
 - [ ] Design the external helper install, update, uninstall, and version check surface for local distribution.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
@@ -234,3 +236,4 @@ Planned
 - Added launchd GUI-agent compatibility keys to the bundled helper plist and captured that the copied-app and package-style installed probes still report `.notFound`.
 - Added a sandbox-inherited embedded helper probe for Apple's command-line helper recipe and captured that it works only when spawned by the sandboxed app.
 - Added an external user LaunchAgent install path for the non-sandboxed automation helper and captured successful sandboxed-app XPC after adding the narrow Mach lookup exception.
+- Added a localhost socket fallback plan as a backup if the Mach lookup entitlement becomes unacceptable for a future distribution lane.
