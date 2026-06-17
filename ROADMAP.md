@@ -92,6 +92,7 @@ In Progress
 - [x] Add a bundled `SiriousAutomationHelper` LaunchAgent with embedded Info.plist metadata, a launchd `MachServices` entry, and an XPC command channel for Accessibility-owned text insertion.
 - [x] Document the copied-app install/update/uninstall workflow for local `SiriousAutomationHelper` validation.
 - [x] Validate `SiriousAutomationHelper` status from a package-style installed app outside DerivedData.
+- [x] Align the helper LaunchAgent plist with GUI-session launchd guidance by adding `LimitLoadToSessionType=Aqua` and explicit `ProgramArguments`, and capture that Service Management still reports `.notFound`.
 - [ ] Determine what remaining app identity, entitlement, or installation condition keeps `SMAppService.agent(plistName:)` at `.notFound` after HelperTools copied-app and package-style validation both pass bundle-shape checks.
 
 ### Exit Criteria
@@ -187,6 +188,7 @@ Planned
 - [ ] Add Computer Use setup, observation, and recovery notes for scenarios where Accessibility or app automation leaves a real gap.
 - [x] Add an installed-app helper validation slice that copies Sirious into a stable local app location before checking bundle shape, signatures, direct helper status, and `SMAppService.agent(plistName:)` status.
 - [x] Add a package-style installed-helper probe to determine whether Apple's Application Support install shape moves Service Management out of `.notFound` before registration, XPC connection, and helper Accessibility prompting.
+- [x] Add launchd GUI-agent compatibility keys to the bundled helper plist and verify that copied-app and package-style installed probes still report `.notFound`.
 - [ ] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, HelperTools helper signature, LaunchAgent plist, and direct helper status.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
@@ -226,3 +228,4 @@ Planned
 - Added a bundled automation helper LaunchAgent with embedded helper Info.plist metadata, a `MachServices` plist entry, and an XPC command channel for helper-owned Accessibility commands.
 - Added an installed-app helper validation script and captured that copied app installs still report `.notFound` from Service Management despite valid bundle shape and signatures.
 - Added a package-style validation path through a local Installer package and captured that user Application Support package installs still report `.notFound` from Service Management despite valid bundle shape and signatures.
+- Added launchd GUI-agent compatibility keys to the bundled helper plist and captured that the copied-app and package-style installed probes still report `.notFound`.

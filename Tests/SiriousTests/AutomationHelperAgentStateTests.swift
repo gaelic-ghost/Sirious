@@ -19,6 +19,8 @@ struct AutomationHelperAgentStateTests {
 
         #expect(plist["Label"] as? String == "com.galewilliams.Sirious.AutomationHelper")
         #expect(plist["BundleProgram"] as? String == "Contents/Library/HelperTools/SiriousAutomationHelper")
+        #expect(plist["LimitLoadToSessionType"] as? String == "Aqua")
+        #expect(plist["ProgramArguments"] as? [String] == ["SiriousAutomationHelper"])
         #expect(plist["AssociatedBundleIdentifiers"] as? [String] == ["com.galewilliams.Sirious"])
         #expect(plist["MachServices"] as? [String: Bool] == [
             "com.galewilliams.Sirious.AutomationHelper": true,
