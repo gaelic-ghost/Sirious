@@ -6,6 +6,7 @@ enum AutomationHelperDiagnosticCommand: String, CaseIterable {
     case register = "--automation-helper-register"
     case unregister = "--automation-helper-unregister"
     case xpcStatus = "--automation-helper-xpc-status"
+    case inheritedHelperStatus = "--inherited-helper-status"
 
     static var usage: String {
         allCases.map(\.rawValue).joined(separator: ", ")
@@ -68,6 +69,9 @@ enum AutomationHelperDiagnostics {
                 }
 
                 return .failure(result.trimmedMessage)
+
+            case .inheritedHelperStatus:
+                return InheritedSandboxHelperDiagnostics.run()
         }
     }
 }
@@ -82,6 +86,59 @@ struct AutomationHelperDiagnosticResult: Equatable {
 
     static func failure(_ message: String) -> Self {
         Self(exitCode: 1, message: message)
+    }
+}
+
+private enum InheritedSandboxHelperDiagnostics {
+    static func run() -> AutomationHelperDiagnosticResult {
+        guard let helperURL = Bundle.main.executableURL?
+            .deletingLastPathComponent()
+            .appendingPathComponent("SiriousInheritedSandboxHelper")
+        else {
+            return .failure("Sirious could not resolve its bundled inherited sandbox helper path from the app executable URL.")
+        }
+
+        guard FileManager.default.isExecutableFile(atPath: helperURL.path) else {
+            return .failure("Sirious could not run the inherited sandbox helper because it is missing or not executable at \(helperURL.path).")
+        }
+
+        let process = Process()
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+
+        process.executableURL = helperURL
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        do {
+            try process.run()
+        } catch {
+            return .failure("Sirious could not launch the inherited sandbox helper at \(helperURL.path). macOS reported: \(error.localizedDescription).")
+        }
+
+        process.waitUntilExit()
+
+        let output = String(
+            data: outputPipe.fileHandleForReading.readDataToEndOfFile(),
+            encoding: .utf8
+        )?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let errorOutput = String(
+            data: errorPipe.fileHandleForReading.readDataToEndOfFile(),
+            encoding: .utf8
+        )?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        if process.terminationStatus == 0 {
+            return .success(output.isEmpty ? "Sirious inherited sandbox helper ran successfully without output." : output)
+        }
+
+        let message = errorOutput.isEmpty ? output : errorOutput
+        return .failure(
+            message.isEmpty
+                ? "Sirious inherited sandbox helper exited with status \(process.terminationStatus) without writing output."
+                : "Sirious inherited sandbox helper exited with status \(process.terminationStatus): \(message)"
+        )
     }
 }
 

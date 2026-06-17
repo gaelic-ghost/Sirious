@@ -26,6 +26,7 @@
 		186B2F4188A61F1837AB0663 /* WorkspaceStateProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC8789017EFD204AFA940AF /* WorkspaceStateProviding.swift */; };
 		188C565FF6D5248D8D1347DC /* InstalledApplicationCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA94681BB3770374ED64F0E /* InstalledApplicationCandidate.swift */; };
 		1A4930B07DFE71B984524BBB /* RoutingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90148173640BEF7E4606F92 /* RoutingMode.swift */; };
+		1F465E4A5B1E5952BFEBB418 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E975D0C71AE5E656E3CEE01 /* main.swift */; };
 		1F910B2AD1BE2155E2B93A88 /* AutomationHelperDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D38CDDDF3EA5F3EA1F7DDF /* AutomationHelperDiagnostics.swift */; };
 		2160056700C4D8EBDC9C045B /* TextCommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4F9D0CEB18279D1874CB15 /* TextCommandExecutor.swift */; };
 		2707C2AA585F5AFEF3044D17 /* FirstStageContextResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B21CE25C80990889763EA0 /* FirstStageContextResolverTests.swift */; };
@@ -136,6 +137,7 @@
 		E998F68EABAF6FCB741E694F /* DictionaryCommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C2F02651E753A83ACD4080 /* DictionaryCommandExecutor.swift */; };
 		EE79534A405C54AC8658DA0F /* PatternCommandRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 601B712F4A4F30B8E987A12C /* PatternCommandRouter.swift */; };
 		F1A6D1E463CEEFB167170751 /* AppWindowID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D6E1313CFACB95E4771C6 /* AppWindowID.swift */; };
+		F27AE01F5AC2EDDB7F7EB473 /* SiriousInheritedSandboxHelper in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 1EB04A3B28FD4AEBE3F5AD0A /* SiriousInheritedSandboxHelper */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F327516745842436F36F535E /* CommandToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 790864528DEDE51E0C382016 /* CommandToken.swift */; };
 		F3E1F8592991E11B1AD792E1 /* AutomationHelperXPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E9BFD6ED449FBB8CA4C292 /* AutomationHelperXPC.swift */; };
 		F4FDD4C1E5EEB975DEB7E995 /* DictionaryCommandPatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3413676491CAB35A1A297A97 /* DictionaryCommandPatterns.swift */; };
@@ -149,6 +151,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = C4B92D384B30AFDB8362F542;
 			remoteInfo = Sirious;
+		};
+		463D8B9E123D013E00DD6E76 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5BD09856B751B5B7C214BF3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1870AF24C3CC07DC228DCBD;
+			remoteInfo = SiriousInheritedSandboxHelper;
 		};
 		CC464BC10263DEBA5CF7605D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -170,10 +179,10 @@
 		9AB0A85719BD262239B4AA20 /* Embed Dependencies */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Contents/Library/HelperTools;
-			dstSubfolderSpec = 1;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
-				8315DA30FD65517F9BC0D94C /* SiriousAutomationHelper in Embed Dependencies */,
+				F27AE01F5AC2EDDB7F7EB473 /* SiriousInheritedSandboxHelper in Embed Dependencies */,
 			);
 			name = "Embed Dependencies";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -186,6 +195,17 @@
 			files = (
 				2B09186F88B8E8C3481859A0 /* com.galewilliams.Sirious.AutomationHelper.plist in CopyFiles */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FCC8378FE7C033B2654428D7 /* Embed Dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/HelperTools;
+			dstSubfolderSpec = 1;
+			files = (
+				8315DA30FD65517F9BC0D94C /* SiriousAutomationHelper in Embed Dependencies */,
+			);
+			name = "Embed Dependencies";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -211,6 +231,7 @@
 		1BDE7311B1C7FF3759B8546A /* RoutingModeProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingModeProviding.swift; sourceTree = "<group>"; };
 		1DA0360B18CA6166310C8A3F /* TranscriptSpanStabilizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptSpanStabilizer.swift; sourceTree = "<group>"; };
 		1E32B7AF7E35616EB4565C29 /* CommandTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandTarget.swift; sourceTree = "<group>"; };
+		1EB04A3B28FD4AEBE3F5AD0A /* SiriousInheritedSandboxHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = SiriousInheritedSandboxHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EC8789017EFD204AFA940AF /* WorkspaceStateProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceStateProviding.swift; sourceTree = "<group>"; };
 		212AEC0F6B5C299D4049BBE7 /* CommandExecutionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutionDispatcher.swift; sourceTree = "<group>"; };
 		23FFEC24EC3EC6F4F85C52B3 /* HomeDirectoryAccessState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDirectoryAccessState.swift; sourceTree = "<group>"; };
@@ -220,6 +241,7 @@
 		2875F35C0FE138C8A47182C5 /* MediaCommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCommandExecutor.swift; sourceTree = "<group>"; };
 		287D0A94B24438C530B0C39B /* FirstStageNormalizationAndFallbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstStageNormalizationAndFallbackTests.swift; sourceTree = "<group>"; };
 		291692174DB8FA310F6D8272 /* SystemContextSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemContextSnapshot.swift; sourceTree = "<group>"; };
+		2E975D0C71AE5E656E3CEE01 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		333E9B9AC52B4D4FC419117F /* TextEntrySessionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEntrySessionState.swift; sourceTree = "<group>"; };
 		3413676491CAB35A1A297A97 /* DictionaryCommandPatterns.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryCommandPatterns.swift; sourceTree = "<group>"; };
 		34551AF675C0A18E447AEB8D /* StreamingReadiness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingReadiness.swift; sourceTree = "<group>"; };
@@ -404,6 +426,7 @@
 			children = (
 				19F29D22576FD82326A5026A /* Sirious.app */,
 				E334B2CD8EF5D6FEED14723F /* SiriousAutomationHelper */,
+				1EB04A3B28FD4AEBE3F5AD0A /* SiriousInheritedSandboxHelper */,
 				0EECB5309F1BD26568BD1989 /* SiriousTests.xctest */,
 				A858746B64A185F645A070A6 /* SiriousUITests.xctest */,
 			);
@@ -582,6 +605,14 @@
 			path = Sources/Routing;
 			sourceTree = "<group>";
 		};
+		9776EA1A7365760DF7699245 /* Inherited Sandbox Helper */ = {
+			isa = PBXGroup;
+			children = (
+				B79F033D8D165A071A632543 /* InheritedSandboxHelper */,
+			);
+			name = "Inherited Sandbox Helper";
+			sourceTree = "<group>";
+		};
 		A3C993BA8795898FAF3E18ED /* AutomationHelperSupport */ = {
 			isa = PBXGroup;
 			children = (
@@ -598,6 +629,7 @@
 				59179663817A3498DD73062C /* Automation Helper */,
 				63CBC2A3630DFF0F54AB716C /* Automation Helper Support */,
 				702E9622F33424786D055805 /* Config */,
+				9776EA1A7365760DF7699245 /* Inherited Sandbox Helper */,
 				17A2C7DDB9F78ECCCAD57A6D /* Permissions */,
 				2E67BE6B59361C660BFD951D /* Routing */,
 				44C406102AD487A9287F3469 /* Support */,
@@ -618,6 +650,15 @@
 				C4998001F8AF46A1F3971EF3 /* Spotlight */,
 			);
 			path = SystemCommands;
+			sourceTree = "<group>";
+		};
+		B79F033D8D165A071A632543 /* InheritedSandboxHelper */ = {
+			isa = PBXGroup;
+			children = (
+				2E975D0C71AE5E656E3CEE01 /* main.swift */,
+			);
+			name = InheritedSandboxHelper;
+			path = Sources/InheritedSandboxHelper;
 			sourceTree = "<group>";
 		};
 		C0EA7D68C676023F5E5F8F8A /* Context */ = {
@@ -775,6 +816,23 @@
 			productReference = A858746B64A185F645A070A6 /* SiriousUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		C1870AF24C3CC07DC228DCBD /* SiriousInheritedSandboxHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC0510022A9643BF26EDFD60 /* Build configuration list for PBXNativeTarget "SiriousInheritedSandboxHelper" */;
+			buildPhases = (
+				4EAA2069B19702623AF1873A /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SiriousInheritedSandboxHelper;
+			packageProductDependencies = (
+			);
+			productName = SiriousInheritedSandboxHelper;
+			productReference = 1EB04A3B28FD4AEBE3F5AD0A /* SiriousInheritedSandboxHelper */;
+			productType = "com.apple.product-type.tool";
+		};
 		C4B92D384B30AFDB8362F542 /* Sirious */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4B8ED482AC45B69555A6BABE /* Build configuration list for PBXNativeTarget "Sirious" */;
@@ -782,10 +840,12 @@
 				0BC582E550C40FCC01398165 /* Sources */,
 				B52489F9FC33223DA0376E80 /* CopyFiles */,
 				9AB0A85719BD262239B4AA20 /* Embed Dependencies */,
+				FCC8378FE7C033B2654428D7 /* Embed Dependencies */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CE73D4E6B253C219EA926C83 /* PBXTargetDependency */,
 				D8BD4A8F1A26C769EFD80F2F /* PBXTargetDependency */,
 			);
 			name = Sirious;
@@ -817,6 +877,10 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = C4B92D384B30AFDB8362F542;
 					};
+					C1870AF24C3CC07DC228DCBD = {
+						DevelopmentTeam = BC73766F69;
+						ProvisioningStyle = Automatic;
+					};
 					C4B92D384B30AFDB8362F542 = {
 						DevelopmentTeam = BC73766F69;
 						ProvisioningStyle = Automatic;
@@ -839,6 +903,7 @@
 			targets = (
 				C4B92D384B30AFDB8362F542 /* Sirious */,
 				14C9F9EF3028FC8EB6B17CB9 /* SiriousAutomationHelper */,
+				C1870AF24C3CC07DC228DCBD /* SiriousInheritedSandboxHelper */,
 				817F011D0ED9512A5DABBD66 /* SiriousTests */,
 				90ACFC5E40EA89E225D48F63 /* SiriousUITests */,
 			);
@@ -949,6 +1014,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4EAA2069B19702623AF1873A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F465E4A5B1E5952BFEBB418 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9657309F5845F2A303B1BCE8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1018,6 +1091,11 @@
 			target = C4B92D384B30AFDB8362F542 /* Sirious */;
 			targetProxy = E9A6C793706A76B6F4651125 /* PBXContainerItemProxy */;
 		};
+		CE73D4E6B253C219EA926C83 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1870AF24C3CC07DC228DCBD /* SiriousInheritedSandboxHelper */;
+			targetProxy = 463D8B9E123D013E00DD6E76 /* PBXContainerItemProxy */;
+		};
 		D8BD4A8F1A26C769EFD80F2F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 14C9F9EF3028FC8EB6B17CB9 /* SiriousAutomationHelper */;
@@ -1026,6 +1104,26 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		2AE769341E79A7C6985E5600 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Sources/Support/SiriousInheritedSandboxHelper.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_CODE_SIGN_FLAGS = "$(inherited) -i $(PRODUCT_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.galewilliams.Sirious.InheritedSandboxHelper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
 		38672C1BDE826267F438205E /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0AFDC88F1FE4D3CC5C16FBA1 /* Sirious.xcconfig */;
@@ -1084,6 +1182,26 @@
 				);
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sirious.app/Contents/MacOS/Sirious";
+			};
+			name = Release;
+		};
+		4DDB54371054B379DC4B351F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Sources/Support/SiriousInheritedSandboxHelper.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_CODE_SIGN_FLAGS = "$(inherited) -i $(PRODUCT_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.galewilliams.Sirious.InheritedSandboxHelper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -1340,6 +1458,15 @@
 			buildConfigurations = (
 				58EE42B16C6CCD42898D603C /* Debug */,
 				B4016308E1DE3A846D5BD75A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DC0510022A9643BF26EDFD60 /* Build configuration list for PBXNativeTarget "SiriousInheritedSandboxHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AE769341E79A7C6985E5600 /* Debug */,
+				4DDB54371054B379DC4B351F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

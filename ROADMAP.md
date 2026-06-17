@@ -93,7 +93,9 @@ In Progress
 - [x] Document the copied-app install/update/uninstall workflow for local `SiriousAutomationHelper` validation.
 - [x] Validate `SiriousAutomationHelper` status from a package-style installed app outside DerivedData.
 - [x] Align the helper LaunchAgent plist with GUI-session launchd guidance by adding `LimitLoadToSessionType=Aqua` and explicit `ProgramArguments`, and capture that Service Management still reports `.notFound`.
-- [ ] Determine what remaining app identity, entitlement, or installation condition keeps `SMAppService.agent(plistName:)` at `.notFound` after HelperTools copied-app and package-style validation both pass bundle-shape checks.
+- [x] Add an article-shaped inherited sandbox helper probe and verify it works when spawned by the app, confirming that recipe is sandbox-inheriting rather than the unsandboxed Accessibility path.
+- [x] Add an external user LaunchAgent install path for the non-sandboxed automation helper and verify the sandboxed app can reach it over XPC with a narrow Mach lookup exception.
+- [ ] Decide whether the external user LaunchAgent helper becomes the local power-user lane, and what distribution/update/install UI should own it.
 
 ### Exit Criteria
 
@@ -189,7 +191,8 @@ Planned
 - [x] Add an installed-app helper validation slice that copies Sirious into a stable local app location before checking bundle shape, signatures, direct helper status, and `SMAppService.agent(plistName:)` status.
 - [x] Add a package-style installed-helper probe to determine whether Apple's Application Support install shape moves Service Management out of `.notFound` before registration, XPC connection, and helper Accessibility prompting.
 - [x] Add launchd GUI-agent compatibility keys to the bundled helper plist and verify that copied-app and package-style installed probes still report `.notFound`.
-- [ ] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, HelperTools helper signature, LaunchAgent plist, and direct helper status.
+- [x] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, HelperTools helper signature, LaunchAgent plist, and direct helper status; external LaunchAgent install works, while the bundled ServiceManagement path remains blocked.
+- [ ] Design the external helper install, update, uninstall, and version check surface for local distribution.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
 ### Exit Criteria
@@ -229,3 +232,5 @@ Planned
 - Added an installed-app helper validation script and captured that copied app installs still report `.notFound` from Service Management despite valid bundle shape and signatures.
 - Added a package-style validation path through a local Installer package and captured that user Application Support package installs still report `.notFound` from Service Management despite valid bundle shape and signatures.
 - Added launchd GUI-agent compatibility keys to the bundled helper plist and captured that the copied-app and package-style installed probes still report `.notFound`.
+- Added a sandbox-inherited embedded helper probe for Apple's command-line helper recipe and captured that it works only when spawned by the sandboxed app.
+- Added an external user LaunchAgent install path for the non-sandboxed automation helper and captured successful sandboxed-app XPC after adding the narrow Mach lookup exception.

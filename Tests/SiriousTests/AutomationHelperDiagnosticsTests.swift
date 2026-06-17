@@ -15,6 +15,7 @@ struct AutomationHelperDiagnosticsTests {
         #expect(AutomationHelperDiagnostics.command(from: ["Sirious", "--automation-helper-register"]) == .register)
         #expect(AutomationHelperDiagnostics.command(from: ["Sirious", "--automation-helper-unregister"]) == .unregister)
         #expect(AutomationHelperDiagnostics.command(from: ["Sirious", "--automation-helper-xpc-status"]) == .xpcStatus)
+        #expect(AutomationHelperDiagnostics.command(from: ["Sirious", "--inherited-helper-status"]) == .inheritedHelperStatus)
     }
 
     @Test("automation helper diagnostic result factories map exit codes")

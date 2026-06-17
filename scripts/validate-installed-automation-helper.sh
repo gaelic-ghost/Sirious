@@ -154,8 +154,10 @@ fi
 
 BUILT_APP_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/Sirious.app"
 INSTALLED_HELPER_PATH="$INSTALL_APP_PATH/Contents/Library/HelperTools/SiriousAutomationHelper"
+INSTALLED_INHERITED_HELPER_PATH="$INSTALL_APP_PATH/Contents/MacOS/SiriousInheritedSandboxHelper"
 INSTALLED_AGENT_PLIST="$INSTALL_APP_PATH/Contents/Library/LaunchAgents/com.galewilliams.Sirious.AutomationHelper.plist"
 INSTALLED_APP_EXECUTABLE="$INSTALL_APP_PATH/Contents/MacOS/Sirious"
+EXTERNAL_AGENT_PLIST="$HOME/Library/LaunchAgents/com.galewilliams.Sirious.AutomationHelper.plist"
 
 remove_installed_app() {
     if [ -e "$INSTALL_APP_PATH" ]; then
@@ -244,6 +246,7 @@ if [ "$SKIP_BUILD" -eq 0 ]; then
 fi
 
 [ -d "$BUILT_APP_PATH" ] || fail "Expected built app at $BUILT_APP_PATH, but it does not exist."
+[ -x "$BUILT_APP_PATH/Contents/MacOS/SiriousInheritedSandboxHelper" ] || fail "Expected article-shaped inherited sandbox helper at $BUILT_APP_PATH/Contents/MacOS/SiriousInheritedSandboxHelper, but it does not exist or is not executable."
 
 if [ "$PACKAGE_STYLE" -eq 1 ]; then
     install_validation_package
@@ -252,6 +255,7 @@ else
 fi
 
 [ -x "$INSTALLED_APP_EXECUTABLE" ] || fail "Installed app executable is missing or not executable at $INSTALLED_APP_EXECUTABLE."
+[ -x "$INSTALLED_INHERITED_HELPER_PATH" ] || fail "Installed inherited sandbox helper is missing or not executable at $INSTALLED_INHERITED_HELPER_PATH."
 [ -x "$INSTALLED_HELPER_PATH" ] || fail "Installed helper executable is missing or not executable at $INSTALLED_HELPER_PATH."
 [ -f "$INSTALLED_AGENT_PLIST" ] || fail "Installed LaunchAgent plist is missing at $INSTALLED_AGENT_PLIST."
 
@@ -260,6 +264,23 @@ codesign --verify --deep --strict --verbose=2 "$INSTALL_APP_PATH"
 
 log "Installed helper signature:"
 codesign --verify --strict --verbose=2 "$INSTALLED_HELPER_PATH"
+
+log "Installed inherited sandbox helper signature:"
+codesign --verify --strict --verbose=2 "$INSTALLED_INHERITED_HELPER_PATH"
+
+log "Installed inherited sandbox helper entitlements:"
+INHERITED_HELPER_ENTITLEMENTS=$(codesign -d --entitlements :- "$INSTALLED_INHERITED_HELPER_PATH" 2>/dev/null)
+printf '%s\n' "$INHERITED_HELPER_ENTITLEMENTS"
+case "$INHERITED_HELPER_ENTITLEMENTS" in
+    *"<key>com.apple.security.app-sandbox</key>"*"<key>com.apple.security.inherit</key>"*)
+        ;;
+    *)
+        fail "Installed inherited sandbox helper entitlements should contain only the App Sandbox and inheritance keys from Apple's embedded command-line helper recipe."
+        ;;
+esac
+
+log "Inherited sandbox helper diagnostic through the sandboxed app:"
+"$INSTALLED_APP_EXECUTABLE" --inherited-helper-status
 
 log "Installed LaunchAgent plist:"
 plutil -p "$INSTALLED_AGENT_PLIST"
@@ -270,6 +291,10 @@ log "Direct helper diagnostic:"
 log "ServiceManagement status from installed app:"
 STATUS_OUTPUT=$("$INSTALLED_APP_EXECUTABLE" --automation-helper-status)
 printf '%s\n' "$STATUS_OUTPUT"
+
+if [ -f "$EXTERNAL_AGENT_PLIST" ]; then
+    log "External user LaunchAgent plist exists at $EXTERNAL_AGENT_PLIST. ServiceManagement status may reflect that same-label external agent rather than proving that the bundled LaunchAgent is discoverable."
+fi
 
 case "$STATUS_OUTPUT" in
     *notFound*)
