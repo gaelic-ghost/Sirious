@@ -115,6 +115,7 @@ struct LaunchAgentAutomationHelperCommandRunner: AutomationHelperCommandRunning 
                 options: []
             )
             connection.remoteObjectInterface = NSXPCInterface(with: AutomationHelperXPCProtocol.self)
+            connection.setCodeSigningRequirement(AutomationHelperXPC.helperCodeSigningRequirement)
             connection.invalidationHandler = {
                 completion.finishWithConnectionError(
                     "Sirious lost its XPC connection to the automation helper before the helper returned a response."
@@ -125,11 +126,13 @@ struct LaunchAgentAutomationHelperCommandRunner: AutomationHelperCommandRunning 
                     "Sirious had its XPC connection to the automation helper interrupted before the helper returned a response."
                 )
             }
-            connection.resume()
 
             let proxy = connection.remoteObjectProxyWithErrorHandler { error in
-                completion.finishWithConnectionError(
-                    "Sirious could not connect to the automation helper XPC service named \(AutomationHelperXPC.machServiceName). macOS reported: \(error.localizedDescription)"
+                completion.finishWithConnectionErrorMessage(
+                    AutomationHelperXPC.connectionErrorMessage(
+                        for: error,
+                        commandArguments: command.arguments
+                    )
                 )
                 connection.invalidate()
             }
@@ -141,6 +144,8 @@ struct LaunchAgentAutomationHelperCommandRunner: AutomationHelperCommandRunning 
                 connection.invalidate()
                 return
             }
+
+            connection.activate()
 
             helper.runCommand(command.arguments) { reply in
                 completion.finish(with: reply)
@@ -169,10 +174,14 @@ private final class AutomationHelperXPCCommandCompletion: @unchecked Sendable {
     }
 
     func finishWithConnectionError(_ message: String) {
+        finishWithConnectionErrorMessage("\(message) Command: \(command.arguments.joined(separator: " ")).")
+    }
+
+    func finishWithConnectionErrorMessage(_ message: String) {
         finish(AutomationHelperCommandResult(
             terminationStatus: 126,
             standardOutput: "",
-            standardError: "\(message) Command: \(command.arguments.joined(separator: " "))."
+            standardError: message
         ))
     }
 

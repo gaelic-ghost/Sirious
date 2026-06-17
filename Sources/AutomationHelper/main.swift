@@ -27,9 +27,10 @@ private final class AutomationHelperXPCListenerDelegate: NSObject, NSXPCListener
     private let service = AutomationHelperXPCService()
 
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
+        connection.setCodeSigningRequirement(AutomationHelperXPC.appCodeSigningRequirement)
         connection.exportedInterface = NSXPCInterface(with: AutomationHelperXPCProtocol.self)
         connection.exportedObject = service
-        connection.resume()
+        connection.activate()
 
         return true
     }
@@ -53,7 +54,7 @@ private func runXPCService() {
     let delegate = AutomationHelperXPCListenerDelegate()
 
     listener.delegate = delegate
-    listener.resume()
+    listener.activate()
     RunLoop.main.run()
 }
 

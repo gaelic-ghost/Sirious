@@ -90,7 +90,13 @@ In Progress
 - [ ] Decide whether a safer or richer now-playing/media-control surface can support exact play, exact pause, stop, and app-specific media behavior.
 - [ ] Add app-specific default text field focus strategies for predictable compose or search targets.
 - [x] Add a bundled `SiriousAutomationHelper` LaunchAgent with embedded Info.plist metadata, a launchd `MachServices` entry, and an XPC command channel for Accessibility-owned text insertion.
-- [ ] Validate `SiriousAutomationHelper` registration from an installed app bundle outside DerivedData, then document the local install/update/uninstall workflow for helper testing.
+- [x] Document the copied-app install/update/uninstall workflow for local `SiriousAutomationHelper` validation.
+- [x] Validate `SiriousAutomationHelper` status from a package-style installed app outside DerivedData.
+- [x] Align the helper LaunchAgent plist with GUI-session launchd guidance by adding `LimitLoadToSessionType=Aqua` and explicit `ProgramArguments`, and capture that Service Management still reports `.notFound`.
+- [x] Add an article-shaped inherited sandbox helper probe and verify it works when spawned by the app, confirming that recipe is sandbox-inheriting rather than the unsandboxed Accessibility path.
+- [x] Add an external user LaunchAgent install path for the non-sandboxed automation helper and verify the sandboxed app can reach it over XPC with a narrow Mach lookup exception.
+- [x] Capture a localhost socket fallback plan in repo docs in case the Mach lookup entitlement becomes unacceptable for a later distribution lane.
+- [ ] Decide whether the external user LaunchAgent helper becomes the local power-user lane, and what distribution/update/install UI should own it.
 
 ### Exit Criteria
 
@@ -184,7 +190,11 @@ Planned
 - [ ] Add supervised routed-audio scenarios that play generated command audio through a virtual microphone into Sirious.
 - [ ] Add Computer Use setup, observation, and recovery notes for scenarios where Accessibility or app automation leaves a real gap.
 - [x] Add an installed-app helper validation slice that copies Sirious into a stable local app location before checking bundle shape, signatures, direct helper status, and `SMAppService.agent(plistName:)` status.
-- [ ] Add a package-style installed-helper probe to determine whether Apple's Application Support install shape moves Service Management out of `.notFound` before registration, XPC connection, and helper Accessibility prompting.
+- [x] Add a package-style installed-helper probe to determine whether Apple's Application Support install shape moves Service Management out of `.notFound` before registration, XPC connection, and helper Accessibility prompting.
+- [x] Add launchd GUI-agent compatibility keys to the bundled helper plist and verify that copied-app and package-style installed probes still report `.notFound`.
+- [x] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, HelperTools helper signature, LaunchAgent plist, and direct helper status; external LaunchAgent install works, while the bundled ServiceManagement path remains blocked.
+- [x] Document the localhost socket backup transport and its extra authentication, endpoint discovery, and recovery costs.
+- [ ] Design the external helper install, update, uninstall, and version check surface for local distribution.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
 ### Exit Criteria
@@ -222,3 +232,8 @@ Planned
 - Added the local-only real-app scenario model for gated setup, expectations, cleanup, and artifact reporting.
 - Added a bundled automation helper LaunchAgent with embedded helper Info.plist metadata, a `MachServices` plist entry, and an XPC command channel for helper-owned Accessibility commands.
 - Added an installed-app helper validation script and captured that copied app installs still report `.notFound` from Service Management despite valid bundle shape and signatures.
+- Added a package-style validation path through a local Installer package and captured that user Application Support package installs still report `.notFound` from Service Management despite valid bundle shape and signatures.
+- Added launchd GUI-agent compatibility keys to the bundled helper plist and captured that the copied-app and package-style installed probes still report `.notFound`.
+- Added a sandbox-inherited embedded helper probe for Apple's command-line helper recipe and captured that it works only when spawned by the sandboxed app.
+- Added an external user LaunchAgent install path for the non-sandboxed automation helper and captured successful sandboxed-app XPC after adding the narrow Mach lookup exception.
+- Added a localhost socket fallback plan as a backup if the Mach lookup entitlement becomes unacceptable for a future distribution lane.

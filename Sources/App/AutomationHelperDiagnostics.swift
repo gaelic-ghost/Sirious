@@ -6,6 +6,7 @@ enum AutomationHelperDiagnosticCommand: String, CaseIterable {
     case register = "--automation-helper-register"
     case unregister = "--automation-helper-unregister"
     case xpcStatus = "--automation-helper-xpc-status"
+    case inheritedHelperStatus = "--inherited-helper-status"
 
     static var usage: String {
         allCases.map(\.rawValue).joined(separator: ", ")
@@ -68,6 +69,9 @@ enum AutomationHelperDiagnostics {
                 }
 
                 return .failure(result.trimmedMessage)
+
+            case .inheritedHelperStatus:
+                return InheritedSandboxHelperDiagnostics.run()
         }
     }
 }
@@ -85,6 +89,59 @@ struct AutomationHelperDiagnosticResult: Equatable {
     }
 }
 
+private enum InheritedSandboxHelperDiagnostics {
+    static func run() -> AutomationHelperDiagnosticResult {
+        guard let helperURL = Bundle.main.executableURL?
+            .deletingLastPathComponent()
+            .appendingPathComponent("SiriousInheritedSandboxHelper")
+        else {
+            return .failure("Sirious could not resolve its bundled inherited sandbox helper path from the app executable URL.")
+        }
+
+        guard FileManager.default.isExecutableFile(atPath: helperURL.path) else {
+            return .failure("Sirious could not run the inherited sandbox helper because it is missing or not executable at \(helperURL.path).")
+        }
+
+        let process = Process()
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+
+        process.executableURL = helperURL
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        do {
+            try process.run()
+        } catch {
+            return .failure("Sirious could not launch the inherited sandbox helper at \(helperURL.path). macOS reported: \(error.localizedDescription).")
+        }
+
+        process.waitUntilExit()
+
+        let output = String(
+            data: outputPipe.fileHandleForReading.readDataToEndOfFile(),
+            encoding: .utf8
+        )?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let errorOutput = String(
+            data: errorPipe.fileHandleForReading.readDataToEndOfFile(),
+            encoding: .utf8
+        )?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        if process.terminationStatus == 0 {
+            return .success(output.isEmpty ? "Sirious inherited sandbox helper ran successfully without output." : output)
+        }
+
+        let message = errorOutput.isEmpty ? output : errorOutput
+        return .failure(
+            message.isEmpty
+                ? "Sirious inherited sandbox helper exited with status \(process.terminationStatus) without writing output."
+                : "Sirious inherited sandbox helper exited with status \(process.terminationStatus): \(message)"
+        )
+    }
+}
+
 private enum AutomationHelperXPCDiagnostics {
     static func run(arguments: [String]) -> AutomationHelperCommandResult {
         let completion = AutomationHelperXPCDiagnosticCompletion(arguments: arguments)
@@ -94,6 +151,7 @@ private enum AutomationHelperXPCDiagnostics {
         )
 
         connection.remoteObjectInterface = NSXPCInterface(with: AutomationHelperXPCProtocol.self)
+        connection.setCodeSigningRequirement(AutomationHelperXPC.helperCodeSigningRequirement)
         connection.invalidationHandler = {
             completion.finishWithConnectionError(
                 "Sirious lost its XPC connection to the automation helper before the helper returned a response."
@@ -104,11 +162,13 @@ private enum AutomationHelperXPCDiagnostics {
                 "Sirious had its XPC connection to the automation helper interrupted before the helper returned a response."
             )
         }
-        connection.resume()
 
         let proxy = connection.remoteObjectProxyWithErrorHandler { error in
-            completion.finishWithConnectionError(
-                "Sirious could not connect to the automation helper XPC service named \(AutomationHelperXPC.machServiceName). macOS reported: \(error.localizedDescription)"
+            completion.finishWithConnectionErrorMessage(
+                AutomationHelperXPC.connectionErrorMessage(
+                    for: error,
+                    commandArguments: arguments
+                )
             )
             connection.invalidate()
         }
@@ -121,6 +181,8 @@ private enum AutomationHelperXPCDiagnostics {
                 standardError: "Sirious could not create an XPC proxy for the automation helper command protocol."
             )
         }
+
+        connection.activate()
 
         helper.runCommand(arguments) { reply in
             completion.finish(with: reply)
@@ -146,10 +208,14 @@ private final class AutomationHelperXPCDiagnosticCompletion: @unchecked Sendable
     }
 
     func finishWithConnectionError(_ message: String) {
+        finishWithConnectionErrorMessage("\(message) Command: \(arguments.joined(separator: " ")).")
+    }
+
+    func finishWithConnectionErrorMessage(_ message: String) {
         finish(AutomationHelperCommandResult(
             terminationStatus: 126,
             standardOutput: "",
-            standardError: "\(message) Command: \(arguments.joined(separator: " "))."
+            standardError: message
         ))
     }
 

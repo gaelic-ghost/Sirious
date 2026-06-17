@@ -4,6 +4,33 @@ import Testing
 
 @MainActor
 struct AutomationHelperCommandRunnerTests {
+    @Test("automation helper XPC signing requirements describe app and helper peers")
+    func automationHelperXPCSigningRequirementsDescribeAppAndHelperPeers() {
+        #expect(AutomationHelperXPC.signingTeamIdentifier == "BC73766F69")
+        #expect(AutomationHelperXPC.appBundleIdentifier == "com.galewilliams.Sirious")
+        #expect(AutomationHelperXPC.helperBundleIdentifier == "com.galewilliams.Sirious.AutomationHelper")
+        #expect(AutomationHelperXPC.appCodeSigningRequirement.contains(#"certificate leaf[subject.OU] = "BC73766F69""#))
+        #expect(AutomationHelperXPC.appCodeSigningRequirement.contains(#"identifier "com.galewilliams.Sirious""#))
+        #expect(AutomationHelperXPC.helperCodeSigningRequirement.contains(#"certificate leaf[subject.OU] = "BC73766F69""#))
+        #expect(AutomationHelperXPC.helperCodeSigningRequirement.contains(#"identifier "com.galewilliams.Sirious.AutomationHelper""#))
+    }
+
+    @Test("automation helper XPC signing failures get a specific diagnostic")
+    func automationHelperXPCSigningFailuresGetSpecificDiagnostic() {
+        let message = AutomationHelperXPC.connectionErrorMessage(
+            for: NSError(
+                domain: NSCocoaErrorDomain,
+                code: NSXPCConnectionCodeSigningRequirementFailure
+            ),
+            commandArguments: AutomationHelperCommand.status.arguments
+        )
+
+        #expect(message.contains("code signature did not satisfy") == true)
+        #expect(message.contains("com.galewilliams.Sirious.AutomationHelper") == true)
+        #expect(message.contains("BC73766F69") == true)
+        #expect(message.contains("--status") == true)
+    }
+
     @Test("automation helper command arguments match helper CLI")
     func automationHelperCommandArgumentsMatchHelperCLI() {
         #expect(AutomationHelperCommand.status.arguments == ["--status"])

@@ -41,10 +41,15 @@ targets:
             destination: wrapper
             subpath: Contents/Library/LaunchAgents
     dependencies:
+      - target: SiriousInheritedSandboxHelper
+        embed: true
+        copy:
+          destination: executables
       - target: SiriousAutomationHelper
         embed: true
         copy:
-          destination: resources
+          destination: wrapper
+          subpath: Contents/Library/HelperTools
     info:
       path: Sources/Support/Info.plist
       properties:
@@ -91,6 +96,22 @@ targets:
         MACH_O_TYPE: mh_execute
         OTHER_CODE_SIGN_FLAGS: $(inherited) -i $(PRODUCT_BUNDLE_IDENTIFIER)
         PRODUCT_BUNDLE_IDENTIFIER: com.galewilliams.Sirious.AutomationHelper
+        SKIP_INSTALL: YES
+  SiriousInheritedSandboxHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Sources/InheritedSandboxHelper
+        group: Inherited Sandbox Helper
+    settings:
+      base:
+        CODE_SIGN_ENTITLEMENTS: Sources/Support/SiriousInheritedSandboxHelper.entitlements
+        CODE_SIGN_IDENTITY: Apple Development
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+        ENABLE_APP_SANDBOX: YES
+        ENABLE_HARDENED_RUNTIME: YES
+        OTHER_CODE_SIGN_FLAGS: $(inherited) -i $(PRODUCT_BUNDLE_IDENTIFIER)
+        PRODUCT_BUNDLE_IDENTIFIER: com.galewilliams.Sirious.InheritedSandboxHelper
         SKIP_INSTALL: YES
   SiriousTests:
     type: bundle.unit-test
