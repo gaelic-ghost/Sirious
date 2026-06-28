@@ -96,7 +96,8 @@ In Progress
 - [x] Add an article-shaped inherited sandbox helper probe and verify it works when spawned by the app, confirming that recipe is sandbox-inheriting rather than the unsandboxed Accessibility path.
 - [x] Add an external user LaunchAgent install path for the non-sandboxed automation helper and verify the sandboxed app can reach it over XPC with a narrow Mach lookup exception.
 - [x] Capture a localhost socket fallback plan in repo docs in case the Mach lookup entitlement becomes unacceptable for a later distribution lane.
-- [ ] Decide whether the external user LaunchAgent helper becomes the local power-user lane, and what distribution/update/install UI should own it.
+- [x] Decide that the external user LaunchAgent helper is the local power-user lane; keep the localhost socket plan as a fallback only.
+- [ ] Add the app Settings surface for external helper install, update, uninstall, version check, reachability, and Accessibility status.
 
 ### Exit Criteria
 
@@ -194,7 +195,8 @@ Planned
 - [x] Add launchd GUI-agent compatibility keys to the bundled helper plist and verify that copied-app and package-style installed probes still report `.notFound`.
 - [x] Investigate why Service Management still reports `.notFound` after package-style Application Support installation verifies the app signature, HelperTools helper signature, LaunchAgent plist, and direct helper status; external LaunchAgent install works, while the bundled ServiceManagement path remains blocked.
 - [x] Document the localhost socket backup transport and its extra authentication, endpoint discovery, and recovery costs.
-- [ ] Design the external helper install, update, uninstall, and version check surface for local distribution.
+- [x] Choose the external user LaunchAgent as the active local helper lane.
+- [ ] Design and validate the external helper install, update, uninstall, version check, reachability, and Accessibility surface for local distribution.
 - [ ] Decide which scenarios belong in a local `.xctestplan`, which should be manifest-gated, and which should remain manual supervised checks.
 
 ### Exit Criteria
@@ -237,3 +239,4 @@ Planned
 - Added a sandbox-inherited embedded helper probe for Apple's command-line helper recipe and captured that it works only when spawned by the sandboxed app.
 - Added an external user LaunchAgent install path for the non-sandboxed automation helper and captured successful sandboxed-app XPC after adding the narrow Mach lookup exception.
 - Added a localhost socket fallback plan as a backup if the Mach lookup entitlement becomes unacceptable for a future distribution lane.
+- Chose the external user LaunchAgent as the active local helper lane because it is the only validated path that gives the helper unsandboxed Accessibility context while keeping the main app sandboxed.

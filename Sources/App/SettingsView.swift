@@ -4,7 +4,7 @@ struct SettingsView: View {
     @Environment(\.openWindow) private var openWindow
 
     @State private var accessibilityPermission = AccessibilityPermissionState()
-    @State private var automationHelper = AutomationHelperAgentState()
+    @State private var automationHelper = ExternalAutomationHelperState()
     @State private var loginItem = LoginItemState()
 
     var homeDirectoryAccess: HomeDirectoryAccessState
@@ -82,51 +82,82 @@ struct SettingsView: View {
             }
 
             Section("Automation") {
-                Toggle(
-                    isOn: Binding(
-                        get: {
-                            automationHelper.isEnabledRequested
-                        },
-                        set: { isEnabled in
-                            automationHelper.setEnabled(isEnabled)
-                        }
-                    )
-                ) {
+                HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Automation Helper")
                             .font(.headline)
 
-                        Text(automationHelper.statusDescription)
+                        Text(automationHelper.status.installationDescription)
                             .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    if automationHelper.isWorking {
+                        ProgressView()
                     }
                 }
 
-                if automationHelper.status == .requiresApproval {
-                    Button("Open Login Items Settings") {
-                        automationHelper.openSystemSettingsLoginItems()
-                    }
-                }
+                Text(automationHelper.status.detailDescription)
+                    .foregroundStyle(.secondary)
 
                 if let errorMessage = automationHelper.errorMessage {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                 }
 
+                Text(automationHelper.reachabilityDescription)
+                    .foregroundStyle(.secondary)
+
                 Text(automationHelper.accessibilityStatusDescription)
                     .foregroundStyle(.secondary)
 
                 HStack {
-                    Button("Check Helper Accessibility") {
+                    Button(automationHelper.primaryActionTitle) {
+                        homeDirectoryAccess.requestAccessIfNeeded()
+
+                        Task {
+                            await automationHelper.installOrUpdate()
+                        }
+                    }
+                    .disabled(automationHelper.isWorking)
+
+                    Button("Uninstall") {
+                        Task {
+                            await automationHelper.uninstall()
+                        }
+                    }
+                    .disabled(automationHelper.isWorking || automationHelper.status.canUninstall == false)
+
+                    Button("Refresh") {
+                        Task {
+                            await automationHelper.refresh()
+                        }
+                    }
+                    .disabled(automationHelper.isWorking)
+                }
+
+                HStack {
+                    Button("Check Helper") {
+                        Task {
+                            await automationHelper.checkReachability()
+                        }
+                    }
+                    .disabled(automationHelper.canRunHelperCommands == false)
+
+                    Button("Check Accessibility") {
                         Task {
                             await automationHelper.checkAccessibilityStatus()
                         }
                     }
+                    .disabled(automationHelper.canRunHelperCommands == false)
 
-                    Button("Request Helper Accessibility") {
+                    Button("Request Accessibility") {
                         Task {
                             await automationHelper.requestAccessibilityTrust()
                         }
                     }
+                    .disabled(automationHelper.canRunHelperCommands == false)
                 }
             }
 
@@ -162,7 +193,9 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings.form")
         .onAppear {
             accessibilityPermission.refresh()
-            automationHelper.refresh()
+            Task {
+                await automationHelper.refresh()
+            }
             homeDirectoryAccess.refresh()
             loginItem.refresh()
         }

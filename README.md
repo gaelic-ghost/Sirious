@@ -85,7 +85,7 @@ The checked-in fixtures live under `Tests/Fixtures/Audio/AppleSpeech`. Scratch a
 
 Real-app and routed-audio testing is planned in [Real App Testing Plan](./Docs/Architecture/RealAppTestingPlan.md). Those scenarios are intended to stay local-only and explicitly gated because they can touch live apps, Accessibility focus, microphone state, and user-configured audio routes.
 
-Automation-helper testing is part of that local-only path. Sirious bundles `SiriousAutomationHelper` as a LaunchAgent-backed helper with an XPC command channel for Accessibility-owned text insertion. The current code validates the built bundle shape, but Service Management registration should be checked from a stable local app install rather than only the DerivedData build product.
+Automation-helper testing is part of that local-only path. Sirious now treats the external user LaunchAgent as the active local helper lane because it is the validated path for keeping the main app sandboxed while giving `SiriousAutomationHelper` the unsandboxed Accessibility context it needs. The bundled `SMAppService.agent(plistName:)` layout remains documented as a validation probe, but it is no longer the user-facing helper install path.
 
 Run the installed-app helper validation probe with:
 
@@ -103,7 +103,7 @@ scripts/validate-installed-automation-helper.sh --package-style --keep-installed
 
 The package-style probe installs the validation app through a local macOS Installer package into the current user's Application Support directory before checking the same helper shape and Service Management status. If either probe still reports `notFound`, do not add `--register`; registration can add a Login Items entry and may require local macOS approval. Add `--register` only when status moves to `notRegistered`, `requiresApproval`, or `enabled`.
 
-For the currently working local external-helper lane, use:
+For script-driven external-helper validation, use:
 
 ```sh
 scripts/manage-external-automation-helper.sh install --check-xpc
