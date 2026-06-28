@@ -1,0 +1,35 @@
+{
+  "configurations" : [
+    {
+      "id" : "A9384634-0E67-41E8-96D9-6350135192F9",
+      "name" : "External Helper Real App Scenarios",
+      "options" : {
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "SIRIOUS_RUN_EXTERNAL_HELPER_REAL_APP_SCENARIOS",
+        "value" : "1"
+      }
+    ],
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Sirious.xcodeproj",
+      "identifier" : "C4B92D384B30AFDB8362F542",
+      "name" : "Sirious"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sirious.xcodeproj",
+        "identifier" : "817F011D0ED9512A5DABBD66",
+        "name" : "SiriousTests"
+      }
+    }
+  ],
+  "version" : 1
+}

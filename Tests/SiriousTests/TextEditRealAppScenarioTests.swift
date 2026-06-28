@@ -33,6 +33,23 @@ struct TextEditRealAppScenarioTests {
         assertPassedOrSkipped(report)
     }
 
+    @Test("TextEdit receives external helper text insertion when helper real-app scenarios are enabled")
+    func textEditReceivesExternalHelperTextInsertionWhenEnabled() async throws {
+        let scenario = TargetAppScenario.textEditExternalHelperInsertHelloWorld
+        let report = try await TextEditRealAppScenarioDriver().runTextInsertionScenario(
+            scenario,
+            seedText: "",
+            replacementText: "helper hello world",
+            expectedText: "helper hello world",
+            textExecutor: ExternalHelperOnlyTextCommandExecutor(),
+            expectedCommandMessage: "Sirious inserted text through the automation helper.",
+            requiresTestHostAccessibility: false,
+            verifiesFocusedTextValue: false
+        )
+
+        assertPassedOrSkipped(report)
+    }
+
     private func assertPassedOrSkipped(_ report: RealAppTestRunReport) {
         guard report.outcome != .skipped else {
             return
@@ -56,7 +73,11 @@ private struct TextEditRealAppScenarioDriver {
         seedText: String,
         selectedRange: CFRange? = nil,
         replacementText: String,
-        expectedText: String
+        expectedText: String,
+        textExecutor: any TextCommandExecuting = TextCommandExecutor(),
+        expectedCommandMessage: String? = nil,
+        requiresTestHostAccessibility: Bool = true,
+        verifiesFocusedTextValue: Bool = true
     ) async throws -> RealAppTestRunReport {
         let gate = scenario.gate.evaluate(environment: ProcessInfo.processInfo.environment)
         guard gate.status == .enabled else {
@@ -79,25 +100,81 @@ private struct TextEditRealAppScenarioDriver {
             ),
         ]
 
-        guard try await waitForAccessibilityTrust() else {
+        if requiresTestHostAccessibility {
+            guard try await waitForAccessibilityTrust() else {
+                phases.append(
+                    .failed(
+                        .setup,
+                        stepID: "accessibility-permission",
+                        message: """
+                        TextEdit real-app scenario cannot run because macOS still reports the active Xcode test host as untrusted for Accessibility after Sirious requested the system prompt. Approve the newly prompted item in System Settings > Privacy & Security > Accessibility, then rerun the SiriousRealAppScenarios test plan. Depending on Xcode hosting, the item may appear as Sirious, Xcode, xcodebuild, or a generated test runner. Current host: \(Bundle.main.bundleIdentifier ?? "unknown bundle identifier") at \(Bundle.main.bundleURL.path).
+                        """
+                    )
+                )
+                return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
+            }
+
             phases.append(
-                .failed(
+                .completed(
                     .setup,
                     stepID: "accessibility-permission",
-                    message: """
-                    TextEdit real-app scenario cannot run because macOS still reports the active Xcode test host as untrusted for Accessibility after Sirious requested the system prompt. Approve the newly prompted item in System Settings > Privacy & Security > Accessibility, then rerun the SiriousRealAppScenarios test plan. Depending on Xcode hosting, the item may appear as Sirious, Xcode, xcodebuild, or a generated test runner. Current host: \(Bundle.main.bundleIdentifier ?? "unknown bundle identifier") at \(Bundle.main.bundleURL.path).
-                    """
+                    message: "macOS reports the active Xcode test host is trusted for Accessibility."
                 )
             )
-            return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
-        }
-        phases.append(
-            .completed(
-                .setup,
-                stepID: "accessibility-permission",
-                message: "macOS reports the active Xcode test host is trusted for Accessibility."
+        } else {
+            phases.append(
+                .completed(
+                    .setup,
+                    stepID: "accessibility-permission",
+                    message: "Skipped test-host Accessibility preflight because this scenario validates helper-owned Accessibility insertion."
+                )
             )
-        )
+        }
+
+        if scenario.id == TargetAppScenario.textEditExternalHelperInsertHelloWorld.id {
+            let helperCommandRunner = LaunchAgentAutomationHelperCommandRunner()
+            let helperStatusResult = await helperCommandRunner.run(.status)
+            guard helperStatusResult.succeeded else {
+                phases.append(
+                    .failed(
+                        .setup,
+                        stepID: "verify-external-helper",
+                        message: "TextEdit external-helper scenario cannot run because Sirious could not reach the external automation helper over XPC. \(helperStatusResult.trimmedMessage)"
+                    )
+                )
+                return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
+            }
+
+            phases.append(
+                .completed(
+                    .setup,
+                    stepID: "verify-external-helper",
+                    message: helperStatusResult.trimmedMessage
+                )
+            )
+
+            let helperAccessibilityResult = await helperCommandRunner.run(.requestAccessibility)
+            guard helperAccessibilityResult.succeeded else {
+                phases.append(
+                    .failed(
+                        .setup,
+                        stepID: "helper-accessibility-permission",
+                        message: """
+                        TextEdit external-helper scenario cannot run because macOS still reports SiriousAutomationHelper as untrusted for Accessibility after Sirious requested the system prompt. Approve SiriousAutomationHelper in System Settings > Privacy & Security > Accessibility, then rerun SiriousExternalHelperRealAppScenarios. Helper response: \(helperAccessibilityResult.trimmedMessage)
+                        """
+                    )
+                )
+                return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
+            }
+
+            phases.append(
+                .completed(
+                    .setup,
+                    stepID: "helper-accessibility-permission",
+                    message: helperAccessibilityResult.trimmedMessage
+                )
+            )
+        }
 
         let preexistingTextEditApps = NSRunningApplication.runningApplications(
             withBundleIdentifier: textEditBundleIdentifier
@@ -118,12 +195,17 @@ private struct TextEditRealAppScenarioDriver {
         try seedText.write(to: tempFile, atomically: true, encoding: .utf8)
 
         var launchedApplication: NSRunningApplication?
+        var shouldDeleteTemporaryDirectory = true
         defer {
             _ = pasteboardSnapshot.restore(to: .general)
             if let launchedApplication, !launchedApplication.isTerminated {
-                launchedApplication.forceTerminate()
+                if launchedApplication.forceTerminate() == false {
+                    shouldDeleteTemporaryDirectory = false
+                }
             }
-            try? fileManager.removeItem(at: tempDirectory)
+            if shouldDeleteTemporaryDirectory {
+                try? fileManager.removeItem(at: tempDirectory)
+            }
         }
 
         do {
@@ -154,27 +236,60 @@ private struct TextEditRealAppScenarioDriver {
             return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
         }
 
-        guard let focusedTarget = try await waitForFocusedTextEditTarget() else {
+        let focusedTarget: FocusedTextTarget?
+        if requiresTestHostAccessibility {
+            guard let target = try await waitForFocusedTextEditTarget() else {
+                phases.append(
+                    .failed(
+                        .setup,
+                        stepID: scenario.setup.last?.id ?? "focus-editable-document",
+                        message: "TextEdit opened, but macOS did not expose a focused editable Accessibility text target owned by TextEdit."
+                    )
+                )
+                return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
+            }
+
+            focusedTarget = target
+            phases.append(
+                .completed(
+                    .setup,
+                    stepID: "focus-editable-document",
+                    message: "TextEdit exposed a focused editable Accessibility text target."
+                )
+            )
+        } else if let launchedApplication, try await waitForTextEditActivation(launchedApplication) {
+            focusedTarget = nil
+            phases.append(
+                .completed(
+                    .setup,
+                    stepID: "focus-editable-document",
+                    message: "TextEdit became active for helper-owned focused-element insertion."
+                )
+            )
+        } else {
+            focusedTarget = nil
             phases.append(
                 .failed(
                     .setup,
-                    stepID: scenario.setup.last?.id ?? "focus-editable-document",
-                    message: "TextEdit opened, but macOS did not expose a focused editable Accessibility text target owned by TextEdit."
+                    stepID: "focus-editable-document",
+                    message: "TextEdit opened, but macOS did not report the launched TextEdit process as active for helper-owned insertion."
                 )
             )
             return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
         }
 
-        artifacts.append(
-            RealAppTestRunArtifact(
-                kind: .focusedControlSnapshot,
-                name: "focused-control",
-                path: nil,
-                summary: focusedTarget.snapshot.realAppSummary
+        if let focusedTarget {
+            artifacts.append(
+                RealAppTestRunArtifact(
+                    kind: .focusedControlSnapshot,
+                    name: "focused-control",
+                    path: nil,
+                    summary: focusedTarget.snapshot.realAppSummary
+                )
             )
-        )
+        }
 
-        if let selectedRange, setSelectedTextRange(selectedRange, on: focusedTarget.element) {
+        if let selectedRange, let focusedTarget, setSelectedTextRange(selectedRange, on: focusedTarget.element) {
             phases.append(
                 .completed(
                     .setup,
@@ -193,7 +308,7 @@ private struct TextEditRealAppScenarioDriver {
             return RealAppTestRunReport(scenarioID: scenario.id, gate: gate, phases: phases, artifacts: artifacts)
         }
 
-        let executionResult = await TextCommandExecutor().execute(
+        let executionResult = await textExecutor.execute(
             TextCommandExecutionRequest(
                 match: textRouteMatch(text: replacementText),
                 command: .typeText,
@@ -217,23 +332,43 @@ private struct TextEditRealAppScenarioDriver {
             )
         )
 
-        let updatedText = stringAttribute(kAXValueAttribute as CFString, from: focusedTarget.element) ?? ""
-        if updatedText == expectedText {
-            phases.append(
-                .completed(
-                    .expectation,
-                    stepID: scenario.expectations.first?.id ?? "document-text",
-                    message: "TextEdit document contained expected text '\(expectedText)'."
-                )
-            )
-        } else {
+        if let expectedCommandMessage, executionResult.message != expectedCommandMessage {
             phases.append(
                 .failed(
                     .expectation,
-                    stepID: scenario.expectations.first?.id ?? "document-text",
-                    message: "TextEdit document contained '\(updatedText)' instead of expected text '\(expectedText)'."
+                    stepID: "helper-reports-text-inserted",
+                    message: "Text command execution reported '\(executionResult.message)' instead of expected helper result '\(expectedCommandMessage)'."
                 )
             )
+        } else if expectedCommandMessage != nil {
+            phases.append(
+                .completed(
+                    .expectation,
+                    stepID: "helper-reports-text-inserted",
+                    message: "Text command execution reported the external automation helper as the insertion surface."
+                )
+            )
+        }
+
+        if verifiesFocusedTextValue, let focusedTarget {
+            let updatedText = stringAttribute(kAXValueAttribute as CFString, from: focusedTarget.element) ?? ""
+            if updatedText == expectedText {
+                phases.append(
+                    .completed(
+                        .expectation,
+                        stepID: scenario.expectations.first?.id ?? "document-text",
+                        message: "TextEdit document contained expected text '\(expectedText)'."
+                    )
+                )
+            } else {
+                phases.append(
+                    .failed(
+                        .expectation,
+                        stepID: scenario.expectations.first?.id ?? "document-text",
+                        message: "TextEdit document contained '\(updatedText)' instead of expected text '\(expectedText)'."
+                    )
+                )
+            }
         }
 
         let pasteboardRestoreResult = pasteboardSnapshot.restore(to: .general)
@@ -249,6 +384,7 @@ private struct TextEditRealAppScenarioDriver {
         )
 
         if let launchedApplication, launchedApplication.forceTerminate() {
+            _ = try await waitForTextEditTermination(launchedApplication)
             phases.append(
                 .completed(
                     .cleanup,
@@ -257,23 +393,34 @@ private struct TextEditRealAppScenarioDriver {
                 )
             )
         } else {
+            shouldDeleteTemporaryDirectory = false
             phases.append(
                 .failed(
                     .cleanup,
                     stepID: "close-temporary-document",
-                    message: "Could not terminate the TextEdit process created for the temporary document."
+                    message: "Could not terminate the TextEdit process created for the temporary document. Sirious left the temporary scenario directory in place so TextEdit does not show a missing-file dialog for an in-flight document open."
                 )
             )
         }
 
-        try? fileManager.removeItem(at: tempDirectory)
-        phases.append(
-            .completed(
-                .cleanup,
-                stepID: "delete-temporary-document",
-                message: "Deleted the temporary TextEdit scenario directory."
+        if shouldDeleteTemporaryDirectory {
+            try? fileManager.removeItem(at: tempDirectory)
+            phases.append(
+                .completed(
+                    .cleanup,
+                    stepID: "delete-temporary-document",
+                    message: "Deleted the temporary TextEdit scenario directory."
+                )
             )
-        )
+        } else {
+            phases.append(
+                .failed(
+                    .cleanup,
+                    stepID: "delete-temporary-document",
+                    message: "Skipped deleting the temporary TextEdit scenario directory because TextEdit did not terminate cleanly."
+                )
+            )
+        }
 
         artifacts.append(
             RealAppTestRunArtifact(
@@ -358,6 +505,35 @@ private struct TextEditRealAppScenarioDriver {
         return nil
     }
 
+    private func waitForTextEditActivation(_ application: NSRunningApplication) async throws -> Bool {
+        let deadline = Date().addingTimeInterval(6)
+
+        while Date() < deadline {
+            if application.isActive {
+                return true
+            }
+
+            application.activate()
+            try await Task.sleep(for: .milliseconds(100))
+        }
+
+        return application.isActive
+    }
+
+    private func waitForTextEditTermination(_ application: NSRunningApplication) async throws -> Bool {
+        let deadline = Date().addingTimeInterval(3)
+
+        while Date() < deadline {
+            if application.isTerminated {
+                return true
+            }
+
+            try await Task.sleep(for: .milliseconds(100))
+        }
+
+        return application.isTerminated
+    }
+
     private func textRouteMatch(text: String) -> RouteMatch {
         RouteMatch(
             decision: RouteDecision(
@@ -405,6 +581,33 @@ private struct TextEditScenarioError: LocalizedError {
 
     var errorDescription: String? {
         message
+    }
+}
+
+@MainActor
+private struct ExternalHelperOnlyTextCommandExecutor: TextCommandExecuting {
+    var helperInserter: any AutomationHelperTextInserting = AutomationHelperTextInserter()
+    var timeout: TimeInterval = 6
+
+    func execute(_ request: TextCommandExecutionRequest) async -> CommandExecutionResult {
+        let deadline = Date().addingTimeInterval(timeout)
+        var lastResult = TextInsertionAttemptResult(
+            outcome: .failed,
+            message: "SiriousAutomationHelper was not invoked before the helper-only text insertion timeout."
+        )
+
+        while Date() < deadline {
+            lastResult = await helperInserter.insert(request.target.text)
+            if lastResult.outcome == .completed {
+                return lastResult.commandResult(
+                    successMessage: "Sirious inserted text through the automation helper."
+                )
+            }
+
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+
+        return lastResult.commandResult(successMessage: "Sirious inserted text through the automation helper.")
     }
 }
 

@@ -150,12 +150,18 @@ Initial gate names and test plans:
 - `Sirious.xctestplan` is the default ordinary test plan and does not invoke Apple Speech recognition unless an explicit scratch manifest exists.
 - `SiriousAppleSpeechFixtures.xctestplan` enables `SIRIOUS_RUN_APPLE_SPEECH_FIXTURES=1` and runs the checked-in Apple Speech audio fixture recognition test.
 - `SiriousRealAppScenarios.xctestplan` enables `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` and runs local-only target-app scenarios.
+- `SiriousExternalHelperRealAppScenarios.xctestplan` enables `SIRIOUS_RUN_EXTERNAL_HELPER_REAL_APP_SCENARIOS=1` and runs the external-helper-owned target-app scenarios.
 - `SIRIOUS_RUN_REAL_APP_SCENARIOS=1` remains the lower-level gate that real-app scenario drivers must check before controlling apps.
+- `SIRIOUS_RUN_EXTERNAL_HELPER_REAL_APP_SCENARIOS=1` remains the lower-level gate that helper-owned real-app scenario drivers must check before controlling apps through the external automation helper.
 - `SIRIOUS_RUN_ROUTED_AUDIO_SCENARIOS=1` enables local-only virtual microphone routing scenarios.
 
 Accessibility permission note:
 
 `SiriousRealAppScenarios.xctestplan` runs inside Xcode's hosted test process. When Accessibility trust is missing, the TextEdit scenario calls the same `AXIsProcessTrustedWithOptions` prompt path used by the app settings UI and waits briefly for approval. The item macOS records can vary by host and signing state, so it may appear as Sirious, Xcode, `xcodebuild`, or a generated test runner. The failure diagnostic includes the active bundle identifier and bundle path so the operator can approve the right entry.
+
+External helper Accessibility note:
+
+`SiriousExternalHelperRealAppScenarios.xctestplan` validates helper-owned insertion without requiring the Xcode-hosted test process to be trusted for Accessibility. The test host launches TextEdit and verifies the external helper is reachable, but the actual text insertion is performed by `SiriousAutomationHelper`. The pass/fail assertion uses the helper command result, which only reports success after the helper sets text on the focused Accessibility element. This keeps the prompt-heavy permission surface on the long-lived helper identity instead of repeatedly training TCC on Xcode, `xcodebuild`, or generated test runners.
 
 Sandbox and helper direction:
 

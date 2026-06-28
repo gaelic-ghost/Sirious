@@ -130,4 +130,24 @@ struct RealAppScenarioSupportTests {
         #expect(scenario.expectations.map(\.id) == ["document-replaces-selected-text"])
         #expect(scenario.setup.map(\.id) == ["launch-textedit", "select-target-text"])
     }
+
+    @Test("external-helper TextEdit scenario carries the helper validation contract")
+    func externalHelperTextEditScenarioCarriesHelperValidationContract() {
+        let scenario = TargetAppScenario.textEditExternalHelperInsertHelloWorld
+
+        #expect(scenario.id == "textedit-external-helper-insert-hello-world")
+        #expect(scenario.gate.environmentVariable == "SIRIOUS_RUN_EXTERNAL_HELPER_REAL_APP_SCENARIOS")
+        #expect(scenario.command.spokenPhrase == "type helper hello world")
+        #expect(scenario.command.intendedRoute == "text.insert.external-helper")
+        #expect(scenario.setup.map(\.id) == [
+            "verify-external-helper",
+            "helper-accessibility-permission",
+            "launch-textedit",
+            "focus-editable-document",
+        ])
+        #expect(scenario.expectations.map(\.id) == [
+            "helper-reports-text-inserted",
+        ])
+        #expect(scenario.isSafeForUnattendedLocalRun == false)
+    }
 }

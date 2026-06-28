@@ -181,10 +181,10 @@
 		9AB0A85719BD262239B4AA20 /* Embed Dependencies */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Contents/Library/HelperTools;
-			dstSubfolderSpec = 1;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
-				8315DA30FD65517F9BC0D94C /* SiriousAutomationHelper in Embed Dependencies */,
+				F27AE01F5AC2EDDB7F7EB473 /* SiriousInheritedSandboxHelper in Embed Dependencies */,
 			);
 			name = "Embed Dependencies";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -202,10 +202,10 @@
 		FCC8378FE7C033B2654428D7 /* Embed Dependencies */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 6;
+			dstPath = Contents/Library/HelperTools;
+			dstSubfolderSpec = 1;
 			files = (
-				F27AE01F5AC2EDDB7F7EB473 /* SiriousInheritedSandboxHelper in Embed Dependencies */,
+				8315DA30FD65517F9BC0D94C /* SiriousAutomationHelper in Embed Dependencies */,
 			);
 			name = "Embed Dependencies";
 			runOnlyForDeploymentPostprocessing = 0;

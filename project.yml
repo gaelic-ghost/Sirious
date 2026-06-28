@@ -78,6 +78,7 @@ targets:
           defaultPlan: true
         - path: SiriousAppleSpeechFixtures.xctestplan
         - path: SiriousRealAppScenarios.xctestplan
+        - path: SiriousExternalHelperRealAppScenarios.xctestplan
   SiriousAutomationHelper:
     type: tool
     platform: macOS

@@ -22,7 +22,6 @@ struct ManualTestGate: Equatable {
                 message: "\(purpose) is disabled because \(environmentVariable) is not set to \(expectedValue)."
             )
         }
-
         guard actualValue == expectedValue else {
             return ManualTestGateEvaluation(
                 status: .disabled,
@@ -245,10 +244,57 @@ extension TargetAppScenario {
         )
     }
 
+    static var textEditExternalHelperInsertHelloWorld: TargetAppScenario {
+        TargetAppScenario(
+            id: "textedit-external-helper-insert-hello-world",
+            title: "Insert text into a TextEdit document through the external helper",
+            target: textEditTarget,
+            gate: externalHelperRealAppScenarioGate,
+            command: TargetAppScenarioCommand(
+                spokenPhrase: "type helper hello world",
+                intendedRoute: "text.insert.external-helper"
+            ),
+            setup: [
+                TargetAppScenarioStep(
+                    id: "verify-external-helper",
+                    description: "Confirm the external SiriousAutomationHelper LaunchAgent is reachable over XPC."
+                ),
+                TargetAppScenarioStep(
+                    id: "helper-accessibility-permission",
+                    description: "Confirm macOS has granted Accessibility trust to SiriousAutomationHelper."
+                ),
+                TargetAppScenarioStep(
+                    id: "launch-textedit",
+                    description: "Launch TextEdit with a temporary plain-text document."
+                ),
+                TargetAppScenarioStep(
+                    id: "focus-editable-document",
+                    description: "Wait for a TextEdit-owned focused editable Accessibility text target."
+                ),
+            ],
+            expectations: [
+                TargetAppScenarioExpectation(
+                    id: "helper-reports-text-inserted",
+                    description: "SiriousAutomationHelper reports that it inserted text into the focused Accessibility element."
+                ),
+            ],
+            cleanup: textEditCleanupSteps,
+            requestedArtifacts: textEditArtifactRequests,
+            isSafeForUnattendedLocalRun: false
+        )
+    }
+
     private static var realAppScenarioGate: ManualTestGate {
         ManualTestGate(
             environmentVariable: "SIRIOUS_RUN_REAL_APP_SCENARIOS",
             purpose: "Real app scenarios"
+        )
+    }
+
+    private static var externalHelperRealAppScenarioGate: ManualTestGate {
+        ManualTestGate(
+            environmentVariable: "SIRIOUS_RUN_EXTERNAL_HELPER_REAL_APP_SCENARIOS",
+            purpose: "External helper real app scenarios"
         )
     }
 

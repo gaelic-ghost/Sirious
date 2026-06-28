@@ -40,6 +40,9 @@
          <TestPlanReference
             reference = "container:SiriousRealAppScenarios.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:SiriousExternalHelperRealAppScenarios.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <MacroExpansion>
          <BuildableReference
