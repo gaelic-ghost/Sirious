@@ -18,7 +18,7 @@
 
 ### Status
 
-TBD
+Sirious is now shelved indefinitely, along with other simultaneous projects made sustainable by cheap, automated assistance which I can no longer afford. Should the economy and job market ever improve, I'll pick this back up.
 
 ### What This Project Is
 
